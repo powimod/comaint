@@ -4,7 +4,7 @@
                 "port": 9001
         },
         "token" : {
-                "secret" : "<YOUR_SECRET>""
+                "secret" : "<YOUR_SECRET>"
         },
         "database" : {
                 "host": "localhost",

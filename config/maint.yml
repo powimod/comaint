@@ -26,4 +26,7 @@ files:
   - scope:  "project"
     input:  "config/backend/config.json.sample"
     output: "output/{{project.attributes.backend_project_dir}}/config.json.sample"
+  - scope:  "project"
+    input:  "config/backend/server.js"
+    output: "output/{{project.attributes.backend_project_dir}}/server.js"
 
