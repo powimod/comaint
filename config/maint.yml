@@ -1,0 +1,26 @@
+name: "comaint"
+
+attributes:
+  - name: "backend_project_dir"
+    value: "comaint-backend"
+  - name: "backend_project_version"
+    value: "0.0.1"
+  - name: "backend_project_description"
+    value: "API server of Commaint project"
+
+  - name: "frontend-project"
+    value: "comaint-frontend"
+
+objects:
+  - name: "user"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "email"
+        type: "string"
+
+files:
+  - scope:  "project"
+    input:  "config/backend/package.json"
+    output: "output/{{project.attributes.backend_project_dir}}/package.json"
+
