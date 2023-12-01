@@ -6,9 +6,17 @@ var View = null;
 class Controller {
 	static app;
 
-	static async initialize() {
+	{% for object in project.objects %}
+	_{{object.attributes.pascal_name}}Routes = null;
+	{% endfor %}
 
+	static async initialize() {
 		console.log("Init controller");
+
+		{% for object in project.objects %}
+		this._{{object.attributes.pascal_name}}Routes = require('./{{object.attributes.kebab_name}}-routes.js')(this._db);
+		{% endfor %}
+
 		const express = require('express');
 		this.app = express();
 		this.app.use(express.json())
@@ -37,6 +45,14 @@ class Controller {
 			}
 		);
 	}
+
+
+	{% for object in project.objects %}
+	static get{{object.attributes.pascal_name}}Routes() {
+		return this._{{object.attributes.pascal_name}}Routes;
+	}
+	{% endfor %}
+
 }
 
 module.exports = (_serverParam, _Model, _View) => {

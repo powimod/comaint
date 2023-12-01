@@ -68,3 +68,8 @@ files:
     input:  "config/backend/controller.js"
     output: "output/{{project.attributes.backend_project_dir}}/src/routes/controller.js"
 
+  - scope:  "object"
+    input:  "config/backend/object-routes.js"
+    output: "output/{{project.attributes.backend_project_dir}}/src/routes/{{object.attributes.kebab_name}}-routes.js"
+
+
