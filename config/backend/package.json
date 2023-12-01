@@ -2,11 +2,11 @@
   "name": "{{project.attributes.backend_project_dir}}",
   "version": "{{project.attributes.backend_project_version}}",
   "description": "{{project.attributes.backend_project_description}}",
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
     "test": "mocha --timeout 10000 --exit",
-    "start": "node server.js",
-    "dev": "nodemon node server.js"
+    "start": "node src/server.js",
+    "dev": "nodemon node src/server.js"
   },
   "author": "",
   "license": "ISC",
