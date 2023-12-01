@@ -20,7 +20,11 @@ objects:
         type: "string"
 
 files:
+
   - scope:  "project"
     input:  "config/backend/package.json"
     output: "output/{{project.attributes.backend_project_dir}}/package.json"
+  - scope:  "project"
+    input:  "config/backend/config.json.sample"
+    output: "output/{{project.attributes.backend_project_dir}}/config.json.sample"
 
