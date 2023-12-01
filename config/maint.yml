@@ -7,6 +7,8 @@ attributes:
     value: "0.0.1"
   - name: "backend_project_description"
     value: "API server of Commaint project"
+  - name: "database_schema_version"
+    value: "1"
 
   - name: "frontend-project"
     value: "comaint-frontend"
@@ -18,11 +20,16 @@ objects:
         value: "User"
       - name: "kebab_name"
         value: "user"
+      - name: "table_name"
+        value: "users"
     properties:
       - name: "id"
         type: "id"
       - name: "email"
         type: "string"
+      - name: "phone"
+        type: "string"
+        mandatory: false
 
   - name: "product"
     attributes:
@@ -30,6 +37,8 @@ objects:
         value: "Product"
       - name: "kebab_name"
         value: "product"
+      - name: "table_name"
+        value: "products"
 
     properties:
       - name: "id"
@@ -39,6 +48,10 @@ objects:
 
 
 files:
+  - scope:  "project"
+    input:  "config/init-db.sql"
+    output: "output/{{project.attributes.backend_project_dir}}/init-db.sql"
+
   - scope:  "project"
     input:  "config/backend/package.json"
     output: "output/{{project.attributes.backend_project_dir}}/package.json"
