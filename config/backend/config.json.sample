@@ -1,8 +1,16 @@
-module.exports = {
-    db: {
-        host: "YOUR HOST",
-        database: "YOUR DB",
-        user: "YOUR USER",
-        password: "YOUR PASSWORD"
-    }
+{
+        "server" : { 
+                "host": "127.0.0.1" ,
+                "port": 9001
+        },
+        "token" : {
+                "secret" : "<YOUR_SECRET>""
+        },
+        "database" : {
+                "host": "localhost",
+                "port" : 3306,
+                "database" : "db_{{project.name}}",
+                "user": "<USER_NAME>",
+                "password" : "<USER_PASSWORD>"
+        }
 }
