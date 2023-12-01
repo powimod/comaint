@@ -13,20 +13,48 @@ attributes:
 
 objects:
   - name: "user"
+    attributes:
+      - name: "pascal_name"
+        value: "User"
+      - name: "kebab_name"
+        value: "user"
     properties:
       - name: "id"
         type: "id"
       - name: "email"
         type: "string"
 
+  - name: "product"
+    attributes:
+      - name: "pascal_name"
+        value: "Product"
+      - name: "kebab_name"
+        value: "product"
+
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "name"
+        type: "string"
+
+
 files:
   - scope:  "project"
     input:  "config/backend/package.json"
     output: "output/{{project.attributes.backend_project_dir}}/package.json"
+
   - scope:  "project"
     input:  "config/backend/config.json.sample"
     output: "output/{{project.attributes.backend_project_dir}}/config.json.sample"
+
   - scope:  "project"
     input:  "config/backend/server.js"
     output: "output/{{project.attributes.backend_project_dir}}/src/server.js"
 
+  - scope:  "project"
+    input:  "config/backend/Model.js"
+    output: "output/{{project.attributes.backend_project_dir}}/src/models/Model.js"
+
+  - scope:  "object"
+    input:  "config/backend/object-model.js"
+    output: "output/{{project.attributes.backend_project_dir}}/src/models/{{object.attributes.kebab_name}}-model.js"

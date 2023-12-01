@@ -39,7 +39,7 @@ function loadConfig()
 	return config;
 }
 
-function main() {
+async function main() {
 	let config = null;
 	try {
 		config = loadConfig();
@@ -48,6 +48,21 @@ function main() {
 		console.error(`Error : ${error.message}`);
 		process.exit(1);
 	}
+
+	console.log('Initialize models...');
+	const ModelInit = require('./models/Model.js');
+	let Model  = null;
+	try {
+		Model  = await ModelInit(config.db); 
+		await Model.initialize(config); // TODO à fusionner avec fonction précèdente
+	}
+	catch (error) {
+		const errorMessage = (error.message) ? error.message : error;
+		console.error(`Can not open database : ${errorMessage}`);
+		return false;
+	}
+
+	console.log('Modèle initialisé');
 
 
 }
