@@ -14,7 +14,6 @@ class Model {
 		if (this._db != null)
 			return;
 		let promise_mysql = require('promise-mysql');
-console.dir(param);
 		this._db = await promise_mysql.createConnection(param);
 		if (this._db.code) {
 			console.error("Problème de connexion en base");

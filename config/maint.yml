@@ -51,6 +51,7 @@ files:
     input:  "config/backend/server.js"
     output: "output/{{project.attributes.backend_project_dir}}/src/server.js"
 
+    # TODO mettre Model.js en minuscule
   - scope:  "project"
     input:  "config/backend/Model.js"
     output: "output/{{project.attributes.backend_project_dir}}/src/models/Model.js"
@@ -58,3 +59,12 @@ files:
   - scope:  "object"
     input:  "config/backend/object-model.js"
     output: "output/{{project.attributes.backend_project_dir}}/src/models/{{object.attributes.kebab_name}}-model.js"
+
+  - scope:  "project"
+    input:  "config/backend/view.js"
+    output: "output/{{project.attributes.backend_project_dir}}/src/views/view.js"
+
+  - scope:  "project"
+    input:  "config/backend/controller.js"
+    output: "output/{{project.attributes.backend_project_dir}}/src/routes/controller.js"
+

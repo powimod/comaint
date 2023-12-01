@@ -49,7 +49,7 @@ async function main() {
 		process.exit(1);
 	}
 
-	console.log('Initialize models...');
+	console.log('Initializing models...');
 	const ModelInit = require('./models/Model.js');
 	let Model  = null;
 	try {
@@ -62,8 +62,16 @@ async function main() {
 		return false;
 	}
 
-	console.log('Modèle initialisé');
+	console.log('Initializing view...');
+	const ViewInit = require('./views/view.js');
+	let View = ViewInit(); 
 
+	console.log('Initializing controller...');
+	const ControllerInitFunction = require('./routes/controller.js');
+	let Controller = await ControllerInitFunction(config.server, Model, View);
+	await Controller.initialize();
+
+	await Controller.run();
 
 }
 
