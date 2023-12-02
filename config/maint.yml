@@ -101,6 +101,32 @@ objects:
           - property : "name"
 
 
+  - name: "UnitSection"
+    attributes:
+      - name: "pascal_name"
+        value: "UnitSection"
+      - name: "kebab_name"
+        value: "unit-section"
+      - name: "table_name"
+        value: "unit_sections"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "name"
+        type: "string"
+      - name: "description"
+        type: "string"
+    links:
+      - name: "unit"
+        target: "Unit"
+    indexes:
+      - name: "unit_name"
+        unique: true
+        keys:
+          - link : "unit"
+          - property : "name"
+ 
+
   - name: "EquipmentFamily"
     attributes:
       - name: "pascal_name"
@@ -156,6 +182,41 @@ objects:
           - link : "family"
           - property: "name"
  
+
+  - name: "Equipment"
+    attributes:
+      - name: "pascal_name"
+        value: "Equipment"
+      - name: "kebab_name"
+        value: "equipment"
+      - name: "table_name"
+        value: "equipment"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "name"
+        type: "string"
+      - name: "description"
+        type: "string"
+    links:
+      - name: "type"
+        target: "EquipmentType"
+      - name: "section"
+        target: "UnitSection"
+    indexes:
+      - name: "type_name"
+        unique: true
+        keys:
+          - link : "type"
+          - property: "name"
+      - name: "section_name"
+        unique: false
+        keys:
+          - link : "section"
+          - property: "name"
+
+
+
 
 files:
   - scope:  "project"
