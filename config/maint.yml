@@ -51,6 +51,56 @@ objects:
       - name: "name"
         type: "string"
 
+
+
+  - name: "Company"
+    attributes:
+      - name: "pascal_name"
+        value: "Company"
+      - name: "kebab_name"
+        value: "company"
+      - name: "table_name"
+        value: "companies"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "name"
+        type: "string"
+      - name: "address"
+        type: "text"
+    indexes:
+      - name: "name"
+        unique: true
+        keys:
+          - property : "name"
+
+
+  - name: "Unit"
+    attributes:
+      - name: "pascal_name"
+        value: "Unit"
+      - name: "kebab_name"
+        value: "unit"
+      - name: "table_name"
+        value: "units"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "name"
+        type: "string"
+      - name: "description"
+        type: "string"
+    links:
+      - name: "company"
+        target: "Company"
+    indexes:
+      - name: "unit_name"
+        unique: true
+        keys:
+          - link: "company"
+          - property : "name"
+
+
   - name: "EquipmentFamily"
     attributes:
       - name: "pascal_name"

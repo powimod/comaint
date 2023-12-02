@@ -7,9 +7,23 @@ USE {{project.attributes.database_name}}
 -- CREATE USER 'comaint'@'localhost' IDENTIFIED BY 'g4m0-KauM1nt';
 -- GRANT ALL PRIVILEGES ON db_comaint.* TO 'comaint'@'localhost';
 
+--------------------------------------------------------------------------------
+--     Drop                                                                   --
+--------------------------------------------------------------------------------
 
 {% for object in project.objects -%}
-	DROP TABLE IF EXISTS {{object.attributes.table_name}};
+	CREATE TABLE IF NOT EXISTS {{object.attributes.table_name}} (fake INTEGER);
+{% endfor -%}
+
+{% for object in project.objects -%}
+{%- for link in object.links %}
+{%- assign target_table = link.target.attributes.table_name -%}
+ALTER TABLE {{object.attributes.table_name}} DROP FOREIGN KEY IF EXISTS fk_{{link.name}};
+{% endfor -%}
+{%- endfor %}
+
+{% for object in project.objects -%}
+	DROP TABLE {{object.attributes.table_name}};
 {% endfor -%}
 
 --------------------------------------------------------------------------------
@@ -20,7 +34,7 @@ USE {{project.attributes.database_name}}
 --
 -- Table {{object.attributes.table_name}}
 --
-CREATE TABLE IF NOT EXISTS {{object.attributes.table_name}}(
+CREATE TABLE {{object.attributes.table_name}}(
 	{% for property in object.properties %}
 		{%- if property.type.name == 'id' -%}
 			{{property.name}} INTEGER NOT NULL auto_increment, 
