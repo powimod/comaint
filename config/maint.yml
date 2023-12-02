@@ -7,6 +7,8 @@ attributes:
     value: "0.0.1"
   - name: "backend_project_description"
     value: "API server of Commaint project"
+  - name : "database_name"
+    value: "db_comaint"
   - name: "database_schema_version"
     value: "1"
 
@@ -27,8 +29,12 @@ objects:
         type: "id"
       - name: "email"
         type: "string"
+        maximum: 320
       - name: "phone"
         type: "string"
+        mandatory: false
+      - name: "address"
+        type: "text"
         mandatory: false
 
   - name: "product"
@@ -39,13 +45,67 @@ objects:
         value: "product"
       - name: "table_name"
         value: "products"
-
     properties:
       - name: "id"
         type: "id"
       - name: "name"
         type: "string"
 
+  - name: "EquipmentFamily"
+    attributes:
+      - name: "pascal_name"
+        value: "EquipmentFamily"
+      - name: "kebab_name"
+        value: "equipment-family"
+      - name: "table_name"
+        value: "equipment_families"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "name"
+        type: "string"
+        minimum: 2
+        maximum: 30
+      - name: "description"
+        type: "string"
+        mandatory: false
+      - name: "equipmentTypeCount"
+        type: "integer"
+      - name: "equipmentCount"
+        type: "integer"
+    indexes:
+      - name: "name"
+        keys:
+          - property: "name"
+
+
+  - name: "EquipmentType"
+    attributes:
+      - name: "pascal_name"
+        value: "EquipmentType"
+      - name: "kebab_name"
+        value: "equipment-type"
+      - name: "table_name"
+        value: "equipment_types"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "name"
+        type: "string"
+      - name: "description"
+        type: "string"
+        mandatory: false
+    links:
+      - name : "family"
+        target: "EquipmentFamily"
+        mandatory: true
+    indexes:
+      - name: "family_name"
+        unique: true
+        keys:
+          - link : "family"
+          - property: "name"
+ 
 
 files:
   - scope:  "project"
