@@ -62,7 +62,6 @@ objects:
         type: "string"
 
 
-
   - name: "Company"
     attributes:
       - name: "pascal_name"
@@ -117,7 +116,6 @@ objects:
         keys:
           - link: "company"
           - property : "name"
-
 
   - name: "UnitSection"
     attributes:
@@ -175,9 +173,13 @@ objects:
         type: "integer"
       - name: "equipmentCount"
         type: "integer"
+    links:
+      - name: "company"
+        target: "Company"
     indexes:
-      - name: "name"
+      - name: "compagny_name"
         keys:
+          - link: "company"
           - property: "name"
 
 
@@ -255,7 +257,7 @@ objects:
 files:
   - scope:  "project"
     input:  "config/init-db.sql"
-    output: "output/{{project.attributes.backend_project_dir}}/init-db.sql"
+    output: "output/init-db.sql"
 
   - scope:  "project"
     input:  "config/backend/package.json"
@@ -269,7 +271,6 @@ files:
     input:  "config/backend/server.js"
     output: "output/{{project.attributes.backend_project_dir}}/src/server.js"
 
-    # TODO mettre Model.js en minuscule
   - scope:  "project"
     input:  "config/backend/Model.js"
     output: "output/{{project.attributes.backend_project_dir}}/src/models/Model.js"

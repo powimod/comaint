@@ -115,8 +115,8 @@ CREATE {{unicity}}INDEX idx_{{index.name}} ON {{object.attributes.table_name}}(
 
 {% for object in project.objects -%}
 {%- for link in object.links %}
-{%- assign target_table = link.target.attributes.table_name -%}
-ALTER TABLE {{object.attributes.table_name}} ADD CONSTRAINT fk_{{link.name}}
+{%- assign target_table = link.target.attributes.table_name %}
+ALTER TABLE {{object.attributes.table_name}} ADD CONSTRAINT fk_{{object.attributes.table_name}}_{{link.name}}
 	FOREIGN KEY (id{{link.name | capitalize}})
 	REFERENCES {{target_table}}(id);
 
