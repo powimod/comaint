@@ -41,7 +41,9 @@ objects:
         mandatory: false
       - name: "address"
         type: "text"
-        mandatory: false
+        mandatory: true
+        default: ""
+
 
   - name: "product"
     attributes:
@@ -81,6 +83,22 @@ objects:
         type: "string"
       - name: "address"
         type: "text"
+        default: ""
+      - name: "equipmentUnitCount"
+        type: "integer"
+        default: 0
+      - name: "equipmentUnitSectionCount"
+        type: "integer"
+        default: 0
+      - name: "equipmentFamilyCount"
+        type: "integer"
+        default: 0
+      - name: "equipmentTypeCount"
+        type: "integer"
+        default: 0
+      - name: "equipmentCount"
+        type: "integer"
+        default: 0
     indexes:
       - name: "name"
         unique: true
@@ -107,6 +125,12 @@ objects:
         type: "string"
       - name: "description"
         type: "string"
+      - name: "equipmentUnitSectionCount"
+        type: "integer"
+        default: 0
+      - name: "equipmentCount"
+        type: "integer"
+        default: 0
     links:
       - name: "company"
         target: "Company"
@@ -136,6 +160,9 @@ objects:
         type: "string"
       - name: "description"
         type: "string"
+      - name: "equipmentCount"
+        type: "integer"
+        default: 0
     links:
       - name: "unit"
         target: "Unit"
@@ -171,8 +198,10 @@ objects:
         mandatory: false
       - name: "equipmentTypeCount"
         type: "integer"
+        default: 0
       - name: "equipmentCount"
         type: "integer"
+        default: 0
     links:
       - name: "company"
         target: "Company"
@@ -203,6 +232,9 @@ objects:
       - name: "description"
         type: "string"
         mandatory: false
+      - name: "equipmentCount"
+        type: "integer"
+        default: 0
     links:
       - name : "family"
         target: "EquipmentFamily"
