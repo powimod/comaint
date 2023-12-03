@@ -44,7 +44,7 @@ async function main() {
 	config = loadConfig();
 
 	console.log('Initializing model...');
-	const ModelSingleton = require('./models/Model.js');
+	const ModelSingleton = require('./models/model.js');
 	let model  = ModelSingleton.getInstance();
 	await model.initialize(config.db);
 

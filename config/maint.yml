@@ -272,8 +272,8 @@ files:
     output: "output/{{project.attributes.backend_project_dir}}/src/server.js"
 
   - scope:  "project"
-    input:  "config/backend/Model.js"
-    output: "output/{{project.attributes.backend_project_dir}}/src/models/Model.js"
+    input:  "config/backend/model.js"
+    output: "output/{{project.attributes.backend_project_dir}}/src/models/model.js"
 
   - scope:  "object"
     input:  "config/backend/object-model.js"
