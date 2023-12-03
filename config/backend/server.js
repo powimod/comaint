@@ -41,38 +41,30 @@ function loadConfig()
 
 async function main() {
 	let config = null;
-	try {
-		config = loadConfig();
-	}
-	catch(error){
-		console.error(`Error : ${error.message}`);
-		process.exit(1);
-	}
+	config = loadConfig();
 
-	console.log('Initializing models...');
-	const ModelInit = require('./models/Model.js');
-	let Model  = null;
-	try {
-		Model  = await ModelInit(config.db); 
-		await Model.initialize(config); // TODO à fusionner avec fonction précèdente
-	}
-	catch (error) {
-		const errorMessage = (error.message) ? error.message : error;
-		console.error(`Can not open database : ${errorMessage}`);
-		return false;
-	}
+	console.log('Initializing model...');
+	const ModelSingleton = require('./models/Model.js');
+	let model  = ModelSingleton.getInstance();
+	await model.initialize(config.db);
 
 	console.log('Initializing view...');
-	const ViewInit = require('./views/view.js');
-	let View = ViewInit(); 
+	const ViewSingleton = require('./views/view.js');
+	let view = ViewSingleton.getInstance();
 
 	console.log('Initializing controller...');
-	const ControllerInitFunction = require('./routes/controller.js');
-	let Controller = await ControllerInitFunction(config.server, Model, View);
-	await Controller.initialize();
+	const ControllerSingleton = require('./routes/controller.js');
+	let controller = ControllerSingleton.getInstance();
+	controller.initialize(config.server, model, view);
 
-	await Controller.run();
-
+	await controller.run();
 }
 
 main()
+/* TODO reactivate this
+.catch(error) {
+	const message = (error.message) ? error.message : error;
+	console.error(`Error : ${message}`);
+	process.exit(1);
+}
+*/

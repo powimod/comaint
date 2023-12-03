@@ -11,6 +11,8 @@ attributes:
     value: "db_comaint"
   - name: "database_schema_version"
     value: "1"
+  - name: "api_version"
+    value: "v1"
 
   - name: "frontend-project"
     value: "comaint-frontend"
@@ -20,7 +22,11 @@ objects:
     attributes:
       - name: "pascal_name"
         value: "User"
+      - name: "camel_name"
+        value: "user"
       - name: "kebab_name"
+        value: "user"
+      - name: "snake_name"
         value: "user"
       - name: "table_name"
         value: "users"
@@ -41,7 +47,11 @@ objects:
     attributes:
       - name: "pascal_name"
         value: "Product"
+      - name: "camel_name"
+        value: "product"
       - name: "kebab_name"
+        value: "product"
+      - name: "snake_name"
         value: "product"
       - name: "table_name"
         value: "products"
@@ -57,7 +67,11 @@ objects:
     attributes:
       - name: "pascal_name"
         value: "Company"
+      - name: "camel_name"
+        value: "company"
       - name: "kebab_name"
+        value: "company"
+      - name: "snake_name"
         value: "company"
       - name: "table_name"
         value: "companies"
@@ -79,7 +93,11 @@ objects:
     attributes:
       - name: "pascal_name"
         value: "Unit"
+      - name: "camel_name"
+        value: "unit"
       - name: "kebab_name"
+        value: "unit"
+      - name: "snake_name"
         value: "unit"
       - name: "table_name"
         value: "units"
@@ -105,8 +123,12 @@ objects:
     attributes:
       - name: "pascal_name"
         value: "UnitSection"
+      - name: "camel_name"
+        value: "unitSection"
       - name: "kebab_name"
         value: "unit-section"
+      - name: "snake_name"
+        value: "unit_section"
       - name: "table_name"
         value: "unit_sections"
     properties:
@@ -131,8 +153,12 @@ objects:
     attributes:
       - name: "pascal_name"
         value: "EquipmentFamily"
+      - name: "camel_name"
+        value: "equipmentFamily"
       - name: "kebab_name"
         value: "equipment-family"
+      - name: "snake_name"
+        value: "equipment_family"
       - name: "table_name"
         value: "equipment_families"
     properties:
@@ -159,8 +185,12 @@ objects:
     attributes:
       - name: "pascal_name"
         value: "EquipmentType"
+      - name: "camell_name"
+        value: "equipmentType"
       - name: "kebab_name"
         value: "equipment-type"
+      - name: "snake_name"
+        value: "equipment_type"
       - name: "table_name"
         value: "equipment_types"
     properties:
@@ -187,7 +217,11 @@ objects:
     attributes:
       - name: "pascal_name"
         value: "Equipment"
+      - name: "camel_name"
+        value: "equipment"
       - name: "kebab_name"
+        value: "equipment"
+      - name: "snake_name"
         value: "equipment"
       - name: "table_name"
         value: "equipment"
