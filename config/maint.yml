@@ -87,18 +87,28 @@ objects:
       - name: "equipmentUnitCount"
         type: "integer"
         default: 0
+        attributes:
+          auto_counter: true
       - name: "equipmentUnitSectionCount"
         type: "integer"
         default: 0
+        attributes:
+          auto_counter: true
       - name: "equipmentFamilyCount"
         type: "integer"
         default: 0
+        attributes:
+          auto_counter: true
       - name: "equipmentTypeCount"
         type: "integer"
         default: 0
+        attributes:
+          auto_counter: true
       - name: "equipmentCount"
         type: "integer"
         default: 0
+        attributes:
+          auto_counter: true
     indexes:
       - name: "name"
         unique: true
@@ -128,9 +138,13 @@ objects:
       - name: "equipmentUnitSectionCount"
         type: "integer"
         default: 0
+        attributes:
+          auto_counter: true
       - name: "equipmentCount"
         type: "integer"
         default: 0
+        attributes:
+          auto_counter: true
     links:
       - name: "company"
         target: "Company"
@@ -163,6 +177,8 @@ objects:
       - name: "equipmentCount"
         type: "integer"
         default: 0
+        attributes:
+          auto_counter: true
     links:
       - name: "unit"
         target: "Unit"
@@ -199,9 +215,13 @@ objects:
       - name: "equipmentTypeCount"
         type: "integer"
         default: 0
+        attributes:
+          auto_counter: true
       - name: "equipmentCount"
         type: "integer"
         default: 0
+        attributes:
+          auto_counter: true
     links:
       - name: "company"
         target: "Company"
@@ -235,6 +255,8 @@ objects:
       - name: "equipmentCount"
         type: "integer"
         default: 0
+        attributes:
+          auto_counter: true
     links:
       - name : "family"
         target: "EquipmentFamily"

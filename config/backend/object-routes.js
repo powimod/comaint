@@ -17,7 +17,7 @@ module.exports = (app, {{object.attributes.pascal_name}}Model, View) => {
 			const {{object.attributes.camel_name}} = request.body.{{object.attributes.camel_name}};
 			if ({{object.attributes.camel_name}} === undefined)
 				throw new Error(`Can't find <{{object.attributes.camel_name}}> object in request body`);
-			let new{{object.attributes.pascal_name}} = await {{object.attributes.pascal_name}}Model.createCompany({{object.attributes.camel_name}});
+			let new{{object.attributes.pascal_name}} = await {{object.attributes.pascal_name}}Model.create{{object.attributes.pascal_name}}({{object.attributes.camel_name}});
 			if (new{{object.attributes.pascal_name}}.id === undefined)
 				throw new Error(`Can't find ID of newly created {{object.attributes.pascal_name}}`);
 			response.json({ ok: true, {{object.attributes.camel_name}} : new{{object.attributes.pascal_name}} });

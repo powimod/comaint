@@ -58,14 +58,39 @@ class {{object.attributes.pascal_name}}Model {
 
 	static async create{{object.attributes.pascal_name}}({{object.attributes.camel_name}}) {
 		this.control{{object.attributes.pascal_name}}Object({{object.attributes.camel_name}}, false);
-		const sqlRequest = `
-			INSERT INTO companies(name, address) 
-			       VALUES (?, ?);
-		`;
-		const sqlParams = [
-			{{object.attributes.camel_name}}.name,
-			{{object.attributes.camel_name}}.address
+		const fieldNames = [
+			{%- liquid 
+			    assign sep = ""
+			    for property in object.properties
+			       if property.type.name != 'id' 
+			           if property.attributes.auto_counter != true
+				     echo sep
+			             echo property.name | prepend: "'" | append: "'"
+			             assign sep = ", "
+			           endif
+			       endif
+			    endfor 
+			    for link in object.links
+			      echo sep
+		              echo link.name | capitalize | prepend: "id" | prepend: "'" | append: "'"
+		              assign sep = ", "
+			    endfor 
+			-%}
 		];
+		const markArray = Array(fieldNames.length).fill('?');
+		const sqlRequest = `
+			INSERT INTO {{object.attributes.table_name}}(${fieldNames.join(', ')}) 
+			       VALUES (${markArray.join(', ')});
+		`;
+		const sqlParams = [];
+		for (let fieldName of fieldNames) {
+			const value = {{object.attributes.camel_name}}[fieldName];
+			if (value === undefined)
+				throw new Error(`Property <${fieldName}> not defined in {{object.name}}`);
+			sqlParams.push(value);
+		}
+		//console.log("SQL request", sqlRequest);
+		//console.log("SQL params ", sqlParams);
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
