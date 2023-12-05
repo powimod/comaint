@@ -216,7 +216,7 @@ objects:
     attributes:
       - name: "pascal_name"
         value: "EquipmentType"
-      - name: "camell_name"
+      - name: "camel_name"
         value: "equipmentType"
       - name: "kebab_name"
         value: "equipment-type"

@@ -37,25 +37,25 @@ class Controller {
 		});
 
 		this.#app.get('/version', (request, response) => {
-			// TODO centralize backend version
 			this.#view.sendJsonResult(response, '{{project.name backend}} V{{project.attributes.backend_project_version}}');
 		});
 
+		this.#app.get('/api/{{project.attributes.api_version}}', (request, response) => {
+			this.#view.sendJsonResult(response, '{{project.name}} backend API {{project.attributes.api_version}} ready');
+		});
+
 		{% for object in project.objects %}
-		// this._{{object.attributes.pascal_name}}Routes = require('./{{object.attributes.kebab_name}}-routes.js')(this.#app, this.get{{object.attributes.pascal_name}}Routes(), this.#view);
 		this._{{object.attributes.pascal_name}}Routes = require('./{{object.attributes.kebab_name}}-routes.js')(this.#app, this.#model.get{{object.attributes.pascal_name}}Models(), this.#view);
 		{%- endfor %}
 	}
 
 
-	// TODO not used ?	
 	{% for object in project.objects %}
 	get{{object.attributes.pascal_name}}Routes() {
 		console.log(this._{{object.attributes.pascal_name}}Routes);
 		return this._{{object.attributes.pascal_name}}Routes;
 	}
 	{% endfor %}
-
 
 	async run () {
 		if (this.#app === null)
