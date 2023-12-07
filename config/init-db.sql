@@ -19,14 +19,13 @@ USE {{project.attributes.database_name}}
 CREATE TABLE {{object.attributes.table_name}}(
 	{% for property in object.properties %}
 		{%- if property.type.name == 'id' -%}
-			{{property.name}} INTEGER NOT NULL auto_increment, 
+			{{property.name | snakeCase }} INTEGER NOT NULL auto_increment, 
 		{%- endif -%}
 	{%- endfor -%}
 
 	{% for link in object.links %}
-	id{{link.name | capitalize}} INTEGER NOT NULL, 
+	id_{{link.name | snakeCase }} INTEGER NOT NULL, 
 	{%- endfor -%}
-
 
 	{% for property in object.properties %}
 		{%- liquid
@@ -56,13 +55,13 @@ CREATE TABLE {{object.attributes.table_name}}(
 		         assign default_value = ""
 	           endif -%}
 		{%- if property.type.name != 'id' -%}
-			{{property.name}} {{data_type}}{{mandatory}}{{default_value}}, 
+			{{property.name | snakeCase }} {{data_type}}{{mandatory}}{{default_value}}, 
 		{%- endif %}
 	{% endfor -%}
 
 	{% for property in object.properties %}
 		{%- if property.type.name == 'id' -%}
-			PRIMARY KEY ({{property.name}})
+			PRIMARY KEY ({{property.name | snakeCase }})
 		{%- endif -%}
 	{%- endfor %}
 );
@@ -74,14 +73,14 @@ CREATE TABLE {{object.attributes.table_name}}(
    else
 	assign unicity = ""
    endif -%}
-CREATE {{unicity}}INDEX idx_{{index.name}} ON {{object.attributes.table_name}}(
+CREATE {{unicity}}INDEX idx_{{index.name | snakeCase }} ON {{object.attributes.table_name}}(
 	{% for key in index.keys -%}
 	{%- liquid
 	  case key.type
 	     when "property"
-	        assign key_target = key.reference.name
+	        assign key_target = key.reference.name | snakeCase
 	     when "link"
-	        assign key_target = key.reference.name | capitalize | prepend: "id" 
+	        assign key_target = key.reference.name | snakeCase | prepend: "id_" 
 	  else
 	        assign key_target = "???"
 	  endcase
@@ -103,8 +102,8 @@ CREATE {{unicity}}INDEX idx_{{index.name}} ON {{object.attributes.table_name}}(
 {% for object in project.objects -%}
 {%- for link in object.links %}
 {%- assign target_table = link.target.attributes.table_name %}
-ALTER TABLE {{object.attributes.table_name}} ADD CONSTRAINT fk_{{object.attributes.table_name}}_{{link.name}}
-	FOREIGN KEY (id{{link.name | capitalize}})
+ALTER TABLE {{object.attributes.table_name}} ADD CONSTRAINT fk_{{object.attributes.table_name}}_{{link.name | snakeCase}}
+	FOREIGN KEY (id_{{link.name | snakeCase }})
 	REFERENCES {{target_table}}(id);
 
 {%- endfor -%}
