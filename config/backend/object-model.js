@@ -1,18 +1,18 @@
 'use strict'
 var db = null;
 
-class {{object.attributes.pascal_name}}Model {
+class {{object.name | pascalCase }}Model {
 
-	static control{{object.attributes.pascal_name}}Object({{object.attributes.camel_name}}, controlId = true){
-		if (typeof({{object.attributes.camel_name}}) !== 'object')
-			throw new Error('Invalid <{{object.attributes.camel_name}}> argument');
+	static control{{object.name | pascalCase }}Object({{object.name | camelCase }}, controlId = true){
+		if (typeof({{object.name | camelCase }}) !== 'object')
+			throw new Error('Invalid <{{object.name | camelCase }}> argument');
 		if (controlId) {
-			if ({{object.attributes.camel_name}}.id === undefined)
-				throw new Error('{{object.attributes.pascal_name}} ID is undefined');
-			if ({{object.attributes.camel_name}}.id === null)
-				throw new Error('{{object.attributes.pascal_name}} ID is null');
-			if (typeof({{object.attributes.camel_name}}.id) !== '{{object.attributes.camel_name}}')
-				throw new Error('{{object.attributes.pascal_name}} is not an number');
+			if ({{object.name | camelCase }}.id === undefined)
+				throw new Error('{{object.name | pascalCase }} ID is undefined');
+			if ({{object.name | camelCase }}.id === null)
+				throw new Error('{{object.name | pascalCase }} ID is null');
+			if (typeof({{object.name | camelCase }}.id) !== '{{object.name | camelCase }}')
+				throw new Error('{{object.name | pascalCase }} is not an number');
 		}
 		// control title
 		const propertyList = [ 
@@ -21,15 +21,15 @@ class {{object.attributes.pascal_name}}Model {
 		if (controlId)
 			propertyList.push({ name: 'creationTimeStamp', type: 'string'});
 		for (let prop of propertyList){
-			if ({{object.attributes.camel_name}}[prop.name] === undefined)
-				throw new Error(`Property <${prop.name}> of {{object.attributes.camel_name}} is undefined`);
-			if (typeof({{object.attributes.camel_name}}[prop.name]) !== prop.type)
-				throw new Error(`Property <${prop.name}> of {{object.attributes.camel_name}} is not as ${prop.type}`);
+			if ({{object.name | camelCase }}[prop.name] === undefined)
+				throw new Error(`Property <${prop.name}> of {{object.name | camelCase }} is undefined`);
+			if (typeof({{object.name | camelCase }}[prop.name]) !== prop.type)
+				throw new Error(`Property <${prop.name}> of {{object.name | camelCase }} is not as ${prop.type}`);
 		}
 	}
 
 
-	static {{object.attributes.camel_name}}FromDb(record) {
+	static {{object.name | camelCase }}FromDb(record) {
 		return {
 			{% for property in object.properties -%}
 			{%- liquid
@@ -43,21 +43,21 @@ class {{object.attributes.pascal_name}}Model {
 		};
 	}
 
-	static async get{{object.attributes.pascal_name}}List() {
-		let sql = 'SELECT * FROM {{object.attributes.table_name}};'
+	static async get{{object.name | pascalCase }}List() {
+		let sql = 'SELECT * FROM {{object.attributes.table_name }};'
 		// TODO order by
 		// TODO field selection 
 		const result = await db.query(sql);
 		if (result.code) 
 			throw new Error(result.code);
-		const {{object.attributes.camel_name}}List = [];
-		for (let {{object.attributes.camel_name}}Record of result) 
-			{{object.attributes.camel_name}}List.push( this.{{object.attributes.camel_name }}FromDb({{object.attributes.camel_name}}Record) );
-		return {{object.attributes.camel_name}}List;
+		const {{object.name | camelCase }}List = [];
+		for (let {{object.name | camelCase }}Record of result) 
+			{{object.name | camelCase }}List.push( this.{{object.name | camelCase }}FromDb({{object.name | camelCase }}Record) );
+		return {{object.name | camelCase }}List;
 	}
 
-	static async create{{object.attributes.pascal_name}}({{object.attributes.camel_name}}) {
-		this.control{{object.attributes.pascal_name}}Object({{object.attributes.camel_name}}, false);
+	static async create{{object.name | pascalCase }}({{object.name | camelCase }}) {
+		this.control{{object.name | pascalCase }}Object({{object.name | camelCase }}, false);
 		const fieldNames = [
 			{%- liquid 
 			    assign sep = ""
@@ -84,7 +84,7 @@ class {{object.attributes.pascal_name}}Model {
 		`;
 		const sqlParams = [];
 		for (let fieldName of fieldNames) {
-			const value = {{object.attributes.camel_name}}[fieldName];
+			const value = {{object.name | camelCase }}[fieldName];
 			if (value === undefined)
 				throw new Error(`Property <${fieldName}> not defined in {{object.name}}`);
 			sqlParams.push(value);
@@ -94,14 +94,14 @@ class {{object.attributes.pascal_name}}Model {
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
-		{{object.attributes.camel_name}}.id = result.insertId;
-		return {{object.attributes.camel_name}};
+		{{object.name | camelCase }}.id = result.insertId;
+		return {{object.name | camelCase }};
 	}
 
 }
 
 module.exports = (_db) => {
 	db = _db;
-	return {{object.attributes.pascal_name}}Model;
+	return {{object.name | pascalCase }}Model;
 }
 

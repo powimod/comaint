@@ -7,7 +7,7 @@ class Controller {
 	#app = null; // Express application
 
 	{% for object in project.objects -%}
-	_{{object.attributes.pascal_name}}Routes = null;
+	_{{object.name | pascalCase }}Routes = null;
 	{% endfor %}
 
 	initialize(param, model, view) {
@@ -45,15 +45,15 @@ class Controller {
 		});
 
 		{% for object in project.objects %}
-		this._{{object.attributes.pascal_name}}Routes = require('./{{object.attributes.kebab_name}}-routes.js')(this.#app, this.#model.get{{object.attributes.pascal_name}}Models(), this.#view);
+		this._{{object.name | pascalCase }}Routes = require('./{{object.name | kebabCase }}-routes.js')(this.#app, this.#model.get{{object.name | pascalCase }}Models(), this.#view);
 		{%- endfor %}
 	}
 
 
 	{% for object in project.objects %}
-	get{{object.attributes.pascal_name}}Routes() {
-		console.log(this._{{object.attributes.pascal_name}}Routes);
-		return this._{{object.attributes.pascal_name}}Routes;
+	get{{object.name | pascalCase }}Routes() {
+		console.log(this._{{object.name | pascalCase }}Routes);
+		return this._{{object.name | pascalCase }}Routes;
 	}
 	{% endfor %}
 

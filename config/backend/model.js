@@ -6,7 +6,7 @@ class Model {
 	#db = null;
 
 	{% for object in project.objects -%}
-	#{{object.attributes.pascal_name}}Models = null;
+	#{{object.name | pascalCase }}Models = null;
 	{% endfor %}
 
 
@@ -25,13 +25,13 @@ class Model {
 		}
 
 		{% for object in project.objects -%}
-		this._{{object.attributes.pascal_name}}Models = require('./{{object.attributes.kebab_name}}-model.js')(this.#db);
+		this._{{object.name | pascalCase }}Models = require('./{{object.name | kebabCase }}-model.js')(this.#db);
 		{% endfor %}
 	}
 
 	{% for object in project.objects %}
-	get{{object.attributes.pascal_name}}Models() {
-		return this._{{object.attributes.pascal_name}}Models;
+	get{{object.name | pascalCase }}Models() {
+		return this._{{object.name | pascalCase }}Models;
 	}
 	{% endfor %}
 }

@@ -1,26 +1,26 @@
 'use script';
 
-module.exports = (app, {{object.attributes.pascal_name}}Model, View) => {
+module.exports = (app, {{object.name | pascalCase }}Model, View) => {
 
-	app.get('/api/{{project.attributes.api_version}}/{{object.attributes.snake_name}}/list', async (request, response) => {
+	app.get('/api/{{project.attributes.api_version}}/{{object.name | snakeCase }}/list', async (request, response) => {
 		try {
-			const {{object.attributes.camel_name}}List = await {{object.attributes.pascal_name}}Model.get{{object.attributes.pascal_name}}List();
-			View.sendJsonResult(response, { {{object.attributes.camel_name}}List: {{object.attributes.camel_name}}List } );
+			const {{object.name | camelCase }}List = await {{object.name | pascalCase }}Model.get{{object.name | pascalCase }}List();
+			View.sendJsonResult(response, { {{object.name | camelCase }}List: {{object.name | camelCase }}List } );
 		}
 		catch (error) {
 			View.sendJsonError(response, error);
 		}
 	});
 
-	app.post('/api/{{project.attributes.api_version}}/{{object.attributes.snake_name}}/create', async (request, response) => {
+	app.post('/api/{{project.attributes.api_version}}/{{object.name | snakeCase }}/create', async (request, response) => {
 		try {
-			const {{object.attributes.camel_name}} = request.body.{{object.attributes.camel_name}};
-			if ({{object.attributes.camel_name}} === undefined)
-				throw new Error(`Can't find <{{object.attributes.camel_name}}> object in request body`);
-			let new{{object.attributes.pascal_name}} = await {{object.attributes.pascal_name}}Model.create{{object.attributes.pascal_name}}({{object.attributes.camel_name}});
-			if (new{{object.attributes.pascal_name}}.id === undefined)
-				throw new Error(`Can't find ID of newly created {{object.attributes.pascal_name}}`);
-			response.json({ ok: true, {{object.attributes.camel_name}} : new{{object.attributes.pascal_name}} });
+			const {{object.name | camelCase }} = request.body.{{object.name | camelCase }};
+			if ({{object.name | camelCase }} === undefined)
+				throw new Error(`Can't find <{{object.name | camelCase }}> object in request body`);
+			let new{{object.name | pascalCase }} = await {{object.name | pascalCase }}Model.create{{object.name | pascalCase }}({{object.name | camelCase }});
+			if (new{{object.name | pascalCase }}.id === undefined)
+				throw new Error(`Can't find ID of newly created {{object.name | pascalCase }}`);
+			response.json({ ok: true, {{object.name | camelCase }} : new{{object.name | pascalCase }} });
 		}
 		catch (error) {
 			const errorMessage = (error.message !== undefined) ? error.message : error;

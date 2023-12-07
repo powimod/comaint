@@ -11,12 +11,6 @@ attributes:
 
 objects:
   - name: "user"
-    attributes:
-      pascal_name : "User"
-      camel_name : "user"
-      kebab_name : "user"
-      snake_name : "user"
-      table_name : "users"
     properties:
       - name: "id"
         type: "id"
@@ -33,12 +27,6 @@ objects:
 
 
   - name: "product"
-    attributes:
-      pascal_name : "Product"
-      camel_name : "product"
-      kebab_name : "product"
-      snake_name : "product"
-      table_name : "products"
     properties:
       - name: "id"
         type: "id"
@@ -47,12 +35,6 @@ objects:
 
 
   - name: "Company"
-    attributes:
-      pascal_name : "Company"
-      camel_name : "company"
-      kebab_name : "company"
-      snake_name : "company"
-      table_name : "companies"
     properties:
       - name: "id"
         type: "id"
@@ -94,12 +76,6 @@ objects:
 
 
   - name: "Unit"
-    attributes:
-      pascal_name : "Unit"
-      camel_name : "unit"
-      kebab_name : "unit"
-      snake_name : "unit"
-      table_name : "units"
     properties:
       - name: "id"
         type: "id"
@@ -128,12 +104,6 @@ objects:
           - property : "name"
 
   - name: "UnitSection"
-    attributes:
-      pascal_name : "UnitSection"
-      camel_name : "unitSection"
-      kebab_name : "unit-section"
-      snake_name : "unit_section"
-      table_name : "unit_sections"
     properties:
       - name: "id"
         type: "id"
@@ -158,12 +128,6 @@ objects:
  
 
   - name: "EquipmentFamily"
-    attributes:
-      pascal_name : "EquipmentFamily"
-      camel_name : "equipmentFamily"
-      kebab_name : "equipment-family"
-      snake_name : "equipment_family"
-      table_name : "equipment_families"
     properties:
       - name: "id"
         type: "id"
@@ -195,12 +159,6 @@ objects:
 
 
   - name: "EquipmentType"
-    attributes:
-      pascal_name : "EquipmentType"
-      camel_name : "equipmentType"
-      kebab_name : "equipment-type"
-      snake_name : "equipment_type"
-      table_name : "equipment_types"
     properties:
       - name: "id"
         type: "id"
@@ -227,12 +185,6 @@ objects:
  
 
   - name: "Equipment"
-    attributes:
-      pascal_name : "Equipment"
-      camel_name : "equipment"
-      kebab_name : "equipment"
-      snake_name : "equipment"
-      table_name : "equipment"
     properties:
       - name: "id"
         type: "id"
