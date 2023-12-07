@@ -223,7 +223,6 @@ objects:
 
 
 
-
 files:
   - scope:  "project"
     input:  "config/init-db.sql"
@@ -247,7 +246,7 @@ files:
 
   - scope:  "object"
     input:  "config/backend/object-model.js"
-    output: "output/{{project.attributes.backend_project_dir}}/src/models/{{object.attributes.kebab_name}}-model.js"
+    output: "output/{{project.attributes.backend_project_dir}}/src/models/{{object.name | kebabCase }}-model.js"
 
   - scope:  "project"
     input:  "config/backend/view.js"
@@ -259,6 +258,6 @@ files:
 
   - scope:  "object"
     input:  "config/backend/object-routes.js"
-    output: "output/{{project.attributes.backend_project_dir}}/src/routes/{{object.attributes.kebab_name}}-routes.js"
+    output: "output/{{project.attributes.backend_project_dir}}/src/routes/{{object.name | kebabCase}}-routes.js"
 
 

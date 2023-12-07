@@ -38,13 +38,14 @@ class {{object.name | pascalCase }}Model {
 			  else
 				assign separator = ','
 			  endif -%}
-			{{property.name}} : record.{{property.name}}{{separator}}
+			{{property.name}} : record.{{property.name | snakeCase }}{{separator}}
 			{% endfor -%}
 		};
 	}
 
 	static async get{{object.name | pascalCase }}List() {
 		let sql = 'SELECT * FROM {{object.attributes.table_name }};'
+		// TODO select with column names and not jocker
 		// TODO order by
 		// TODO field selection 
 		const result = await db.query(sql);
@@ -65,6 +66,25 @@ class {{object.name | pascalCase }}Model {
 			       if property.type.name != 'id' 
 			           if property.attributes.auto_counter != true
 				     echo sep
+			             echo property.name | snakeCase | prepend: "'" | append: "'"
+			             assign sep = ", "
+			           endif
+			       endif
+			    endfor 
+			    for link in object.links
+			      echo sep
+		              echo link.name | snakeCase | prepend: "id_" | prepend: "'" | append: "'"
+		              assign sep = ", "
+			    endfor 
+			-%}
+		];
+		const propNames = [
+			{%- liquid 
+			    assign sep = ""
+			    for property in object.properties
+			       if property.type.name != 'id' 
+			           if property.attributes.auto_counter != true
+				     echo sep
 			             echo property.name | prepend: "'" | append: "'"
 			             assign sep = ", "
 			           endif
@@ -72,25 +92,25 @@ class {{object.name | pascalCase }}Model {
 			    endfor 
 			    for link in object.links
 			      echo sep
-		              echo link.name | capitalize | prepend: "id" | prepend: "'" | append: "'"
+		              echo link.name | pascalCase | prepend: "'id" | append: "'"
 		              assign sep = ", "
 			    endfor 
 			-%}
 		];
+		const sqlParams = [];
+		for (let propName of propNames) {
+			const value = {{object.name | camelCase }}[propName];
+			if (value === undefined)
+				throw new Error(`Property <${propName}> not defined in {{object.name}}`);
+			sqlParams.push(value);
+		}
 		const markArray = Array(fieldNames.length).fill('?');
 		const sqlRequest = `
 			INSERT INTO {{object.attributes.table_name}}(${fieldNames.join(', ')}) 
 			       VALUES (${markArray.join(', ')});
 		`;
-		const sqlParams = [];
-		for (let fieldName of fieldNames) {
-			const value = {{object.name | camelCase }}[fieldName];
-			if (value === undefined)
-				throw new Error(`Property <${fieldName}> not defined in {{object.name}}`);
-			sqlParams.push(value);
-		}
-		//console.log("SQL request", sqlRequest);
-		//console.log("SQL params ", sqlParams);
+		console.log("SQL request", sqlRequest);
+		console.log("SQL params ", sqlParams);
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);

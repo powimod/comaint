@@ -37,7 +37,6 @@ async function populateUnits(company){
 	for (let iUnit = 0; iUnit < unitCount; iUnit++)
 	{
 		const unitTypeIndex = parseInt(unitTypes.length * Math.random());
-		console.log(unitTypeIndex);
 		if ( counters[unitTypeIndex] === undefined)
 			counters[unitTypeIndex] = 0;
 		counters[unitTypeIndex] += 1;
