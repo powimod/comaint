@@ -109,8 +109,8 @@ class {{object.name | pascalCase }}Model {
 			INSERT INTO {{object.attributes.table_name}}(${fieldNames.join(', ')}) 
 			       VALUES (${markArray.join(', ')});
 		`;
-		console.log("SQL request", sqlRequest);
-		console.log("SQL params ", sqlParams);
+		//console.log("SQL request", sqlRequest);
+		//console.log("SQL params ", sqlParams);
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
