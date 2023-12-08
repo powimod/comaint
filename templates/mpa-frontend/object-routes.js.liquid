@@ -14,10 +14,17 @@ module.exports = (app) => {
         const view = ViewSingleton.getInstance();
 
 	app.get('/{{object.name | kebabCase}}/list', async (request, response) => {
-		const {{object.name | camelCase}}List = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}List();
-		view.renderPage('{{object.name | kebabCase}}-list',  response, {
-			{{object.name | camelCase}}List: {{object.name | camelCase}}List
-		});
+		const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}List();
+		if (result.ok) {
+			view.renderPage('{{object.name | kebabCase}}-list',  response, {
+				{{object.name | camelCase}}List: result.{{object.name | camelCase}}List
+			});
+		}
+		else {
+			view.renderPage('error',  response, {
+				message: result.error
+			});
+		}
 	});
 
 }

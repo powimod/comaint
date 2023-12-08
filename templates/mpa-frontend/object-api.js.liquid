@@ -7,7 +7,28 @@
 		filename    : filename 
 		%}
 'use script';
+// TODO read api url from config
+const apiUrl = 'http://127.0.0.1:9001/api/v1';
 
 exports.get{{object.name | pascalCase}}List = async function () {
-	return [ ];
+const url = `${apiUrl}/{{object.name | camelCase}}/list`;
+	try {
+		let {{object.name | camelCase}}List = [];
+		const result = await fetch(url);
+		if (result.status !== 200)
+			throw new Error('HTTP response status is not 200');
+		const json = await result.json();
+		//controlJsonResponse(json);
+		{{object.name | camelCase}}List = json.data.{{object.name | camelCase}}List;
+		if ({{object.name | camelCase}}List === undefined)
+			throw new Error('Ad list not found is HTTP response');
+
+		return {ok: true, {{object.name | camelCase}}List: {{object.name | camelCase}}List};
+	}
+	catch (error) {
+		return {
+			ok: false, 
+			error: (error.message !== undefined) ? error.message : error
+		};
+	}
 }
