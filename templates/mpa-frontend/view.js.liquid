@@ -1,0 +1,30 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.mpa_frontend_project_name,
+  		description : project.attributes.mpa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'view.js'
+		%}
+'use strict'
+
+class View {
+	renderPage(templateName, response, params) {
+		console.log(`Rendering page ${templateName}`);
+		let layoutParams = (params !== null) ? params : [];
+		layoutParams.template = templateName;
+		response.render('layout', layoutParams);
+	}
+}
+
+class ViewSingleton {
+	constructor() {
+		throw new Error('Can not instanciate singleton object!');
+	}
+	static getInstance() {
+		if (! ViewSingleton.instance)
+			ViewSingleton.instance = new View();
+		return ViewSingleton.instance;
+	}
+}
+
+module.exports = ViewSingleton;

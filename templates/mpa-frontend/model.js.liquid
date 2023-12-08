@@ -1,0 +1,54 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.backend_project_name,
+  		description : project.attributes.backend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'model.js'
+		%}
+'use strict'
+
+class Model {
+
+	#config = null;
+
+	/*
+	{% for object in project.objects -%}
+	#{{object.name | pascalCase }}Routes = null;
+	{% endfor %}
+	*/
+
+
+	async initialize(config) {
+		console.log("Initializing Model");
+		if (typeof(config) !== 'object')
+			throw new Error('Invalid config parameter');
+		this.#config = config;
+
+		/*
+		{% for object in project.objects -%}
+		this._{{object.name | pascalCase }}Routes = require('./{{object.name | kebabCase }}-routes.js')();
+		{% endfor %}
+		*/
+	}
+
+	/* FIXME used ?
+	{% for object in project.objects %}
+	get{{object.name | pascalCase }}Models() {
+		return this._{{object.name | pascalCase }}Routes;
+	}
+	{% endfor %}
+	*/
+}
+
+class ModelSingleton {
+	constructor() {
+		throw new Error('Can not instanciate singleton object!');
+	}
+	static getInstance() {
+		if (! ModelSingleton.instance)
+			ModelSingleton.instance = new Model();
+		return ModelSingleton.instance;
+	}
+}
+
+module.exports = ModelSingleton;

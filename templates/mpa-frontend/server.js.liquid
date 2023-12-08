@@ -1,0 +1,69 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.mpa_frontend_project_name,
+  		description : project.attributes.mpa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'server.js'
+		%}
+'use strict';
+
+function loadConfig()
+{
+	const configFile = './config.json';
+	console.log(`Loading configuration file ${configFile}`);
+	const nconf = require('nconf');
+	nconf.argv()
+	     .env()
+	     .file({ file: configFile });
+
+	const backendParam = nconf.get('backend');
+	if (backendParam === undefined)
+		throw new Error(`Can't find <backend> section in configuration file ${configFile}`);
+	for (let prop of ['url' ])
+		if (backendParam[prop] === undefined)
+			throw new Error(`Can't find <${prop}> property in <database> section of ${configFile}`);
+
+	const serverParam = nconf.get('server');
+	if (serverParam === undefined)
+		throw new Error(`Can't find <server> section in configuration file ${configFile}`);
+	for (let prop of ['host', 'port' ])
+		if (serverParam[prop] === undefined)
+			throw new Error(`Can't find <${prop}> property in <server> section of ${configFile}`);
+
+	const config = {
+		backend: backendParam,
+		server: serverParam
+	}
+
+	return config;
+}
+
+async function main() {
+	let config = null;
+	config = loadConfig();
+
+	console.log('Initializing API model...');
+	const ModelSingleton = require('./api/model.js');
+	let model  = ModelSingleton.getInstance();
+	await model.initialize(config.backend);
+
+	console.log('Initializing EJS view...');
+	const ViewSingleton = require('./views/view.js');
+	let view = ViewSingleton.getInstance();
+
+	console.log('Initializing route controller...');
+	const ControllerSingleton = require('./routes/controller.js');
+	let controller = ControllerSingleton.getInstance();
+	controller.initialize(config.server, model, view);
+
+	await controller.run();
+}
+
+main()
+/* TODO reactivate this
+.catch(error) {
+	const message = (error.message) ? error.message : error;
+	console.error(`Error : ${message}`);
+	process.exit(1);
+}
+*/
