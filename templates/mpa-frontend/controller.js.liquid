@@ -13,11 +13,9 @@ class Controller {
 	#view; 
 	#app = null; // Express application
 
-	/*
 	{% for object in project.objects -%}
 	_{{object.name | pascalCase }}Routes = null;
 	{% endfor %}
-	*/
 
 	initialize(param, model, view) {
 		if (! param instanceof Object)
@@ -38,33 +36,30 @@ class Controller {
 		this.#app.set('views', path.join(__dirname, '..', 'views'));
 		this.#app.use(express.static(path.join(__dirname, '..', '..', 'public')));
 		this.#app.use(express.urlencoded({extended: true}));
+		/* FIXME not used ?
 		const cors = require('cors');
 		this.#app.use(cors());
-
+		*/
 		// TODO add session
 		this.#app.get('/', (request, response) => {
 			this.#view.renderPage('home',  response, {});
 		});
 
-		/*
 		{% for object in project.objects %}
-		this._{{object.name | pascalCase }}Routes = require('./{{object.name | kebabCase }}-routes.js')(this.#app, this.#model.get{{object.name | pascalCase }}Models(), this.#view);
+		this._{{object.name | pascalCase }}Routes = require('./{{object.name | kebabCase }}-routes.js')(this.#app, null /*this.#model.get{{object.name | pascalCase }}Models()*/, this.#view);
 		{%- endfor %}
-		*/
 
 		this.#app.get('*', (request, response) => {
 			this.#view.renderPage('error',  response, {message: 'Invalid route'});
 		});
 	}
 
-	/* FIXME used ?
 	{% for object in project.objects %}
 	get{{object.name | pascalCase }}Routes() {
 		console.log(this._{{object.name | pascalCase }}Routes);
 		return this._{{object.name | pascalCase }}Routes;
 	}
 	{% endfor %}
-	*/
 
 	async run () {
 		if (this.#app === null)

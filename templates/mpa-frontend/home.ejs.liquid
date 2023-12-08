@@ -2,7 +2,7 @@
 		<ul>
 		{%- for object in project.objects %}
 			{%- if object.links.length == 0 %}
-			<li><a href="{{object.name | kebabCase | append: '-list.html'}}">List of {{object.name}}</a></li>
+			<li><a href="{{object.name | kebabCase | append: '/list'}}">List of {{object.name}}</a></li>
 			{%- endif -%}
 		{%- endfor %}
 		</ul>

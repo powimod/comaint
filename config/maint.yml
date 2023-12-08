@@ -317,6 +317,14 @@ files:
     input:  "templates/mpa-frontend/controller.js.liquid"
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/routes/controller.js"
 
+  - scope:  "object"
+    input:  "templates/mpa-frontend/object-routes.js.liquid"
+    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/routes/{{object.name | kebabCase}}-routes.js"
+
+  - scope:  "object"
+    input:  "templates/mpa-frontend/object-list.ejs.liquid"
+    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/{{object.name | kebabCase}}-list.ejs"
+
   - scope:  "project"
     input:  "templates/mpa-frontend/layout.ejs.liquid"
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/layout.ejs"
