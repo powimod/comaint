@@ -7,11 +7,17 @@
 		filename    : filename 
 		%}
 'use script';
+const {{object.name | camelCase}}Api = require('../api/{{object.name | kebabCase}}-api.js');
 
-module.exports = (app, UserModel, View) => {
+module.exports = (app) => {
+        const ViewSingleton = require('../views/view.js');
+        const view = ViewSingleton.getInstance();
 
 	app.get('/{{object.name | kebabCase}}/list', async (request, response) => {
-		View.renderPage('{{object.name | kebabCase}}-list',  response, {});
+		const {{object.name | camelCase}}List = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}List();
+		view.renderPage('{{object.name | kebabCase}}-list',  response, {
+			{{object.name | camelCase}}List: {{object.name | camelCase}}List
+		});
 	});
 
 }

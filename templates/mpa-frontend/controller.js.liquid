@@ -46,7 +46,7 @@ class Controller {
 		});
 
 		{% for object in project.objects %}
-		this._{{object.name | pascalCase }}Routes = require('./{{object.name | kebabCase }}-routes.js')(this.#app, null /*this.#model.get{{object.name | pascalCase }}Models()*/, this.#view);
+		this._{{object.name | pascalCase }}Routes = require('./{{object.name | kebabCase }}-routes.js')(this.#app);
 		{%- endfor %}
 
 		this.#app.get('*', (request, response) => {

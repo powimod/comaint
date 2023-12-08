@@ -1,4 +1,13 @@
 		<h2>{{object.name}} list</h2>
+<% if ({{object.name | camelCase}}List.length === 0) { -%>
+			<p>List is empty</p>
+<% } else { -%>
+		<ul>
+	<% for (const {{object.name | camelCase}} of {{object.name | camelCase}}List) { %>
+			<li><a href="{{object.name | kebabCase}}/<%= {{object.name | camelCase}}.id %>"><%= {{object.name | camelCase}}.name %></a></li>
+	<% } %>
+		</ul>
+<% } -%>
 		<nav>
 			<a href="/">Retour accueil</a>
 		</nav>

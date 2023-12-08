@@ -309,6 +309,10 @@ files:
     input:  "templates/mpa-frontend/model.js.liquid"
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/api/model.js"
 
+  - scope:  "object"
+    input:  "templates/mpa-frontend/object-api.js.liquid"
+    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/api/{{object.name | kebabCase}}-api.js"
+
   - scope:  "project"
     input:  "templates/mpa-frontend/view.js.liquid"
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/view.js"
