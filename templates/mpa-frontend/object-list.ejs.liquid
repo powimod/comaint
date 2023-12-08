@@ -4,7 +4,7 @@
 <% } else { -%>
 		<ul>
 	<% for (const {{object.name | camelCase}} of {{object.name | camelCase}}List) { %>
-			<li><a href="{{object.name | kebabCase}}/<%= {{object.name | camelCase}}.id %>"><%= {{object.name | camelCase}}.name %></a></li>
+			<li><a href="/{{object.name | kebabCase}}/<%= {{object.name | camelCase}}.id %>"><%= {{object.name | camelCase}}.name %></a></li>
 	<% } %>
 		</ul>
 <% } -%>

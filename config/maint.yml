@@ -329,6 +329,10 @@ files:
     input:  "templates/mpa-frontend/object-list.ejs.liquid"
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/{{object.name | kebabCase}}-list.ejs"
 
+  - scope:  "object"
+    input:  "templates/mpa-frontend/object-details.ejs.liquid"
+    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/{{object.name | kebabCase}}-details.ejs"
+
   - scope:  "project"
     input:  "templates/mpa-frontend/layout.ejs.liquid"
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/layout.ejs"

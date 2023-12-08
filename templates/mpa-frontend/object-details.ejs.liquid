@@ -1,0 +1,5 @@
+		<h2>{{object.name}} details</h2>
+		<div><span>Name</span> <span><%= {{object.name | camelCase}}.name %></span></div>
+		<nav>
+			<a href="/{{object.name | kebabCase}}/list">Retour</a>
+		</nav>

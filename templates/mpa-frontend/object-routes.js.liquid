@@ -27,5 +27,24 @@ module.exports = (app) => {
 		}
 	});
 
+	app.get('/{{object.name | kebabCase}}/:{{object.name | snakeCase}}_id', async (request, response) => {
+		const {{object.name | camelCase}}Id = request.params['{{object.name | snakeCase}}_id'];
+		// TODO control isNaN of id
+		//const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}List();
+		// TODO api connection
+		const result = { ok : true, {{object.name | camelCase}}: { id: {{object.name | camelCase}}Id, name : "xxxx" } }; 
+		if (result.ok) {
+			view.renderPage('{{object.name | kebabCase}}-details',  response, {
+				{{object.name | camelCase}}: result.{{object.name | camelCase}}
+			});
+		}
+		else {
+			view.renderPage('error',  response, {
+				message: result.error
+			});
+		}
+	});
+
+
 }
 
