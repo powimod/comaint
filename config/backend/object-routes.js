@@ -13,8 +13,10 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 	app.get('/api/{{project.attributes.api_version}}/{{object.name | snakeCase}}/list', async (request, response) => {
 		try {
 			let resultsPerPage = request.query.resultsPerPage;
+			let offset = request.query.offset;
 			const {{object.name | camelCase}}List = await {{object.name | pascalCase}}Model.get{{object.name | pascalCase}}List({
-				resultsPerPage : resultsPerPage
+				resultsPerPage : resultsPerPage,
+				offset : offset
 			});
 			View.sendJsonResult(response, { {{object.name | camelCase}}List: {{object.name | camelCase}}List } );
 		}

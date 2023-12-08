@@ -59,8 +59,15 @@ class {{object.name | pascalCase }}Model {
 		else
 			resultsPerPage = parseInt(resultsPerPage);
 		if (resultsPerPage < 1) resultsPerPage = 1;
-		// TODO select OFFSET
-		let sql = `SELECT * FROM {{object.attributes.table_name }} LIMIT ${resultsPerPage}`;
+
+		let offset = params.offset; 
+		if (offset=== undefined || isNaN(resultsPerPage)) 
+			offset = 0
+		else
+			offset = parseInt(offset);
+		if (offset < 0) offset = 0;
+
+		let sql = `SELECT * FROM {{object.attributes.table_name }} LIMIT ${resultsPerPage} OFFSET ${offset}`;
 		// TODO select with column names and not jocker
 		// TODO order by
 		// TODO field selection 
