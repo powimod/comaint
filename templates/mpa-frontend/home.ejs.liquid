@@ -1,1 +1,8 @@
-<h2>Page d'accueil</h2>
+		<h2>Home page</h2>
+		<ul>
+		{%- for object in project.objects %}
+			{%- if object.links.length == 0 %}
+			<li><a href="{{object.name | kebabCase | append: '-list.html'}}">List of {{object.name}}</a></li>
+			{%- endif -%}
+		{%- endfor %}
+		</ul>
