@@ -7,14 +7,22 @@
 		filename    : filename 
 		%}
 'use script';
+const assert = require('assert');
 const {{object.name | camelCase}}Api = require('../api/{{object.name | kebabCase}}-api.js');
 
 module.exports = (app) => {
         const ViewSingleton = require('../views/view.js');
         const view = ViewSingleton.getInstance();
+        const ControllerSingleton = require('./controller.js');
+        const controller = ControllerSingleton.getInstance();
 
 	app.get('/{{object.name | kebabCase}}/list', async (request, response) => {
-		const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}List();
+		const resultsPerPage = controller.config.parameters.resultsPerPage;
+                assert(resultsPerPage !== undefined);
+
+		const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}List({
+			resultsPerPage : resultsPerPage
+		});
 		if (result.ok) {
 			view.renderPage('{{object.name | kebabCase}}-list',  response, {
 				{{object.name | camelCase}}List: result.{{object.name | camelCase}}List

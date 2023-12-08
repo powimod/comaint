@@ -12,7 +12,10 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 
 	app.get('/api/{{project.attributes.api_version}}/{{object.name | snakeCase}}/list', async (request, response) => {
 		try {
-			const {{object.name | camelCase}}List = await {{object.name | pascalCase}}Model.get{{object.name | pascalCase}}List();
+			let resultsPerPage = request.query.resultsPerPage;
+			const {{object.name | camelCase}}List = await {{object.name | pascalCase}}Model.get{{object.name | pascalCase}}List({
+				resultsPerPage : resultsPerPage
+			});
 			View.sendJsonResult(response, { {{object.name | camelCase}}List: {{object.name | camelCase}}List } );
 		}
 		catch (error) {

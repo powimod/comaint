@@ -10,15 +10,17 @@
 const ModelSingleton = require('./model.js');
 const model  = ModelSingleton.getInstance();
 
-exports.get{{object.name | pascalCase}}List = async function () {
-	const url = `${model.config.url}/{{object.name | camelCase}}/list`;
+exports.get{{object.name | pascalCase}}List = async function (params) {
+	const url = new URL(`${model.config.url}/{{object.name | camelCase}}/list`);
+	if (params.resultsPerPage !== undefined)
+		url.searchParams.append('resultsPerPage', params.resultsPerPage);
 	try {
 		let {{object.name | camelCase}}List = [];
 		const result = await fetch(url);
 		if (result.status !== 200)
 			throw new Error('HTTP response status is not 200');
 		const json = await result.json();
-		//controlJsonResponse(json);
+		//TODO controlJsonResponse(json);
 		{{object.name | camelCase}}List = json.data.{{object.name | camelCase}}List;
 		if ({{object.name | camelCase}}List === undefined)
 			throw new Error('Ad list not found is HTTP response');

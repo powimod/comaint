@@ -16,23 +16,31 @@ function loadConfig()
 	     .env()
 	     .file({ file: configFile });
 
-	const backendParam = nconf.get('backend');
-	if (backendParam === undefined)
+	const backendParamList = nconf.get('backend');
+	if (backendParamList === undefined)
 		throw new Error(`Can't find <backend> section in configuration file ${configFile}`);
 	for (let prop of ['url' ])
-		if (backendParam[prop] === undefined)
+		if (backendParamList[prop] === undefined)
 			throw new Error(`Can't find <${prop}> property in <database> section of ${configFile}`);
 
-	const serverParam = nconf.get('server');
-	if (serverParam === undefined)
+	const serverParamList = nconf.get('server');
+	if (serverParamList === undefined)
 		throw new Error(`Can't find <server> section in configuration file ${configFile}`);
 	for (let prop of ['host', 'port' ])
-		if (serverParam[prop] === undefined)
+		if (serverParamList[prop] === undefined)
 			throw new Error(`Can't find <${prop}> property in <server> section of ${configFile}`);
 
+	const parameterList = nconf.get('parameters');
+	if (parameterList === undefined)
+		throw new Error(`Can't find <parameters> section in configuration file ${configFile}`);
+	for (let prop of ['resultsPerPage'])
+		if (parameterList[prop] === undefined)
+			throw new Error(`Can't find <${prop}> property in <parameters> section of ${configFile}`);
+
 	const config = {
-		backend: backendParam,
-		server: serverParam
+		backend: backendParamList,
+		server: serverParamList,
+		parameters: parameterList
 	}
 
 	return config;
@@ -54,7 +62,7 @@ async function main() {
 	console.log('Initializing route controller...');
 	const ControllerSingleton = require('./routes/controller.js');
 	let controller = ControllerSingleton.getInstance();
-	controller.initialize(config.server, model, view);
+	controller.initialize({ server: config.server, parameters: config.parameters } , model, view);
 
 	await controller.run();
 }

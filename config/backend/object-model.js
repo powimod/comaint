@@ -51,8 +51,16 @@ class {{object.name | pascalCase }}Model {
 		};
 	}
 
-	static async get{{object.name | pascalCase }}List() {
-		let sql = 'SELECT * FROM {{object.attributes.table_name }};'
+	static async get{{object.name | pascalCase }}List(params) {
+
+		let resultsPerPage = params.resultsPerPage; 
+		if (resultsPerPage === undefined || isNaN(resultsPerPage)) 
+			resultsPerPage = 25; // FIXME hard coded value
+		else
+			resultsPerPage = parseInt(resultsPerPage);
+		if (resultsPerPage < 1) resultsPerPage = 1;
+		// TODO select OFFSET
+		let sql = `SELECT * FROM {{object.attributes.table_name }} LIMIT ${resultsPerPage}`;
 		// TODO select with column names and not jocker
 		// TODO order by
 		// TODO field selection 
