@@ -51,8 +51,11 @@ class Controller {
 		this._{{object.name | pascalCase }}Routes = require('./{{object.name | kebabCase }}-routes.js')(this.#app, this.#model.get{{object.name | pascalCase }}Models(), this.#view);
 		{%- endfor %}
 		*/
-	}
 
+		this.#app.get('*', (request, response) => {
+			this.#view.renderPage('error',  response, {message: 'Invalid route'});
+		});
+	}
 
 	/* FIXME used ?
 	{% for object in project.objects %}
