@@ -31,6 +31,10 @@ class Model {
 		*/
 	}
 
+	get config() {
+		return this.#config;
+	}
+
 	/* FIXME used ?
 	{% for object in project.objects %}
 	get{{object.name | pascalCase }}Models() {
