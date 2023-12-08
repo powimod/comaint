@@ -1,3 +1,10 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.backend_project_name,
+  		description : project.attributes.backend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'view.js'
+		%}
 'use strict'
 
 class View {

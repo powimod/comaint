@@ -1,3 +1,11 @@
+{%- assign filename = object.name | kebabCase | append: "-routes.js" -%}
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.backend_project_name,
+  		description : project.attributes.backend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : filename 
+		%}
 'use script';
 
 module.exports = (app, {{object.name | pascalCase}}Model, View) => {

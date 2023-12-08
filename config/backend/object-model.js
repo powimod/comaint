@@ -1,3 +1,11 @@
+{%- assign filename = object.name | kebabCase | append: "-model.js" -%}
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.backend_project_name,
+  		description : project.attributes.backend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : filename 
+		%}
 'use strict'
 var db = null;
 
@@ -117,7 +125,6 @@ class {{object.name | pascalCase }}Model {
 		{{object.name | camelCase }}.id = result.insertId;
 		return {{object.name | camelCase }};
 	}
-
 }
 
 module.exports = (_db) => {
