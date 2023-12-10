@@ -7,9 +7,14 @@
 		filename    : filename 
 		%}
 'use strict'
-var db = null;
 
 class {{object.name | pascalCase }}Model {
+
+	static getModel() {
+		// TODO store model as global variable to get it only one time
+		const ModelSingleton = require('./model.js');
+		return  ModelSingleton.getInstance();
+	}
 
 	static control{{object.name | pascalCase }}Object({{object.name | camelCase }}, controlId = true){
 		if (typeof({{object.name | camelCase }}) !== 'object')
@@ -71,6 +76,8 @@ class {{object.name | pascalCase }}Model {
 		// TODO select with column names and not jocker
 		// TODO order by
 		// TODO field selection 
+
+		const db = this.getModel().db;
 		const result = await db.query(sql);
 		if (result.code) 
 			throw new Error(result.code);
@@ -134,6 +141,8 @@ class {{object.name | pascalCase }}Model {
 		`;
 		//console.log("SQL request", sqlRequest);
 		//console.log("SQL params ", sqlParams);
+		
+		const db = this.getModel().db;
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
@@ -142,8 +151,7 @@ class {{object.name | pascalCase }}Model {
 	}
 }
 
-module.exports = (_db) => {
-	db = _db;
+module.exports = () => {
 	return {{object.name | pascalCase }}Model;
 }
 

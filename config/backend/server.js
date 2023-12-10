@@ -23,6 +23,13 @@ function loadConfig()
 		if (dbParam[prop] === undefined)
 			throw new Error(`Can't find <${prop}> property in <database> section of ${configFile}`);
 
+	if (dbParam.reconnection === undefined)
+		dbParam.reconnection = {};
+	if (dbParam.reconnection.interval === undefined)
+		dbParam.reconnection.interval = 1000;
+	if (dbParam.reconnection.maxRetries === undefined)
+		dbParam.reconnection.maxRetries = 60;
+
 	const serverParam = nconf.get('server');
 	if (serverParam === undefined)
 		throw new Error(`Can't find <server> section in configuration file ${configFile}`);
