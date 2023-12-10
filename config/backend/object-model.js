@@ -87,16 +87,23 @@ class {{object.name | pascalCase }}Model {
 		return {{object.name | camelCase }}List;
 	}
 
-
-	// TODO n'ajouter cette fonction que si la table a un champ de type ID
-	static async get{{object.name | pascalCase }}ById(id{{object.name | pascalCase }}) {
-		if (id{{object.name | pascalCase }} === undefined)
-			throw new Error('Argument <id{{object.name | pascalCase }}> required');
-		if (isNaN(id{{object.name | pascalCase }}) === undefined)
-			throw new Error('Argument <id{{object.name | pascalCase }}> is not a number');
-		let sql = `SELECT * FROM {{object.attributes.table_name}} WHERE id = ?`;
+	{% liquid 
+		assign idProperty = null
+		for property in object.properties
+		       if property.type.name == 'id' 
+				assign idProperty = property.name
+			endif
+		endfor
+	%}
+	{% if idProperty != null -%}
+	static async get{{object.name | pascalCase }}By{{idProperty | pascalCase}}({{idProperty | camelCase}}{{object.name | pascalCase }}) {
+		if ({{idProperty | camelCase}}{{object.name | pascalCase }} === undefined)
+			throw new Error('Argument <{{idProperty | camelCase}}{{object.name | pascalCase }}> required');
+		if (isNaN({{idProperty | camelCase}}{{object.name | pascalCase }}) === undefined)
+			throw new Error('Argument <{{idProperty | camelCase}}{{object.name | pascalCase }}> is not a number');
+		let sql = `SELECT * FROM {{object.attributes.table_name}} WHERE {{idProperty | camelCase}} = ?`;
 		const db = this.getModel().db;
-		const result = await db.query(sql, [id{{object.name | pascalCase }}]);
+		const result = await db.query(sql, [{{idProperty | camelCase}}{{object.name | pascalCase }}]);
 		if (result.code) 
 			throw new Error(result.code);
 		if (result.length === 0) 
@@ -104,7 +111,7 @@ class {{object.name | pascalCase }}Model {
 		const {{object.name | camelCase}} = this.{{object.name | camelCase}}FromDb(result[0]);
 		return {{object.name | camelCase}};
 	}
-
+	{%- endif %}
 
 	static async create{{object.name | pascalCase }}({{object.name | camelCase }}) {
 		this.control{{object.name | pascalCase }}Object({{object.name | camelCase }}, false);
