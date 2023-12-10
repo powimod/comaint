@@ -23,6 +23,8 @@ function loadConfig()
 		if (dbParam[prop] === undefined)
 			throw new Error(`Can't find <${prop}> property in <database> section of ${configFile}`);
 
+	if (dbParam.pingInterval === undefined)
+		dbParam.pingInterval = 60000;
 	if (dbParam.reconnection === undefined)
 		dbParam.reconnection = {};
 	if (dbParam.reconnection.interval === undefined)

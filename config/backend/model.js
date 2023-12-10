@@ -70,6 +70,7 @@ class Model {
 			self.connectDb();
 		});
 		console.log("Database connection success");
+
 	}
 
 	async initialize(config) {
@@ -80,6 +81,19 @@ class Model {
 			return;
 		this.#config = config;
 		await this.connectDb();
+
+		// setting regular database ping to keep connection alive
+		const pingInterval = this.#config.pingInterval;
+		console.log(`Database ping interval : ${pingInterval}ms`);
+		setInterval( () => {
+			if (this.#db === null)
+				return;
+			try {
+				this.#db.query('SELECT 1');
+			} catch(error) {
+				console.log(`Database ping error : ${error.message}`);
+			}
+		}, pingInterval);
 
 		{% for object in project.objects -%}
 		this._{{object.name | pascalCase }}Models = require('./{{object.name | kebabCase }}-model.js')();

@@ -12,9 +12,10 @@
                 "database" : "db_{{project.name}}",
                 "user": "<USER_NAME>",
                 "password" : "<USER_PASSWORD>",
+		"pingInterval" : 60000,
 		"reconnection" : {
 			"interval" : 1000,
-			"maxRetries": 60
+			"maxRetries": 600
 		}
         }
 }
