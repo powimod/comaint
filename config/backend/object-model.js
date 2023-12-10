@@ -87,6 +87,25 @@ class {{object.name | pascalCase }}Model {
 		return {{object.name | camelCase }}List;
 	}
 
+
+	// TODO n'ajouter cette fonction que si la table a un champ de type ID
+	static async get{{object.name | pascalCase }}ById(id{{object.name | pascalCase }}) {
+		if (id{{object.name | pascalCase }} === undefined)
+			throw new Error('Argument <id{{object.name | pascalCase }}> required');
+		if (isNaN(id{{object.name | pascalCase }}) === undefined)
+			throw new Error('Argument <id{{object.name | pascalCase }}> is not a number');
+		let sql = `SELECT * FROM {{object.attributes.table_name}} WHERE id = ?`;
+		const db = this.getModel().db;
+		const result = await db.query(sql, [id{{object.name | pascalCase }}]);
+		if (result.code) 
+			throw new Error(result.code);
+		if (result.length === 0) 
+			return null;
+		const {{object.name | camelCase}} = this.{{object.name | camelCase}}FromDb(result[0]);
+		return {{object.name | camelCase}};
+	}
+
+
 	static async create{{object.name | pascalCase }}({{object.name | camelCase }}) {
 		this.control{{object.name | pascalCase }}Object({{object.name | camelCase }}, false);
 		const fieldNames = [

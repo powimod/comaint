@@ -7,6 +7,7 @@
 		filename    : filename 
 		%}
 'use script';
+const assert = require('assert');
 
 module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 
@@ -23,6 +24,24 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 		catch (error) {
 			View.sendJsonError(response, error);
 		}
+	});
+
+	app.get('/api/{{project.attributes.api_version}}/{{object.name | snakeCase}}/:id{{object.name | pascalCase}}', async (request, response) => {
+		const id{{object.name | pascalCase}} = request.params.id{{object.name | pascalCase}};
+		assert (id{{object.name | pascalCase}} !== undefined);
+		if (isNaN(id{{object.name | pascalCase}})) {
+			View.sendJsonError(response, `{{object.name | pascalCase}} ID <${id{{object.name | pascalCase}}}> is not a number`);
+			return;
+		}
+		// try { // TODO reactivate this
+			let resultsPerPage = request.query.resultsPerPage;
+			let offset = request.query.offset;
+			const {{object.name | camelCase}} = await {{object.name | pascalCase}}Model.get{{object.name | pascalCase}}ById(id{{object.name | pascalCase}});
+			View.sendJsonResult(response, { {{object.name | camelCase}}: {{object.name | camelCase}}} );
+		//}
+		//catch (error) {
+		//	View.sendJsonError(response, error);
+		//}
 	});
 
 	app.post('/api/{{project.attributes.api_version}}/{{object.name | snakeCase}}/create', async (request, response) => {
