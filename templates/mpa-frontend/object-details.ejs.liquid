@@ -12,8 +12,8 @@
 		<div><span>{{property.name}}</span> <span><%= {{object.name | camelCase}}.{{property.name | camelCase}} %></span></div>
 {%- endfor %}
 
+<!-- TODO replace link id by target name id -->
 {% for link in object.links %}
-		// TODO replace link id by target name id
 		<div><span>Link {{link.name}}</span> <span><%= {{object.name | camelCase}}.id{{link.name | pascalCase}} %></span></div>
 {% endfor %}
 

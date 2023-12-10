@@ -260,35 +260,35 @@ files:
     ########################### Backend 
     
   - scope:  "project"
-    input:  "config/backend/package.json"
+    input:  "templates/api-backend/package.json.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/package.json"
 
   - scope:  "project"
-    input:  "config/backend/config.json.sample"
+    input:  "templates/api-backend/config.json.sample.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/config.json.sample"
 
   - scope:  "project"
-    input:  "config/backend/server.js"
+    input:  "templates/api-backend/server.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/src/server.js"
 
   - scope:  "project"
-    input:  "config/backend/model.js"
+    input:  "templates/api-backend/model.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/src/models/model.js"
 
   - scope:  "object"
-    input:  "config/backend/object-model.js"
+    input:  "templates/api-backend/object-model.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/src/models/{{object.name | kebabCase }}-model.js"
 
   - scope:  "project"
-    input:  "config/backend/view.js"
+    input:  "templates/api-backend/view.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/src/views/view.js"
 
   - scope:  "project"
-    input:  "config/backend/controller.js"
+    input:  "templates/api-backend/controller.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/src/routes/controller.js"
 
   - scope:  "object"
-    input:  "config/backend/object-routes.js"
+    input:  "templates/api-backend/object-routes.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/src/routes/{{object.name | kebabCase}}-routes.js"
 
     ########################### Backend 
