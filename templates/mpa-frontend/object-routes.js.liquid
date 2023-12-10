@@ -37,10 +37,11 @@ module.exports = (app) => {
 
 	app.get('/{{object.name | kebabCase}}/:{{object.name | snakeCase}}_id', async (request, response) => {
 		const {{object.name | camelCase}}Id = request.params['{{object.name | snakeCase}}_id'];
-		// TODO control isNaN of id
-		//const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}List();
-		// TODO api connection
-		const result = { ok : true, {{object.name | camelCase}}: { id: {{object.name | camelCase}}Id, name : "xxxx" } }; 
+		if ({{object.name | camelCase}}Id === undefined)
+			throw new Error('URL parameter <{{object.name | camelCase}}_id> is missing');
+		if (isNaN({{object.name | camelCase}}Id))
+			throw new Error('URL parameter <{{object.name | camelCase}}_id> is not a number');
+		const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}Details({{object.name | camelCase}}Id);
 		if (result.ok) {
 			view.renderPage('{{object.name | kebabCase}}-details',  response, {
 				{{object.name | camelCase}}: result.{{object.name | camelCase}}

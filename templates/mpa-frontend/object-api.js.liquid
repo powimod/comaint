@@ -23,7 +23,7 @@ exports.get{{object.name | pascalCase}}List = async function (params) {
 		//TODO controlJsonResponse(json);
 		{{object.name | camelCase}}List = json.data.{{object.name | camelCase}}List;
 		if ({{object.name | camelCase}}List === undefined)
-			throw new Error('Ad list not found is HTTP response');
+			throw new Error('{{object.name | pascalCase}} list not found is HTTP response');
 		return {ok: true, {{object.name | camelCase}}List: {{object.name | camelCase}}List};
 	}
 	catch (error) {
@@ -33,3 +33,31 @@ exports.get{{object.name | pascalCase}}List = async function (params) {
 		};
 	}
 }
+
+
+exports.get{{object.name | pascalCase}}Details = async function (id{{object.name | pascalCase}}) {
+	if (id{{object.name | pascalCase}} === undefined)
+		throw new Error('Argument <id{{object.name | pascalCase}}> required');
+	if (isNaN(id{{object.name | pascalCase}}))
+		throw new Error('Argument <id{{object.name | pascalCase}}> is not a number');
+	const url = new URL(`${model.config.url}/{{object.name | camelCase}}/${id{{object.name | pascalCase}}}`);
+	try {
+		let {{object.name | camelCase}} = null;
+		const result = await fetch(url);
+		if (result.status !== 200)
+			throw new Error('HTTP response status is not 200');
+		const json = await result.json();
+		//TODO controlJsonResponse(json);
+		{{object.name | camelCase}} = json.data.{{object.name | camelCase}};
+		if ({{object.name | camelCase}} === undefined)
+			throw new Error('{{object.name | pascalCase}} list not found is HTTP response');
+		return {ok: true, {{object.name | camelCase}}: {{object.name | camelCase}}};
+	}
+	catch (error) {
+		return {
+			ok: false, 
+			error: (error.message !== undefined) ? error.message : error
+		};
+	}
+}
+

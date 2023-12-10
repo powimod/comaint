@@ -44,15 +44,17 @@ class {{object.name | pascalCase }}Model {
 
 	static {{object.name | camelCase }}FromDb(record) {
 		return {
-			{% for property in object.properties -%}
+			// TODO do not return secret properties
+			{%- for property in object.properties -%}
 			{%- liquid
 			  if property.last
 				assign separator = ''
 			  else
 				assign separator = ','
-			  endif -%}
+			  endif 
+			%}
 			{{property.name}} : record.{{property.name | snakeCase }}{{separator}}
-			{% endfor -%}
+			{%- endfor %}
 		};
 	}
 
