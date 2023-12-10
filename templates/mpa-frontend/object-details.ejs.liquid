@@ -1,5 +1,22 @@
 		<h2>{{object.name}} details</h2>
-		<div><span>Name</span> <span><%= {{object.name | camelCase}}.name %></span></div>
+
+{% for property in object.properties %}
+	{%- liquid
+	    if property.type.name == 'id'
+	       continue
+	    endif
+	    if property.secret
+	       continue
+	    endif 
+	%}
+		<div><span>{{property.name}}</span> <span><%= {{object.name | camelCase}}.{{property.name | camelCase}} %></span></div>
+{%- endfor %}
+
+{% for link in object.links %}
+		// TODO replace link id by target name id
+		<div><span>Link {{link.name}}</span> <span><%= {{object.name | camelCase}}.id{{link.name | pascalCase}} %></span></div>
+{% endfor %}
+
 		<nav>
 			<a href="/{{object.name | kebabCase}}/list">Retour</a>
 		</nav>
