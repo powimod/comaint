@@ -15,6 +15,49 @@ class authModel {
 		return  ModelSingleton.getInstance();
 	}
 
+	//TODO  replace email, password and user with project.attributes
+	static async register(email, password) {
+		const db = this.getModel().db;
+		let sql = 'SELECT email FROM users WHERE email = ?';
+		let result = await db.query(sql, [ email ]);
+		if (result.code)
+			throw new Error(result.code);
+		if (result.length > 0) 
+			return null; // email already used
+		const saltRounds = 10; // TODO hard coded value
+		const bcrypt = require('bcrypt');
+		const passwordHash = await bcrypt.hash(password, saltRounds)
+		const sqlRequest = `INSERT INTO users(email, password) VALUES (?, ?);`;
+		const sqlParams = [
+			email,
+			passwordHash
+		];
+		result = await db.query(sqlRequest, sqlParams);
+		if (result.code)
+			throw new Error(result.code);
+		return {
+			userId : result.insertId
+		}
+	}
+
+	//TODO  replace email, password and user with project.attributes
+	static async login(email, password) {
+		const db = this.getModel().db;
+		let sql = 'SELECT id, email, password FROM users WHERE email = ?';
+		const result = await db.query(sql, [ email ]);
+		if (result.code)
+			throw new Error(result.code);
+		if (result.length === 0) 
+			throw new Error(`Unknown email or invalid password`);
+		const bcrypt = require('bcrypt');
+		const passwordValid = await bcrypt.compare(password, result[0].password);
+		if (! passwordValid)
+			throw new Error(`Unknown email or invalid password`);
+		return {
+			userId: result[0].id
+		}
+	}
+
 }
 
 module.exports = () => {

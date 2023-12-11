@@ -11,12 +11,76 @@ const assert = require('assert');
 
 module.exports = (app, authModel, View) => {
 
+	app.post('/api/{{project.attributes.api_version}}/auth/register', async (request, response) => {
+		try {
+			const email = request.body.email;
+			if (email === undefined)
+				throw new Error(`Can't find <email> in request body`);
+			const password = request.body.password;
+			if (password === undefined)
+				throw new Error(`Can't find <password> in request body`);
+			const login = await authModel.register(email, password);
+			response.json({ ok : true, login: login });
+		}
+		catch (error) {
+			const errorMessage = (error.message !== undefined) ? error.message : error;
+			console.error(errorMessage);
+			response.json({ ok : false, error: errorMessage });
+		}
+	});
+
 	app.post('/api/{{project.attributes.api_version}}/auth/login', async (request, response) => {
-		response.json({ ok: false, error : "Login is not yet implemented" });
+		try {
+			const email = request.body.email;
+			if (email === undefined)
+				throw new Error(`Can't find <email> in request body`);
+			const password = request.body.password;
+			if (password === undefined)
+				throw new Error(`Can't find <password> in request body`);
+
+			const login = await authModel.login(email, password);
+			if (login === undefined || login === null) {
+				response.json({ ok : true, login: false, message: 'Invalid email or password'});
+				return;
+			}
+			const userId = login.userId;
+			assert(userId !== undefined);
+
+			//TODO use secret stored in configuration file
+			const secret = "KoH!m1nt#W3b-T@uqu3h_ne";
+			if (secret === null)
+				throw new Error('Token secret not loaded');
+			if (typeof(userId) !== 'number')
+				throw new Error('Invalid UserID argument');
+			const payload = {
+				id: userId
+			}
+			const jwt = require('jsonwebtoken');
+			const jwtToken = jwt.sign(payload, secret);
+			response.json({ ok : true, 
+				login: true,
+				access_token: jwtToken
+			});
+			response.json({ ok : true, login: true, access_token : jwtToken});
+
+
+		}
+		catch (error) {
+			const errorMessage = (error.message !== undefined) ? error.message : error;
+			console.error(errorMessage);
+			response.json({ ok : false, error: errorMessage });
+		}
 	});
 
 	app.get('/api/{{project.attributes.api_version}}/auth/logout', async (request, response) => {
-		response.json({ ok: false, error : "Logout is not yet implemented" });
+		try {
+			throw new Error("Logout is not yet implemented");
+		}
+		catch (error) {
+			const errorMessage = (error.message !== undefined) ? error.message : error;
+			console.error(errorMessage);
+			response.json({ ok : false, error: errorMessage });
+		}
 	});
 
 }

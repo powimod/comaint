@@ -96,14 +96,14 @@ class Model {
 			}
 		}, pingInterval);
 
-		this._authModel = require('./auth-model.js')();
+		this.#authModel = require('./auth-model.js')();
 		{% for object in project.objects -%}
-		this._{{object.name | pascalCase }}Model = require('./{{object.name | kebabCase }}-model.js')();
+		this.#{{object.name | pascalCase }}Model = require('./{{object.name | kebabCase }}-model.js')();
 		{% endfor %}
 	}
 
 	getAuthModel() {
-		return this.authModel;
+		return this.#authModel;
 	}
 
 	{% for object in project.objects %}

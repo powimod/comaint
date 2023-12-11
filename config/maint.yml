@@ -55,6 +55,7 @@ objects:
         type: "string"
         secret: true
         minimum: 8
+        maximum: 70 # 61 is the minimum size of bcrypt hash
       - name: "accountLocked"
         type: "boolean"
         default: "false"
