@@ -6,18 +6,22 @@
 		filename    : 'auth-model.js'
 		%}
 'use strict';
+const assert = require('assert');
 
-class authModel {
+class AuthModel {
 
-	static getModel() {
-		// TODO store model as global variable to get it only one time
+	static #model = null;
+
+	static initialize = () => {
+		assert(this.#model === null);
 		const ModelSingleton = require('./model.js');
-		return  ModelSingleton.getInstance();
+		this.#model = ModelSingleton.getInstance();
 	}
 
 	//TODO  replace email, password and user with project.attributes
 	static async register(email, password) {
-		const db = this.getModel().db;
+		assert(this.#model !== null);
+		const db = this.#model.db;
 		let sql = 'SELECT email FROM users WHERE email = ?';
 		let result = await db.query(sql, [ email ]);
 		if (result.code)
@@ -42,7 +46,8 @@ class authModel {
 
 	//TODO  replace email, password and user with project.attributes
 	static async login(email, password) {
-		const db = this.getModel().db;
+		assert(this.#model !== null);
+		const db = this.#model.db;
 		let sql = 'SELECT id, email, password FROM users WHERE email = ?';
 		const result = await db.query(sql, [ email ]);
 		if (result.code)
@@ -61,6 +66,7 @@ class authModel {
 }
 
 module.exports = () => {
-	return authModel;
+	AuthModel.initialize();
+	return AuthModel;
 }
 

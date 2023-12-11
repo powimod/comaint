@@ -13,7 +13,7 @@ class Model {
 	#db = null;
 	#promise_mysql = null;
 
-	#authModel = null;
+	#AuthModel = null;
 	{% for object in project.objects -%}
 	#{{object.name | pascalCase }}Model = null;
 	{% endfor %}
@@ -96,19 +96,19 @@ class Model {
 			}
 		}, pingInterval);
 
-		this.#authModel = require('./auth-model.js')();
+		this.#AuthModel = require('./auth-model.js')();
 		{% for object in project.objects -%}
 		this.#{{object.name | pascalCase }}Model = require('./{{object.name | kebabCase }}-model.js')();
 		{% endfor %}
 	}
 
 	getAuthModel() {
-		return this.#authModel;
+		return this.#AuthModel;
 	}
 
 	{% for object in project.objects %}
 	get{{object.name | pascalCase }}Model() {
-		return this._{{object.name | pascalCase }}Model;
+		return this.#{{object.name | pascalCase }}Model;
 	}
 	{% endfor %}
 }

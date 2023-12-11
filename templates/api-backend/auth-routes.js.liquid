@@ -61,7 +61,6 @@ module.exports = (app, authModel, View, config) => {
 				login: true,
 				access_token: jwtToken
 			});
-			response.json({ ok : true, login: true, access_token : jwtToken});
 		}
 		catch (error) {
 			const errorMessage = (error.message !== undefined) ? error.message : error;
