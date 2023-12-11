@@ -9,7 +9,11 @@
 
 const assert = require('assert');
 
-module.exports = (app, authModel, View) => {
+module.exports = (app, authModel, View, config) => {
+
+	const _config = config;
+	assert(_config !== undefined);
+	const jwt = require('jsonwebtoken');
 
 	app.post('/api/{{project.attributes.api_version}}/auth/register', async (request, response) => {
 		try {
@@ -20,6 +24,7 @@ module.exports = (app, authModel, View) => {
 			if (password === undefined)
 				throw new Error(`Can't find <password> in request body`);
 			const login = await authModel.register(email, password);
+			// TODO generate a token
 			response.json({ ok : true, login: login });
 		}
 		catch (error) {
@@ -46,24 +51,17 @@ module.exports = (app, authModel, View) => {
 			const userId = login.userId;
 			assert(userId !== undefined);
 
-			//TODO use secret stored in configuration file
-			const secret = "KoH!m1nt#W3b-T@uqu3h_ne";
-			if (secret === null)
-				throw new Error('Token secret not loaded');
-			if (typeof(userId) !== 'number')
-				throw new Error('Invalid UserID argument');
+			const secret = _config.security.tokenSecret;
+			assert (secret !== undefined);
 			const payload = {
 				id: userId
 			}
-			const jwt = require('jsonwebtoken');
 			const jwtToken = jwt.sign(payload, secret);
 			response.json({ ok : true, 
 				login: true,
 				access_token: jwtToken
 			});
 			response.json({ ok : true, login: true, access_token : jwtToken});
-
-
 		}
 		catch (error) {
 			const errorMessage = (error.message !== undefined) ? error.message : error;

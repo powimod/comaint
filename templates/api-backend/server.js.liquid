@@ -39,17 +39,17 @@ function loadConfig()
 		if (serverParam[prop] === undefined)
 			throw new Error(`Can't find <${prop}> property in <server> section of ${configFile}`);
 
-	const tokenParam = nconf.get('token');
-	if (tokenParam === undefined)
-		throw new Error(`Can't find <token> section in configuration file ${configFile}`);
-	for (let prop of ['secret'])
-		if (tokenParam[prop] === undefined)
+	const securityParam = nconf.get('security');
+	if (securityParam === undefined)
+		throw new Error(`Can't find <security> section in configuration file ${configFile}`);
+	for (let prop of ['tokenSecret', 'hashSalt'])
+		if (securityParam[prop] === undefined)
 			throw new Error(`Can't find <${prop}> property in <token> section of ${configFile}`);
 
 	const config = {
 		db: dbParam,
 		server: serverParam,
-		token: tokenParam
+		security: securityParam
 	}
 
 	return config;
@@ -71,7 +71,7 @@ async function main() {
 	console.log('Initializing controller...');
 	const ControllerSingleton = require('./routes/controller.js');
 	let controller = ControllerSingleton.getInstance();
-	controller.initialize(config.server, model, view);
+	controller.initialize(config, model, view);
 
 	await controller.run();
 }
