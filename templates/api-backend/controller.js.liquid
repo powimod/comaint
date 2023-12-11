@@ -13,6 +13,7 @@ class Controller {
 	#view; 
 	#app = null; // Express application
 
+	_authRoutes = null;
 	{% for object in project.objects -%}
 	_{{object.name | pascalCase }}Routes = null;
 	{% endfor %}
@@ -51,8 +52,9 @@ class Controller {
 			this.#view.sendJsonResult(response, '{{project.name}} backend API {{project.attributes.api_version}} ready');
 		});
 
+		this._authRoutes = require('./auth-routes.js')(this.#app, this.#model.getAuthModel(), this.#view);
 		{% for object in project.objects %}
-		this._{{object.name | pascalCase }}Routes = require('./{{object.name | kebabCase }}-routes.js')(this.#app, this.#model.get{{object.name | pascalCase }}Models(), this.#view);
+		this._{{object.name | pascalCase }}Routes = require('./{{object.name | kebabCase }}-routes.js')(this.#app, this.#model.get{{object.name | pascalCase }}Model(), this.#view);
 		{%- endfor %}
 	}
 

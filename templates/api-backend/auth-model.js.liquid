@@ -1,0 +1,23 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.backend_project_name,
+  		description : project.attributes.backend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'auth-model.js'
+		%}
+'use strict';
+
+class authModel {
+
+	static getModel() {
+		// TODO store model as global variable to get it only one time
+		const ModelSingleton = require('./model.js');
+		return  ModelSingleton.getInstance();
+	}
+
+}
+
+module.exports = () => {
+	return authModel;
+}
+

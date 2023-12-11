@@ -1,0 +1,23 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.backend_project_name,
+  		description : project.attributes.backend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'auth-routes.js'
+		%}
+'use strict';
+
+const assert = require('assert');
+
+module.exports = (app, authModel, View) => {
+
+	app.post('/api/{{project.attributes.api_version}}/auth/login', async (request, response) => {
+		response.json({ ok: false, error : "Login is not yet implemented" });
+	});
+
+	app.get('/api/{{project.attributes.api_version}}/auth/logout', async (request, response) => {
+		response.json({ ok: false, error : "Logout is not yet implemented" });
+	});
+
+}
+
