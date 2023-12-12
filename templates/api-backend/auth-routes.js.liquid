@@ -52,8 +52,8 @@ exports.initialize = (app, authModel, View, config) => {
 			}
 			const userId = login.userId;
 			assert(userId !== undefined);
-			const accessToken  = authModel.generateAccessToken(userId);
-			const refreshToken = authModel.generateRefreshToken(userId);
+			const accessToken  = await authModel.generateAccessToken(userId);
+			const refreshToken = await authModel.generateRefreshToken(userId);
 
 			response.json({ ok : true, 
 				'login': true,
@@ -88,8 +88,11 @@ exports.withAuth = async (request, response, next) => {
 		if (token === undefined) 
 			throw new Error(`HTTP header <x-access-token> not found`);
 		const userId = await _authModel.checkAccessToken(token);
-		console.log(userId);
-		assert(! isNaN(userId));
+		/* TODO do not check user here
+		const [authorized, message] = await _authModel.checkUser(userId);
+		if (! authorized)
+			throw new Error(message);
+		*/
 		request.userId = userId;
 		next();
 	}

@@ -71,14 +71,36 @@ class AuthModel {
 		}
 	}
 
-	static generateAccessToken(userId) {
+	static async generateAccessToken(userId) {
 		const accessTokenDuration = '1m'; // TODO move this in configuration file
-		return jwt.sign({ type: 'access',  id: userId} , this.#secret, { expiresIn: accessTokenDuration });
+		const payload = {
+			type: 'access',
+			user_id: userId
+		};
+		return jwt.sign(payload, this.#secret, { expiresIn: accessTokenDuration });
 	}
 
-	static generateRefreshToken(userId) {
-		const refreshTokenDuration = '1year'; // TODO move this in configuration file
-		return jwt.sign({ type: 'refresh', id: userId} , this.#secret, { expiresIn: refreshTokenDuration });
+	static async generateRefreshToken(userId) {
+		const db = this.#model.db;
+		const refreshTokenDuration = 365; // TODO move this in configuration file
+		const expirationDate = new Date (Date.now() + refreshTokenDuration * 86400000);
+		const sqlRequest = 'INSERT INTO tokens(id_user, expires_at) VALUES (?, ?)';
+		const sqlParams = [
+			userId,
+			expirationDate
+		];
+		const result = await db.query(sqlRequest, sqlParams);
+		if (result.code)
+			throw new Error(result.code);
+		if (result.length === 0)
+			throw new Error('Can not store refresh token');
+		const tokenId = result.insertId;
+		const payload = {
+			type: 'refresh',
+			user_id: userId,
+			token_id: tokenId
+		};
+		return jwt.sign(payload, this.#secret, { expiresIn: `${refreshTokenDuration}days` });
 	}
 
 	static checkAccessToken(token) {
@@ -97,6 +119,21 @@ class AuthModel {
 				resolve(decoded.id);
 			});
 		});
+	}
+
+	static async checkUser(userId) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		let sql = 'SELECT account_locked FROM users WHERE id= ?';
+		let result = await db.query(sql, [ userId ]);
+		if (result.code)
+			throw new Error(result.code);
+		if (result.length === 0) 
+			return [ false, 'User not found' ];
+		const locked = result[0].account_locked;
+		if (locked) 
+			return [ false, 'Account locked' ];
+		return [ true, 'authorized'];
 	}
 
 }
