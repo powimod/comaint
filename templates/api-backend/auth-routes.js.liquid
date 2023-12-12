@@ -55,13 +55,11 @@ exports.initialize = (app, authModel, View, config) => {
 			const userId = login.userId;
 			assert(userId !== undefined);
 
-			const payload = {
-				id: userId
-			}
-			const jwtToken = jwt.sign(payload, _secret);
+			const accessTokenDuration = '1m'; // TODO move this in configuration file
+			const accessToken  = jwt.sign({ type: 'access',  id: userId} , _secret, { expiresIn: accessTokenDuration });
 			response.json({ ok : true, 
-				login: true,
-				access_token: jwtToken
+				'login': true,
+				'access-token': accessToken,
 			});
 		}
 		catch (error) {
@@ -91,8 +89,14 @@ exports.withAuth = (request, response, next) => {
 		if (token === undefined) 
 			throw new Error(`HTTP header <x-access-token> not found`);
 		jwt.verify(token, _secret, (err, decoded) => {
-			if (err !== null) 
-				throw new Error(`Invalid token`);
+			if (err !== null)  {
+				if (err.constructor.name === 'TokenExpiredError')
+					throw new Error('Expired token');
+				else
+					throw new Error('Invalid token');
+			}
+			if (decoded.type !== 'access')
+				throw new Error('Not an access token');
 			if (isNaN(decoded.id))
 				throw new Error(`Invalid token content`);
 			request.userId = decoded.id;
