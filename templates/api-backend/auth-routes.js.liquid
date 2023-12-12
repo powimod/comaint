@@ -25,7 +25,7 @@ exports.initialize = (app, authModel, View, config) => {
 			const password = request.body.password;
 			if (password === undefined)
 				throw new Error(`Can't find <password> in request body`);
-			const login = await authModel.register(email, password);
+			const login = await _authModel.register(email, password);
 			// TODO generate a token
 			response.json({ ok : true, login: login });
 		}
@@ -45,20 +45,20 @@ exports.initialize = (app, authModel, View, config) => {
 			if (password === undefined)
 				throw new Error(`Can't find <password> in request body`);
 
-			const login = await authModel.login(email, password);
+			const login = await _authModel.login(email, password);
 			if (login === undefined || login === null) {
 				response.json({ ok : true, login: false, message: 'Invalid email or password'});
 				return;
 			}
 			const userId = login.userId;
 			assert(userId !== undefined);
-			const accessToken  = await authModel.generateAccessToken(userId);
-			const refreshToken = await authModel.generateRefreshToken(userId);
+			const newAccessToken  = await _authModel.generateAccessToken(userId);
+			const newRefreshToken = await _authModel.generateRefreshToken(userId);
 
 			response.json({ ok : true, 
 				'login': true,
-				'access-token': accessToken,
-				'refresh-token': refreshToken
+				'access-token': newAccessToken,
+				'refresh-token': newRefreshToken
 			});
 		}
 		catch (error) {
@@ -71,6 +71,33 @@ exports.initialize = (app, authModel, View, config) => {
 	app.get('/api/{{project.attributes.api_version}}/auth/logout', async (request, response) => {
 		try {
 			throw new Error("Logout is not yet implemented");
+		}
+		catch (error) {
+			const errorMessage = (error.message !== undefined) ? error.message : error;
+			console.error(errorMessage);
+			response.json({ ok : false, error: errorMessage });
+		}
+	});
+
+	app.post('/api/{{project.attributes.api_version}}/auth/refresh', async (request, response) => {
+		try {
+			const refreshToken = request.body.token;
+			if (refreshToken === undefined)
+				throw new Error(`Can't find <token> in request body`);
+			console.log("token:" + refreshToken);
+			const [tokenId, userId] = await _authModel.checkRefreshToken(refreshToken);
+			await _authModel.deleteRefreshToken(tokenId);
+
+			console.log(`token Id : ${tokenId}`);
+			console.log(`user Id : ${userId}`);
+
+			const newAccessToken  = await _authModel.generateAccessToken(userId);
+			const newRefreshToken = await _authModel.generateRefreshToken(userId);
+
+			response.json({ ok : true, 
+				'access-token': newAccessToken,
+				'refresh-token': newRefreshToken
+			});
 		}
 		catch (error) {
 			const errorMessage = (error.message !== undefined) ? error.message : error;

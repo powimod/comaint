@@ -114,18 +114,60 @@ class AuthModel {
 				}
 				if (decoded.type !== 'access')
 					reject('Not an access token');
-				if (isNaN(decoded.id))
+				if (isNaN(decoded.user_id))
 					reject(`Invalid token content`);
-				resolve(decoded.id);
+				resolve(decoded.user_id);
 			});
 		});
 	}
 
+	static async checkRefreshToken(token) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		const decodeToken = new Promise( (resolve, reject) => {
+			jwt.verify(token, this.#secret, (err, decoded) => {
+				if (err !== null)  {
+					if (err.constructor.name === 'TokenExpiredError')
+						reject('Expired token');
+					else
+						reject('Invalid token');
+				}
+				if (decoded.type !== 'refresh')
+					reject('Not an refresh token');
+				if (isNaN(decoded.token_id) || isNaN(decoded.user_id))
+					reject(`Invalid token content`);
+				resolve([decoded.token_id, decoded.user_id]);
+			});
+		});
+		const [tokenId, userId] = await decodeToken;
+
+		const sqlRequest = 'SELECT id FROM tokens WHERE id = ?';
+		const sqlParams = [ tokenId ];
+		const result = await db.query(sqlRequest, sqlParams);
+		if (result.code)
+			throw new Error(result.code);
+		if (result.length === 0) 
+			throw new Error('Token not found');
+		
+		return [tokenId, userId];
+	}
+
+
+	static async deleteRefreshToken(tokenId) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		const sqlRequest = 'DELETE FROM tokens WHERE id = ?';
+		const sqlParams = [ tokenId ];
+		await db.query(sqlRequest, sqlParams);
+	}
+
+
 	static async checkUser(userId) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
-		let sql = 'SELECT account_locked FROM users WHERE id= ?';
-		let result = await db.query(sql, [ userId ]);
+		const sqlRequest = 'SELECT account_locked FROM users WHERE id= ?';
+		const sqlParams = [ userId ];
+		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
 		if (result.length === 0) 
