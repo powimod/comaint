@@ -6,6 +6,7 @@
 		filename    : 'model.js'
 		%}
 'use strict'
+const assert = require('assert');
 
 class Model {
 
@@ -18,12 +19,6 @@ class Model {
 	#{{object.name | pascalCase }}Model = null;
 	{% endfor %}
 
-	/* TODO used ?
-	constructor() {
-		this.connectDb = this.connectDb.bind(this);
-	}
-	*/
-
 	get db() {
 		return this.#db;
 	}	
@@ -31,7 +26,8 @@ class Model {
 	async connectDb() {
 		const self = this;
 		let promise_mysql = require('promise-mysql');
-		const tempo = this.#config.reconnection.interval;
+		const tempo = this.#config.db.reconnection.interval;
+		assert(tempo !== undefined);
 
 		function sleep(tempo) {
 			return new Promise( (resolve) => {
@@ -42,11 +38,12 @@ class Model {
 		// connection retry loop
 		this.#db = null;
 		let db = null;
-		const maxRetries = this.#config.reconnection.maxRetries;
+		const maxRetries = this.#config.db.reconnection.maxRetries;
+		assert(maxRetries !== undefined);
 		for (let retry = 0; retry < maxRetries ; retry++){
 			console.log(`Connecting database...`);
 			try {
-				db = await promise_mysql.createConnection(this.#config);
+				db = await promise_mysql.createConnection(this.#config.db);
 				if (db.code === undefined) {
 					break;
 				}
@@ -75,16 +72,17 @@ class Model {
 	}
 
 	async initialize(config) {
-		console.log("Initializing Model");
-		if (typeof(config) !== 'object')
-			throw new Error('Invalid config parameter');
+		assert(config !== undefined);
+		assert (typeof(config) === 'object');
 		if (this.#db != null)
 			return;
 		this.#config = config;
+
+		console.log("Initializing Model");
 		await this.connectDb();
 
 		// setting regular database ping to keep connection alive
-		const pingInterval = this.#config.pingInterval;
+		const pingInterval = this.#config.db.pingInterval;
 		console.log(`Database ping interval : ${pingInterval}ms`);
 		setInterval( () => {
 			if (this.#db === null)
@@ -96,7 +94,7 @@ class Model {
 			}
 		}, pingInterval);
 
-		this.#AuthModel = require('./auth-model.js')();
+		this.#AuthModel = require('./auth-model.js')(this.#config);
 		{% for object in project.objects -%}
 		this.#{{object.name | pascalCase }}Model = require('./{{object.name | kebabCase }}-model.js')();
 		{% endfor %}

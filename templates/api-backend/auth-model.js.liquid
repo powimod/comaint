@@ -7,13 +7,21 @@
 		%}
 'use strict';
 const assert = require('assert');
+const jwt = require('jsonwebtoken');
 
 class AuthModel {
 
 	static #model = null;
+	static #config = null;
+	static #secret = null;
 
-	static initialize = () => {
+	static initialize = (config) => {
 		assert(this.#model === null);
+		assert(config !== undefined);
+		this.#config = config;
+		this.#secret = config.security.tokenSecret;
+		assert(this.#secret !== undefined);
+
 		const ModelSingleton = require('./model.js');
 		this.#model = ModelSingleton.getInstance();
 	}
@@ -63,10 +71,38 @@ class AuthModel {
 		}
 	}
 
+	static generateAccessToken(userId) {
+		const accessTokenDuration = '1m'; // TODO move this in configuration file
+		return jwt.sign({ type: 'access',  id: userId} , this.#secret, { expiresIn: accessTokenDuration });
+	}
+
+	static generateRefreshToken(userId) {
+		const refreshTokenDuration = '1year'; // TODO move this in configuration file
+		return jwt.sign({ type: 'refresh', id: userId} , this.#secret, { expiresIn: refreshTokenDuration });
+	}
+
+	static checkAccessToken(token) {
+		return new Promise( (resolve, reject) => {
+			jwt.verify(token, this.#secret, (err, decoded) => {
+				if (err !== null)  {
+					if (err.constructor.name === 'TokenExpiredError')
+						reject('Expired token');
+					else
+						reject('Invalid token');
+				}
+				if (decoded.type !== 'access')
+					reject('Not an access token');
+				if (isNaN(decoded.id))
+					reject(`Invalid token content`);
+				resolve(decoded.id);
+			});
+		});
+	}
+
 }
 
-module.exports = () => {
-	AuthModel.initialize();
+module.exports = (config) => {
+	AuthModel.initialize(config);
 	return AuthModel;
 }
 
