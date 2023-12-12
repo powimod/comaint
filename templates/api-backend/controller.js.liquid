@@ -52,9 +52,10 @@ class Controller {
 			this.#view.sendJsonResult(response, '{{project.name}} backend API {{project.attributes.api_version}} ready');
 		});
 
-		this.#authRoutes = require('./auth-routes.js')(this.#app, this.#model.getAuthModel(), this.#view, config);
+		this.#authRoutes = require('./auth-routes.js');
+		this.#authRoutes.initialize(this.#app, this.#model.getAuthModel(), this.#view, config);
 		{% for object in project.objects %}
-		this._{{object.name | pascalCase }}Routes = require('./{{object.name | kebabCase }}-routes.js')(this.#app, this.#model.get{{object.name | pascalCase }}Model(), this.#view);
+		this.#{{object.name | pascalCase }}Routes = require('./{{object.name | kebabCase }}-routes.js')(this.#app, this.#model.get{{object.name | pascalCase }}Model(), this.#view);
 		{%- endfor %}
 	}
 

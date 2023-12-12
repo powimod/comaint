@@ -9,7 +9,7 @@
 
 const assert = require('assert');
 
-module.exports = (app, authModel, View, config) => {
+exports.initialize = (app, authModel, View, config) => {
 
 	const _config = config;
 	assert(_config !== undefined);
@@ -80,5 +80,9 @@ module.exports = (app, authModel, View, config) => {
 		}
 	});
 
+}
+
+exports.withAuth = (request, response, next) => {
+	next();
 }
 
