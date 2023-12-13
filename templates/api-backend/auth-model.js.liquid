@@ -40,6 +40,7 @@ class AuthModel {
 		const bcrypt = require('bcrypt');
 		const passwordHash = await bcrypt.hash(password, saltRounds)
 		const sqlRequest = `INSERT INTO users(email, password) VALUES (?, ?);`;
+		console.log("dOm sql:" + sqlRequest);
 		const sqlParams = [
 			email,
 			passwordHash
@@ -47,27 +48,27 @@ class AuthModel {
 		result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
-		return {
-			userId : result.insertId
-		}
+		const userId = result.insertId;
+		return userId;
 	}
 
 	static async login(email, password) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
-		let sql = 'SELECT id, email, password FROM users WHERE email = ?';
+		let sql = 'SELECT id, email, password, account_locked FROM users WHERE email = ?';
 		const result = await db.query(sql, [ email ]);
 		if (result.code)
 			throw new Error(result.code);
 		if (result.length === 0) 
-			throw new Error(`Unknown email or invalid password`);
+			throw new Error('Unknown email or invalid password');
 		const bcrypt = require('bcrypt');
 		const passwordValid = await bcrypt.compare(password, result[0].password);
 		if (! passwordValid)
-			throw new Error(`Unknown email or invalid password`);
-		return {
-			userId: result[0].id
-		}
+			throw new Error('Unknown email or invalid password');
+		if (result[0].account_locked)
+			throw new Error('User account is locked');
+		const userId = result[0].id;
+		return userId;
 	}
 
 	static async generateAccessToken(userId) {
@@ -84,11 +85,14 @@ class AuthModel {
 		const refreshTokenDuration = 365; // TODO move this in configuration file
 		const expirationDate = new Date (Date.now() + refreshTokenDuration * 86400000);
 		const sqlRequest = 'INSERT INTO tokens(id_user, expires_at) VALUES (?, ?)';
+		console.log("dOm sql:" + sqlRequest);
+		console.log("dOm userId:" + userId);
 		const sqlParams = [
 			userId,
 			expirationDate
 		];
 		const result = await db.query(sqlRequest, sqlParams);
+		console.log("dOm ok");
 		if (result.code)
 			throw new Error(result.code);
 		if (result.length === 0)
@@ -141,14 +145,14 @@ class AuthModel {
 		const [tokenId, userId] = await decodeToken;
 
 		const sqlRequest = 'SELECT id FROM tokens WHERE id = ?';
+		console.log("dOm sql:" + sqlRequest);
 		const sqlParams = [ tokenId ];
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
-		if (result.length === 0) 
-			throw new Error('Token not found');
+		const tokenFound = (result.length === 0) ? false : true
 		
-		return [tokenId, userId];
+		return [tokenFound, tokenId, userId];
 	}
 
 
@@ -156,26 +160,41 @@ class AuthModel {
 		assert(this.#model !== null);
 		const db = this.#model.db;
 		const sqlRequest = 'DELETE FROM tokens WHERE id = ?';
+		console.log("dOm sql:" + sqlRequest);
 		const sqlParams = [ tokenId ];
-		await db.query(sqlRequest, sqlParams);
+		const result = await db.query(sqlRequest, sqlParams);
+		return (result.affectedRows === 0) ? false : true;
 	}
 
 
-	static async checkUser(userId) {
+	static async checkAccountLocked(userId) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
 		const sqlRequest = 'SELECT account_locked FROM users WHERE id= ?';
+		console.log("dOm sql:" + sqlRequest);
 		const sqlParams = [ userId ];
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
 		if (result.length === 0) 
-			return [ false, 'User not found' ];
+			throw new Error('User not found');
 		const locked = result[0].account_locked;
-		if (locked) 
-			return [ false, 'Account locked' ];
-		return [ true, 'authorized'];
+		return locked;
 	}
+
+	static async lockAccount(userId) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		const sqlRequest = 'UPDATE users SET account_locked = ? WHERE id= ?';
+		console.log("dOm sql:" + sqlRequest);
+		const sqlParams = [ true, userId ];
+		const result = await db.query(sqlRequest, sqlParams);
+		if (result.code)
+			throw new Error(result.code);
+		if (result.affectedRows=== 0) 
+			throw new Error('User not found');
+	}
+
 
 }
 

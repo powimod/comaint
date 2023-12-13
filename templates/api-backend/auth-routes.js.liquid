@@ -25,13 +25,12 @@ exports.initialize = (app, authModel, View, config) => {
 			const password = request.body.password;
 			if (password === undefined)
 				throw new Error(`Can't find <password> in request body`);
-			const login = await _authModel.register(email, password);
-			const userId = login.userId;
+			const userId = await _authModel.register(email, password);
 			assert(userId !== undefined);
 			const newAccessToken  = await _authModel.generateAccessToken(userId);
 			const newRefreshToken = await _authModel.generateRefreshToken(userId);
 			response.json({ ok : true, 
-				'login': true,
+				'user-id': userId,
 				'access-token': newAccessToken,
 				'refresh-token': newRefreshToken
 			});
@@ -52,17 +51,12 @@ exports.initialize = (app, authModel, View, config) => {
 			if (password === undefined)
 				throw new Error(`Can't find <password> in request body`);
 
-			const login = await _authModel.login(email, password);
-			if (login === undefined || login === null) {
-				response.json({ ok : true, login: false, message: 'Invalid email or password'});
-				return;
-			}
-			const userId = login.userId;
-			assert(userId !== undefined);
+			const userId = await _authModel.login(email, password);
+			assert (! isNaN(userId)) ;
 			const newAccessToken  = await _authModel.generateAccessToken(userId);
 			const newRefreshToken = await _authModel.generateRefreshToken(userId);
 			response.json({ ok : true, 
-				'login': true,
+				'user-id' : userId,
 				'access-token': newAccessToken,
 				'refresh-token': newRefreshToken
 			});
@@ -90,17 +84,25 @@ exports.initialize = (app, authModel, View, config) => {
 			const refreshToken = request.body.token;
 			if (refreshToken === undefined)
 				throw new Error(`Can't find <token> in request body`);
-			console.log("token:" + refreshToken);
-			const [tokenId, userId] = await _authModel.checkRefreshToken(refreshToken);
+			const [tokenFound, tokenId, userId ] = await _authModel.checkRefreshToken(refreshToken);
+
+			if (! tokenFound) {
+				// if a token is not found, it should be an attempt to usurp cookie :
+				// since a refresh token is deleted when used, it will not be found with a second attempt to use it.
+				await _authModel.lockAccount(userId);
+				throw new Error('Attempt to reuse a token');
+			}
+
 			await _authModel.deleteRefreshToken(tokenId);
 
-			console.log(`token Id : ${tokenId}`);
-			console.log(`user Id : ${userId}`);
+			if (await _authModel.checkAccountLocked(userId))
+				throw new Error('Account locked');
 
 			const newAccessToken  = await _authModel.generateAccessToken(userId);
 			const newRefreshToken = await _authModel.generateRefreshToken(userId);
 
 			response.json({ ok : true, 
+				'user-id' : userId,
 				'access-token': newAccessToken,
 				'refresh-token': newRefreshToken
 			});
@@ -121,11 +123,6 @@ exports.withAuth = async (request, response, next) => {
 		if (token === undefined) 
 			throw new Error(`HTTP header <x-access-token> not found`);
 		const userId = await _authModel.checkAccessToken(token);
-		/* TODO do not check user here
-		const [authorized, message] = await _authModel.checkUser(userId);
-		if (! authorized)
-			throw new Error(message);
-		*/
 		request.userId = userId;
 		next();
 	}
