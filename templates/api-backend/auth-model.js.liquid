@@ -35,7 +35,7 @@ class AuthModel {
 		if (result.code)
 			throw new Error(result.code);
 		if (result.length > 0) 
-			return null; // email already used
+			throw new Error('An account with this email already exists');
 		const saltRounds = 10; // TODO hard coded value
 		const bcrypt = require('bcrypt');
 		const passwordHash = await bcrypt.hash(password, saltRounds)
@@ -52,7 +52,6 @@ class AuthModel {
 		}
 	}
 
-	//TODO  replace email, password and user with project.attributes
 	static async login(email, password) {
 		assert(this.#model !== null);
 		const db = this.#model.db;

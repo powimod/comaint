@@ -26,8 +26,15 @@ exports.initialize = (app, authModel, View, config) => {
 			if (password === undefined)
 				throw new Error(`Can't find <password> in request body`);
 			const login = await _authModel.register(email, password);
-			// TODO generate a token
-			response.json({ ok : true, login: login });
+			const userId = login.userId;
+			assert(userId !== undefined);
+			const newAccessToken  = await _authModel.generateAccessToken(userId);
+			const newRefreshToken = await _authModel.generateRefreshToken(userId);
+			response.json({ ok : true, 
+				'login': true,
+				'access-token': newAccessToken,
+				'refresh-token': newRefreshToken
+			});
 		}
 		catch (error) {
 			const errorMessage = (error.message !== undefined) ? error.message : error;
@@ -54,7 +61,6 @@ exports.initialize = (app, authModel, View, config) => {
 			assert(userId !== undefined);
 			const newAccessToken  = await _authModel.generateAccessToken(userId);
 			const newRefreshToken = await _authModel.generateRefreshToken(userId);
-
 			response.json({ ok : true, 
 				'login': true,
 				'access-token': newAccessToken,
