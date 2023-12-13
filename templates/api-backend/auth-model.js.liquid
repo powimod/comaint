@@ -183,13 +183,18 @@ class AuthModel {
 	static async lockAccount({{authObjectName}}Id) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
-		const sqlRequest = 'UPDATE {{authTableName}} SET account_locked = ? WHERE id= ?';
-		const sqlParams = [ true, {{authObjectName}}Id ];
-		const result = await db.query(sqlRequest, sqlParams);
+		// lock account
+		let sqlRequest = 'UPDATE {{authTableName}} SET account_locked = ? WHERE id= ?';
+		let sqlParams = [ true, {{authObjectName}}Id ];
+		let result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
 		if (result.affectedRows=== 0) 
 			throw new Error('{{authObjectName | pascalCase}} not found');
+		// remove existing {{authObjectName}} tokens
+		sqlRequest = 'DELETE FROM tokens WHERE id_{{authObjectName}} = ?';
+		sqlParams = [ {{authObjectName}}Id ];
+		result = await db.query(sqlRequest, sqlParams);
 	}
 
 
