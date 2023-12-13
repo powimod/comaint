@@ -5,8 +5,13 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'auth-routes.js'
 		%}
+{% liquid 
+	assign authObjectName = project.attributes.auth_object
+	assign authTableName  = project.attributes.auth_table_name
+	assign authIdentProp = project.attributes.auth_ident_property
+	assign authPasswordProp = project.attributes.auth_password_property
+%}
 'use strict';
-
 const assert = require('assert');
 
 let _config = null;
@@ -19,18 +24,18 @@ exports.initialize = (app, authModel, View, config) => {
 
 	app.post('/api/{{project.attributes.api_version}}/auth/register', async (request, response) => {
 		try {
-			const email = request.body.email;
-			if (email === undefined)
-				throw new Error(`Can't find <email> in request body`);
-			const password = request.body.password;
-			if (password === undefined)
-				throw new Error(`Can't find <password> in request body`);
-			const userId = await _authModel.register(email, password);
-			assert(userId !== undefined);
-			const newAccessToken  = await _authModel.generateAccessToken(userId);
-			const newRefreshToken = await _authModel.generateRefreshToken(userId);
+			const {{authIdentProp}} = request.body.{{authIdentProp}};
+			if ({{authIdentProp}} === undefined)
+				throw new Error(`Can't find <{{authIdentProp}}> in request body`);
+			const {{authPasswordProp}} = request.body.{{authPasswordProp}};
+			if ({{authPasswordProp}} === undefined)
+				throw new Error(`Can't find <{{authPasswordProp}}> in request body`);
+			const {{authObjectName}}Id = await _authModel.register({{authIdentProp}}, {{authPasswordProp}});
+			assert({{authObjectName}}Id !== undefined);
+			const newAccessToken  = await _authModel.generateAccessToken({{authObjectName}}Id);
+			const newRefreshToken = await _authModel.generateRefreshToken({{authObjectName}}Id);
 			response.json({ ok : true, 
-				'user-id': userId,
+				'{{authObjectName}}-id': {{authObjectName}}Id,
 				'access-token': newAccessToken,
 				'refresh-token': newRefreshToken
 			});
@@ -44,19 +49,19 @@ exports.initialize = (app, authModel, View, config) => {
 
 	app.post('/api/{{project.attributes.api_version}}/auth/login', async (request, response) => {
 		try {
-			const email = request.body.email;
-			if (email === undefined)
-				throw new Error(`Can't find <email> in request body`);
-			const password = request.body.password;
-			if (password === undefined)
-				throw new Error(`Can't find <password> in request body`);
+			const {{authIdentProp}} = request.body.{{authIdentProp}};
+			if ({{authIdentProp}} === undefined)
+				throw new Error(`Can't find <{{authIdentProp}}> in request body`);
+			const {{authPasswordProp}} = request.body.{{authPasswordProp}};
+			if ({{authPasswordProp}} === undefined)
+				throw new Error(`Can't find <{{authPasswordProp}}> in request body`);
 
-			const userId = await _authModel.login(email, password);
-			assert (! isNaN(userId)) ;
-			const newAccessToken  = await _authModel.generateAccessToken(userId);
-			const newRefreshToken = await _authModel.generateRefreshToken(userId);
+			const {{authObjectName}}Id = await _authModel.login({{authIdentProp}}, {{authPasswordProp}});
+			assert (! isNaN({{authObjectName}}Id)) ;
+			const newAccessToken  = await _authModel.generateAccessToken({{authObjectName}}Id);
+			const newRefreshToken = await _authModel.generateRefreshToken({{authObjectName}}Id);
 			response.json({ ok : true, 
-				'user-id' : userId,
+				'{{authObjectName}}-id' : {{authObjectName}}Id,
 				'access-token': newAccessToken,
 				'refresh-token': newRefreshToken
 			});
@@ -84,25 +89,25 @@ exports.initialize = (app, authModel, View, config) => {
 			const refreshToken = request.body.token;
 			if (refreshToken === undefined)
 				throw new Error(`Can't find <token> in request body`);
-			const [tokenFound, tokenId, userId ] = await _authModel.checkRefreshToken(refreshToken);
+			const [tokenFound, tokenId, {{authObjectName}}Id ] = await _authModel.checkRefreshToken(refreshToken);
 
 			if (! tokenFound) {
 				// if a token is not found, it should be an attempt to usurp cookie :
 				// since a refresh token is deleted when used, it will not be found with a second attempt to use it.
-				await _authModel.lockAccount(userId);
+				await _authModel.lockAccount({{authObjectName}}Id);
 				throw new Error('Attempt to reuse a token');
 			}
 
 			await _authModel.deleteRefreshToken(tokenId);
 
-			if (await _authModel.checkAccountLocked(userId))
+			if (await _authModel.checkAccountLocked({{authObjectName}}Id))
 				throw new Error('Account locked');
 
-			const newAccessToken  = await _authModel.generateAccessToken(userId);
-			const newRefreshToken = await _authModel.generateRefreshToken(userId);
+			const newAccessToken  = await _authModel.generateAccessToken({{authObjectName}}Id);
+			const newRefreshToken = await _authModel.generateRefreshToken({{authObjectName}}Id);
 
 			response.json({ ok : true, 
-				'user-id' : userId,
+				'{{authObjectName}}-id' : {{authObjectName}}Id,
 				'access-token': newAccessToken,
 				'refresh-token': newRefreshToken
 			});
@@ -122,8 +127,8 @@ exports.withAuth = async (request, response, next) => {
 		const token = request.headers['x-access-token'];
 		if (token === undefined) 
 			throw new Error(`HTTP header <x-access-token> not found`);
-		const userId = await _authModel.checkAccessToken(token);
-		request.userId = userId;
+		const {{authObjectName}}Id = await _authModel.checkAccessToken(token);
+		request.{{authObjectName}}Id = {{authObjectName}}Id;
 		next();
 	}
 	catch (error) {

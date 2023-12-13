@@ -5,6 +5,12 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'auth-model.js'
 		%}
+{% liquid 
+	assign authObjectName = project.attributes.auth_object
+	assign authTableName  = project.attributes.auth_table_name
+	assign authIdentProp = project.attributes.auth_ident_property
+	assign authPasswordProp = project.attributes.auth_password_property
+%}
 'use strict';
 const assert = require('assert');
 const jwt = require('jsonwebtoken');
@@ -26,73 +32,68 @@ class AuthModel {
 		this.#model = ModelSingleton.getInstance();
 	}
 
-	//TODO  replace email, password and user with project.attributes
-	static async register(email, password) {
+	static async register({{authIdentProp}}, {{authPasswordProp}}) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
-		let sql = 'SELECT email FROM users WHERE email = ?';
-		let result = await db.query(sql, [ email ]);
+		let sql = 'SELECT {{authIdentProp}} FROM {{authTableName}} WHERE {{authIdentProp}} = ?';
+		let result = await db.query(sql, [ {{authIdentProp}} ]);
 		if (result.code)
 			throw new Error(result.code);
 		if (result.length > 0) 
-			throw new Error('An account with this email already exists');
+			throw new Error('An account with this {{authIdentProp}} already exists');
 		const saltRounds = 10; // TODO hard coded value
 		const bcrypt = require('bcrypt');
-		const passwordHash = await bcrypt.hash(password, saltRounds)
-		const sqlRequest = `INSERT INTO users(email, password) VALUES (?, ?);`;
-		console.log("dOm sql:" + sqlRequest);
+		const {{authPasswordProp}}Hash = await bcrypt.hash({{authPasswordProp}}, saltRounds)
+		const sqlRequest = `INSERT INTO {{authTableName}}({{authIdentProp}}, {{authPasswordProp}}) VALUES (?, ?);`;
 		const sqlParams = [
-			email,
-			passwordHash
+			{{authIdentProp}},
+			{{authPasswordProp}}Hash
 		];
 		result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
-		const userId = result.insertId;
-		return userId;
+		const {{authObjectName}}Id = result.insertId;
+		return {{authObjectName}}Id;
 	}
 
-	static async login(email, password) {
+	static async login({{authIdentProp}}, {{authPasswordProp}}) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
-		let sql = 'SELECT id, email, password, account_locked FROM users WHERE email = ?';
-		const result = await db.query(sql, [ email ]);
+		let sql = 'SELECT id, {{authIdentProp}}, {{authPasswordProp}}, account_locked FROM {{authTableName}} WHERE {{authIdentProp}} = ?';
+		const result = await db.query(sql, [ {{authIdentProp}} ]);
 		if (result.code)
 			throw new Error(result.code);
 		if (result.length === 0) 
-			throw new Error('Unknown email or invalid password');
+			throw new Error('Unknown {{authIdentProp}} or invalid {{authPasswordProp}}');
 		const bcrypt = require('bcrypt');
-		const passwordValid = await bcrypt.compare(password, result[0].password);
-		if (! passwordValid)
-			throw new Error('Unknown email or invalid password');
+		const {{authPasswordProp}}Valid = await bcrypt.compare({{authPasswordProp}}, result[0].{{authPasswordProp}});
+		if (! {{authPasswordProp}}Valid)
+			throw new Error('Unknown {{authIdentProp}} or invalid {{authPasswordProp}}');
 		if (result[0].account_locked)
-			throw new Error('User account is locked');
-		const userId = result[0].id;
-		return userId;
+			throw new Error('{{authObjectName | pascalCase}} account is locked');
+		const {{authObjectName}}Id = result[0].id;
+		return {{authObjectName}}Id;
 	}
 
-	static async generateAccessToken(userId) {
+	static async generateAccessToken({{authObjectName}}Id) {
 		const accessTokenDuration = '1m'; // TODO move this in configuration file
 		const payload = {
 			type: 'access',
-			user_id: userId
+			{{authObjectName}}_id: {{authObjectName}}Id
 		};
 		return jwt.sign(payload, this.#secret, { expiresIn: accessTokenDuration });
 	}
 
-	static async generateRefreshToken(userId) {
+	static async generateRefreshToken({{authObjectName}}Id) {
 		const db = this.#model.db;
 		const refreshTokenDuration = 365; // TODO move this in configuration file
 		const expirationDate = new Date (Date.now() + refreshTokenDuration * 86400000);
-		const sqlRequest = 'INSERT INTO tokens(id_user, expires_at) VALUES (?, ?)';
-		console.log("dOm sql:" + sqlRequest);
-		console.log("dOm userId:" + userId);
+		const sqlRequest = 'INSERT INTO tokens(id_{{authObjectName}}, expires_at) VALUES (?, ?)';
 		const sqlParams = [
-			userId,
+			{{authObjectName}}Id,
 			expirationDate
 		];
 		const result = await db.query(sqlRequest, sqlParams);
-		console.log("dOm ok");
 		if (result.code)
 			throw new Error(result.code);
 		if (result.length === 0)
@@ -100,7 +101,7 @@ class AuthModel {
 		const tokenId = result.insertId;
 		const payload = {
 			type: 'refresh',
-			user_id: userId,
+			{{authObjectName}}_id: {{authObjectName}}Id,
 			token_id: tokenId
 		};
 		return jwt.sign(payload, this.#secret, { expiresIn: `${refreshTokenDuration}days` });
@@ -117,9 +118,9 @@ class AuthModel {
 				}
 				if (decoded.type !== 'access')
 					reject('Not an access token');
-				if (isNaN(decoded.user_id))
+				if (isNaN(decoded.{{authObjectName}}_id))
 					reject(`Invalid token content`);
-				resolve(decoded.user_id);
+				resolve(decoded.{{authObjectName}}_id);
 			});
 		});
 	}
@@ -137,22 +138,21 @@ class AuthModel {
 				}
 				if (decoded.type !== 'refresh')
 					reject('Not an refresh token');
-				if (isNaN(decoded.token_id) || isNaN(decoded.user_id))
+				if (isNaN(decoded.token_id) || isNaN(decoded.{{authObjectName}}_id))
 					reject(`Invalid token content`);
-				resolve([decoded.token_id, decoded.user_id]);
+				resolve([decoded.token_id, decoded.{{authObjectName}}_id]);
 			});
 		});
-		const [tokenId, userId] = await decodeToken;
+		const [tokenId, {{authObjectName}}Id] = await decodeToken;
 
 		const sqlRequest = 'SELECT id FROM tokens WHERE id = ?';
-		console.log("dOm sql:" + sqlRequest);
 		const sqlParams = [ tokenId ];
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
 		const tokenFound = (result.length === 0) ? false : true
 		
-		return [tokenFound, tokenId, userId];
+		return [tokenFound, tokenId, {{authObjectName}}Id];
 	}
 
 
@@ -160,39 +160,36 @@ class AuthModel {
 		assert(this.#model !== null);
 		const db = this.#model.db;
 		const sqlRequest = 'DELETE FROM tokens WHERE id = ?';
-		console.log("dOm sql:" + sqlRequest);
 		const sqlParams = [ tokenId ];
 		const result = await db.query(sqlRequest, sqlParams);
 		return (result.affectedRows === 0) ? false : true;
 	}
 
 
-	static async checkAccountLocked(userId) {
+	static async checkAccountLocked({{authObjectName}}Id) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
-		const sqlRequest = 'SELECT account_locked FROM users WHERE id= ?';
-		console.log("dOm sql:" + sqlRequest);
-		const sqlParams = [ userId ];
+		const sqlRequest = 'SELECT account_locked FROM {{authTableName}} WHERE id= ?';
+		const sqlParams = [ {{authObjectName}}Id ];
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
 		if (result.length === 0) 
-			throw new Error('User not found');
+			throw new Error('{{authObjectName | pascalCase}} not found');
 		const locked = result[0].account_locked;
 		return locked;
 	}
 
-	static async lockAccount(userId) {
+	static async lockAccount({{authObjectName}}Id) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
-		const sqlRequest = 'UPDATE users SET account_locked = ? WHERE id= ?';
-		console.log("dOm sql:" + sqlRequest);
-		const sqlParams = [ true, userId ];
+		const sqlRequest = 'UPDATE {{authTableName}} SET account_locked = ? WHERE id= ?';
+		const sqlParams = [ true, {{authObjectName}}Id ];
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
 		if (result.affectedRows=== 0) 
-			throw new Error('User not found');
+			throw new Error('{{authObjectName | pascalCase}} not found');
 	}
 
 
