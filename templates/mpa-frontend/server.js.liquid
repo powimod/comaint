@@ -37,10 +37,18 @@ function loadConfig()
 		if (parameterList[prop] === undefined)
 			throw new Error(`Can't find <${prop}> property in <parameters> section of ${configFile}`);
 
+	const sessionParamList = nconf.get('session');
+	if (sessionParamList === undefined)
+		throw new Error(`Can't find <session> section in configuration file ${configFile}`);
+	for (let prop of ['secret', 'maxAge'])
+		if (sessionParamList[prop] === undefined)
+			throw new Error(`Can't find <${prop}> property in <session> section of ${configFile}`);
+
 	const config = {
 		backend: backendParamList,
 		server: serverParamList,
-		parameters: parameterList
+		parameters: parameterList,
+		session: sessionParamList
 	}
 
 	return config;
@@ -62,7 +70,7 @@ async function main() {
 	console.log('Initializing route controller...');
 	const ControllerSingleton = require('./routes/controller.js');
 	let controller = ControllerSingleton.getInstance();
-	controller.initialize({ server: config.server, parameters: config.parameters } , model, view);
+	controller.initialize(config , model, view);
 
 	await controller.run();
 }
