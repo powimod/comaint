@@ -30,7 +30,8 @@ exports.initialize = (app, authModel, View, config) => {
 			const {{authPasswordProp}} = request.body.{{authPasswordProp}};
 			if ({{authPasswordProp}} === undefined)
 				throw new Error(`Can't find <{{authPasswordProp}}> in request body`);
-			const {{authObjectName}}Id = await _authModel.register({{authIdentProp}}, {{authPasswordProp}});
+			const result = await _authModel.register({{authIdentProp}}, {{authPasswordProp}});
+			const {{authObjectName}}Id = result.{{authObjectName}}Id; 
 			assert({{authObjectName}}Id !== undefined);
 			const newAccessToken  = await _authModel.generateAccessToken({{authObjectName}}Id);
 			const newRefreshToken = await _authModel.generateRefreshToken({{authObjectName}}Id);
@@ -56,7 +57,8 @@ exports.initialize = (app, authModel, View, config) => {
 			if ({{authPasswordProp}} === undefined)
 				throw new Error(`Can't find <{{authPasswordProp}}> in request body`);
 
-			const {{authObjectName}}Id = await _authModel.login({{authIdentProp}}, {{authPasswordProp}});
+			const login = await _authModel.login({{authIdentProp}}, {{authPasswordProp}});
+			const {{authObjectName}}Id = login.{{authObjectName}}Id;
 			assert (! isNaN({{authObjectName}}Id)) ;
 			const newAccessToken  = await _authModel.generateAccessToken({{authObjectName}}Id);
 			const newRefreshToken = await _authModel.generateRefreshToken({{authObjectName}}Id);

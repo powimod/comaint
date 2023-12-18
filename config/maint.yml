@@ -41,55 +41,9 @@ attributes:
   auth_table_name: "users"
   auth_ident_property: "email"
   auth_password_property: "password"
+  auth_extra_field: 'email'
 
 objects:
-  - name: "user"
-    attributes:
-      table_name: "users"
-    properties:
-      - name: "id"
-        type: "id"
-      - name: "email"
-        type: "string"
-        maximum: 320
-      - name: "password"
-        type: "string"
-        secret: true
-        minimum: 8
-        maximum: 70 # 61 is the minimum size of bcrypt hash
-      - name: "accountLocked"
-        type: "boolean"
-        default: "false"
-      - name: "phone"
-        type: "string"
-        mandatory: false
-      - name: "address"
-        type: "text"
-        mandatory: true
-        default: ""
-    indexes:
-      - name: "email"
-        unique: true
-        keys:
-          - property : "email"
-
-  - name: "token"
-    attributes:
-      table_name: "tokens"
-    properties:
-      - name: "id"
-        type: "id"
-      - name: "expires_at"
-        type: "datetime"
-    links:
-      - name: "user"
-        target: "user"
-    indexes:
-      - name: "id_user"
-        unique: false
-        keys:
-          - link: "user"
-
 
 
   - name: "Company"
@@ -133,6 +87,60 @@ objects:
         unique: true
         keys:
           - property : "name"
+
+
+
+  - name: "User"
+    attributes:
+      table_name: "users"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "email"
+        type: "string"
+        maximum: 320
+      - name: "password"
+        type: "string"
+        secret: true
+        minimum: 8
+        maximum: 70 # 61 is the minimum size of bcrypt hash
+      - name: "accountLocked"
+        type: "boolean"
+        default: false
+      - name: "phone"
+        type: "string"
+        mandatory: false
+      - name: "address"
+        type: "text"
+        mandatory: true
+        default: ""
+    links:
+      - name: "company"
+        target: "Company"
+    indexes:
+      - name: "email"
+        unique: true
+        keys:
+          - property : "email"
+
+  - name: "Token"
+    attributes:
+      table_name: "tokens"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "expires_at"
+        type: "datetime"
+    links:
+      - name: "user"
+        target: "User"
+    indexes:
+      - name: "id_user"
+        unique: false
+        keys:
+          - link: "user"
+
+
 
 
   - name: "Unit"

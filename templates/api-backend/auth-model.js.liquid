@@ -52,14 +52,21 @@ class AuthModel {
 		result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
-		const {{authObjectName}}Id = result.insertId;
-		return {{authObjectName}}Id;
+		return {
+			{{authObjectName}}Id : result.insertId
+		}
 	}
 
 	static async login({{authIdentProp}}, {{authPasswordProp}}) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
-		let sql = 'SELECT id, {{authIdentProp}}, {{authPasswordProp}}, account_locked FROM {{authTableName}} WHERE {{authIdentProp}} = ?';
+		{% liquid
+		   assign extra_field = ''
+		   if project.attributes.auth_extra_field
+		     assign extra = project.attributes.auth_extra_field | snakeCase | prepend: ', '
+		   endif
+		%}
+		let sql = 'SELECT id, {{authIdentProp}}, {{authPasswordProp}}, account_locked{{extra}} FROM {{authTableName}} WHERE {{authIdentProp}} = ?';
 		const result = await db.query(sql, [ {{authIdentProp}} ]);
 		if (result.code)
 			throw new Error(result.code);
@@ -71,8 +78,16 @@ class AuthModel {
 			throw new Error('Unknown {{authIdentProp}} or invalid {{authPasswordProp}}');
 		if (result[0].account_locked)
 			throw new Error('{{authObjectName | pascalCase}} account is locked');
-		const {{authObjectName}}Id = result[0].id;
-		return {{authObjectName}}Id;
+		return {
+		{% liquid
+		   if project.attributes.auth_extra_field
+		   	echo "\t"
+			echo project.attributes.auth_extra_field | camelCase
+			echo project.attributes.auth_extra_field | snakeCase | prepend: ': result[0].' | append: ','
+		   endif
+		%}
+			{{authObjectName}}Id: result[0].id
+		}
 	}
 
 	static async generateAccessToken({{authObjectName}}Id) {
@@ -164,7 +179,6 @@ class AuthModel {
 		const result = await db.query(sqlRequest, sqlParams);
 		return (result.affectedRows === 0) ? false : true;
 	}
-
 
 	static async checkAccountLocked({{authObjectName}}Id) {
 		assert(this.#model !== null);
