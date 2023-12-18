@@ -46,6 +46,14 @@ CREATE TABLE {{object.attributes.table_name}}(
 			 assign data_type = "TEXT"
 		      when "integer"
 			 assign data_type = "INTEGER"
+		      when "date"
+			 assign data_type = "DATE"
+		      when "time"
+			 assign data_type = "TIME"
+		      when "datetime"
+			 assign data_type = "DATETIME"
+		      when "boolean"
+			 assign data_type = "BOOLEAN"
 		      else
 			 assign data_type = "???"
 		   endcase

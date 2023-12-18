@@ -1,0 +1,221 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.backend_project_name,
+  		description : project.attributes.backend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'auth-model.js'
+		%}
+{% liquid 
+	assign authObjectName = project.attributes.auth_object
+	assign authTableName  = project.attributes.auth_table_name
+	assign authIdentProp = project.attributes.auth_ident_property
+	assign authPasswordProp = project.attributes.auth_password_property
+%}
+'use strict';
+const assert = require('assert');
+const jwt = require('jsonwebtoken');
+
+class AuthModel {
+
+	static #model = null;
+	static #config = null;
+	static #secret = null;
+
+	static initialize = (config) => {
+		assert(this.#model === null);
+		assert(config !== undefined);
+		this.#config = config;
+		this.#secret = config.security.tokenSecret;
+		assert(this.#secret !== undefined);
+
+		const ModelSingleton = require('./model.js');
+		this.#model = ModelSingleton.getInstance();
+	}
+
+	static async register({{authIdentProp}}, {{authPasswordProp}}) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		let sql = 'SELECT {{authIdentProp}} FROM {{authTableName}} WHERE {{authIdentProp}} = ?';
+		let result = await db.query(sql, [ {{authIdentProp}} ]);
+		if (result.code)
+			throw new Error(result.code);
+		if (result.length > 0) 
+			throw new Error('An account with this {{authIdentProp}} already exists');
+		const saltRounds = 10; // TODO hard coded value
+		const bcrypt = require('bcrypt');
+		const {{authPasswordProp}}Hash = await bcrypt.hash({{authPasswordProp}}, saltRounds)
+		const sqlRequest = `INSERT INTO {{authTableName}}({{authIdentProp}}, {{authPasswordProp}}) VALUES (?, ?);`;
+		const sqlParams = [
+			{{authIdentProp}},
+			{{authPasswordProp}}Hash
+		];
+		result = await db.query(sqlRequest, sqlParams);
+		if (result.code)
+			throw new Error(result.code);
+		return {
+			{{authObjectName}}Id : result.insertId
+		}
+	}
+
+	static async login({{authIdentProp}}, {{authPasswordProp}}) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		{% liquid
+		   assign extra_field = ''
+		   if project.attributes.auth_extra_field
+		     assign extra = project.attributes.auth_extra_field | snakeCase | prepend: ', '
+		   endif
+		%}
+		let sql = 'SELECT id, {{authIdentProp}}, {{authPasswordProp}}, account_locked{{extra}} FROM {{authTableName}} WHERE {{authIdentProp}} = ?';
+		const result = await db.query(sql, [ {{authIdentProp}} ]);
+		if (result.code)
+			throw new Error(result.code);
+		if (result.length === 0) 
+			throw new Error('Unknown {{authIdentProp}} or invalid {{authPasswordProp}}');
+		const bcrypt = require('bcrypt');
+		const {{authPasswordProp}}Valid = await bcrypt.compare({{authPasswordProp}}, result[0].{{authPasswordProp}});
+		if (! {{authPasswordProp}}Valid)
+			throw new Error('Unknown {{authIdentProp}} or invalid {{authPasswordProp}}');
+		if (result[0].account_locked)
+			throw new Error('{{authObjectName | pascalCase}} account is locked');
+		return {
+		{% liquid
+		   if project.attributes.auth_extra_field
+		   	echo "\t"
+			echo project.attributes.auth_extra_field | camelCase
+			echo project.attributes.auth_extra_field | snakeCase | prepend: ': result[0].' | append: ','
+		   endif
+		%}
+			{{authObjectName}}Id: result[0].id
+		}
+	}
+
+	static async generateAccessToken({{authObjectName}}Id) {
+		const accessTokenDuration = '1m'; // TODO move this in configuration file
+		const payload = {
+			type: 'access',
+			{{authObjectName}}_id: {{authObjectName}}Id
+		};
+		return jwt.sign(payload, this.#secret, { expiresIn: accessTokenDuration });
+	}
+
+	static async generateRefreshToken({{authObjectName}}Id) {
+		const db = this.#model.db;
+		const refreshTokenDuration = 365; // TODO move this in configuration file
+		const expirationDate = new Date (Date.now() + refreshTokenDuration * 86400000);
+		const sqlRequest = 'INSERT INTO tokens(id_{{authObjectName}}, expires_at) VALUES (?, ?)';
+		const sqlParams = [
+			{{authObjectName}}Id,
+			expirationDate
+		];
+		const result = await db.query(sqlRequest, sqlParams);
+		if (result.code)
+			throw new Error(result.code);
+		if (result.length === 0)
+			throw new Error('Can not store refresh token');
+		const tokenId = result.insertId;
+		const payload = {
+			type: 'refresh',
+			{{authObjectName}}_id: {{authObjectName}}Id,
+			token_id: tokenId
+		};
+		return jwt.sign(payload, this.#secret, { expiresIn: `${refreshTokenDuration}days` });
+	}
+
+	static checkAccessToken(token) {
+		return new Promise( (resolve, reject) => {
+			jwt.verify(token, this.#secret, (err, decoded) => {
+				if (err !== null)  {
+					if (err.constructor.name === 'TokenExpiredError')
+						reject('Expired token');
+					else
+						reject('Invalid token');
+				}
+				if (decoded.type !== 'access')
+					reject('Not an access token');
+				if (isNaN(decoded.{{authObjectName}}_id))
+					reject(`Invalid token content`);
+				resolve(decoded.{{authObjectName}}_id);
+			});
+		});
+	}
+
+	static async checkRefreshToken(token) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		const decodeToken = new Promise( (resolve, reject) => {
+			jwt.verify(token, this.#secret, (err, decoded) => {
+				if (err !== null)  {
+					if (err.constructor.name === 'TokenExpiredError')
+						reject('Expired token');
+					else
+						reject('Invalid token');
+				}
+				if (decoded.type !== 'refresh')
+					reject('Not an refresh token');
+				if (isNaN(decoded.token_id) || isNaN(decoded.{{authObjectName}}_id))
+					reject(`Invalid token content`);
+				resolve([decoded.token_id, decoded.{{authObjectName}}_id]);
+			});
+		});
+		const [tokenId, {{authObjectName}}Id] = await decodeToken;
+
+		const sqlRequest = 'SELECT id FROM tokens WHERE id = ?';
+		const sqlParams = [ tokenId ];
+		const result = await db.query(sqlRequest, sqlParams);
+		if (result.code)
+			throw new Error(result.code);
+		const tokenFound = (result.length === 0) ? false : true
+		
+		return [tokenFound, tokenId, {{authObjectName}}Id];
+	}
+
+
+	static async deleteRefreshToken(tokenId) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		const sqlRequest = 'DELETE FROM tokens WHERE id = ?';
+		const sqlParams = [ tokenId ];
+		const result = await db.query(sqlRequest, sqlParams);
+		return (result.affectedRows === 0) ? false : true;
+	}
+
+	static async checkAccountLocked({{authObjectName}}Id) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		const sqlRequest = 'SELECT account_locked FROM {{authTableName}} WHERE id= ?';
+		const sqlParams = [ {{authObjectName}}Id ];
+		const result = await db.query(sqlRequest, sqlParams);
+		if (result.code)
+			throw new Error(result.code);
+		if (result.length === 0) 
+			throw new Error('{{authObjectName | pascalCase}} not found');
+		const locked = result[0].account_locked;
+		return locked;
+	}
+
+	static async lockAccount({{authObjectName}}Id) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		// lock account
+		let sqlRequest = 'UPDATE {{authTableName}} SET account_locked = ? WHERE id= ?';
+		let sqlParams = [ true, {{authObjectName}}Id ];
+		let result = await db.query(sqlRequest, sqlParams);
+		if (result.code)
+			throw new Error(result.code);
+		if (result.affectedRows=== 0) 
+			throw new Error('{{authObjectName | pascalCase}} not found');
+		// remove existing {{authObjectName}} tokens
+		sqlRequest = 'DELETE FROM tokens WHERE id_{{authObjectName}} = ?';
+		sqlParams = [ {{authObjectName}}Id ];
+		result = await db.query(sqlRequest, sqlParams);
+	}
+
+
+}
+
+module.exports = (config) => {
+	AuthModel.initialize(config);
+	return AuthModel;
+}
+

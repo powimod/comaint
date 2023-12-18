@@ -8,10 +8,11 @@
 		%}
 'use script';
 const assert = require('assert');
+const {withAuth} = require('./auth-routes');
 
 module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 
-	app.get('/api/{{project.attributes.api_version}}/{{object.name | snakeCase}}/list', async (request, response) => {
+	app.get('/api/{{project.attributes.api_version}}/{{object.name | snakeCase}}/list', withAuth, async (request, response) => {
 		try {
 			let resultsPerPage = request.query.resultsPerPage;
 			let offset = request.query.offset;
@@ -26,7 +27,7 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 		}
 	});
 
-	app.get('/api/{{project.attributes.api_version}}/{{object.name | snakeCase}}/:id{{object.name | pascalCase}}', async (request, response) => {
+	app.get('/api/{{project.attributes.api_version}}/{{object.name | snakeCase}}/:id{{object.name | pascalCase}}', withAuth, async (request, response) => {
 		const id{{object.name | pascalCase}} = request.params.id{{object.name | pascalCase}};
 		assert (id{{object.name | pascalCase}} !== undefined);
 		if (isNaN(id{{object.name | pascalCase}})) {
@@ -44,7 +45,7 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 		//}
 	});
 
-	app.post('/api/{{project.attributes.api_version}}/{{object.name | snakeCase}}/create', async (request, response) => {
+	app.post('/api/{{project.attributes.api_version}}/{{object.name | snakeCase}}/create', withAuth, async (request, response) => {
 		try {
 			const {{object.name | camelCase}} = request.body.{{object.name | camelCase}};
 			if ({{object.name | camelCase}} === undefined)

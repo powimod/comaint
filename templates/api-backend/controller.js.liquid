@@ -8,24 +8,25 @@
 'use strict';
 
 class Controller {
-	#param;
+	#app = null; // Express application
+	#config = null;
 	#model;
 	#view; 
-	#app = null; // Express application
 
+	#authRoutes = null;
 	{% for object in project.objects -%}
-	_{{object.name | pascalCase }}Routes = null;
+	#{{object.name | pascalCase }}Routes = null;
 	{% endfor %}
 
-	initialize(param, model, view) {
-		if (! param instanceof Object)
-			throw new Error('Invalid param argument');
+	initialize(config, model, view) {
+		if (! config instanceof Object)
+			throw new Error('Invalid config argument');
 		if (! model instanceof Object || model.constructor.name !== 'Model')
 			throw new Error('Invalid model argument');
 		if (! view instanceof Object || view.constructor.name !== 'View')
 			throw new Error('Invalid view argument');
 
-		this.#param = param;
+		this.#config = config;
 		this.#model = model;
 		this.#view = view; 
 
@@ -51,30 +52,32 @@ class Controller {
 			this.#view.sendJsonResult(response, '{{project.name}} backend API {{project.attributes.api_version}} ready');
 		});
 
+		this.#authRoutes = require('./auth-routes.js');
+		this.#authRoutes.initialize(this.#app, this.#model.getAuthModel(), this.#view, config);
 		{% for object in project.objects %}
-		this._{{object.name | pascalCase }}Routes = require('./{{object.name | kebabCase }}-routes.js')(this.#app, this.#model.get{{object.name | pascalCase }}Models(), this.#view);
+		this.#{{object.name | pascalCase }}Routes = require('./{{object.name | kebabCase }}-routes.js')(this.#app, this.#model.get{{object.name | pascalCase }}Model(), this.#view);
 		{%- endfor %}
 	}
 
+	get config() {
+		return this.#config;
+	}
 
 	{% for object in project.objects %}
 	get{{object.name | pascalCase }}Routes() {
-		console.log(this._{{object.name | pascalCase }}Routes);
-		return this._{{object.name | pascalCase }}Routes;
+		return this.#{{object.name | pascalCase }}Routes;
 	}
 	{% endfor %}
 
 	async run () {
 		if (this.#app === null)
 			throw new Error('Controller not initialized');
-		this.#app.listen(this.#param.port, 
+		this.#app.listen(this.#config.server.port, 
 			() => { // success
-				console.log(`Listening on port ${this.#param.port}`);
+				console.log(`Listening on port ${this.#config.server.port}`);
 			}
 		);
 	}
-
-
 }
 
 class ControllerSingleton {
@@ -89,18 +92,3 @@ class ControllerSingleton {
 }
 
 module.exports = ControllerSingleton;
-/* TODO cleanup
-module.exports = (_serverParam, _Model, _View) => {
-	if (typeof(_serverParam) !== 'object')
-		throw new Error('Invalid ServerParam argument');
-	console.log("dOm====================== control");
-	console.log(typeof(_Model));
-	console.log(typeof(_View));
-	if (typeof(_serverParam) !== 'object')
-		throw new Error('Invalid ServerParam argument');
-	serverParam = _serverParam;
-	View = _View;
-	Model = _Model;
-	return Controller;
-};
-*/

@@ -7,13 +7,16 @@
 		filename    : filename 
 		%}
 'use strict'
+const assert = require('assert');
 
 class {{object.name | pascalCase }}Model {
 
-	static getModel() {
-		// TODO store model as global variable to get it only one time
+	static #model = null;
+
+	static initialize = () => {
+		assert(this.#model === null);
 		const ModelSingleton = require('./model.js');
-		return  ModelSingleton.getInstance();
+		this.#model = ModelSingleton.getInstance();
 	}
 
 	static control{{object.name | pascalCase }}Object({{object.name | camelCase }}, controlId = true){
@@ -59,6 +62,8 @@ class {{object.name | pascalCase }}Model {
 	}
 
 	static async get{{object.name | pascalCase }}List(params) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
 
 		let resultsPerPage = params.resultsPerPage; 
 		if (resultsPerPage === undefined || isNaN(resultsPerPage)) 
@@ -79,7 +84,6 @@ class {{object.name | pascalCase }}Model {
 		// TODO order by
 		// TODO field selection 
 
-		const db = this.getModel().db;
 		const result = await db.query(sql);
 		if (result.code) 
 			throw new Error(result.code);
@@ -99,12 +103,13 @@ class {{object.name | pascalCase }}Model {
 	%}
 	{% if idProperty != null -%}
 	static async get{{object.name | pascalCase }}By{{idProperty | pascalCase}}({{idProperty | camelCase}}{{object.name | pascalCase }}) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
 		if ({{idProperty | camelCase}}{{object.name | pascalCase }} === undefined)
 			throw new Error('Argument <{{idProperty | camelCase}}{{object.name | pascalCase }}> required');
 		if (isNaN({{idProperty | camelCase}}{{object.name | pascalCase }}) === undefined)
 			throw new Error('Argument <{{idProperty | camelCase}}{{object.name | pascalCase }}> is not a number');
 		let sql = `SELECT * FROM {{object.attributes.table_name}} WHERE {{idProperty | camelCase}} = ?`;
-		const db = this.getModel().db;
 		const result = await db.query(sql, [{{idProperty | camelCase}}{{object.name | pascalCase }}]);
 		if (result.code) 
 			throw new Error(result.code);
@@ -116,6 +121,8 @@ class {{object.name | pascalCase }}Model {
 	{%- endif %}
 
 	static async create{{object.name | pascalCase }}({{object.name | camelCase }}) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
 		this.control{{object.name | pascalCase }}Object({{object.name | camelCase }}, false);
 		const fieldNames = [
 			{%- liquid 
@@ -170,7 +177,6 @@ class {{object.name | pascalCase }}Model {
 		//console.log("SQL request", sqlRequest);
 		//console.log("SQL params ", sqlParams);
 		
-		const db = this.getModel().db;
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
@@ -180,6 +186,7 @@ class {{object.name | pascalCase }}Model {
 }
 
 module.exports = () => {
+	{{object.name | pascalCase}}Model.initialize();
 	return {{object.name | pascalCase }}Model;
 }
 

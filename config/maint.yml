@@ -37,29 +37,13 @@ attributes:
   license: "GPL V3 or later"
   lang: "fr"
 
+  auth_object: "user"
+  auth_table_name: "users"
+  auth_ident_property: "email"
+  auth_password_property: "password"
+  auth_extra_field: 'email'
 
 objects:
-  - name: "user"
-    attributes:
-      table_name: "users"
-    properties:
-      - name: "id"
-        type: "id"
-      - name: "email"
-        type: "string"
-        maximum: 320
-      - name: "phone"
-        type: "string"
-        mandatory: false
-      - name: "address"
-        type: "text"
-        mandatory: true
-        default: ""
-    indexes:
-      - name: "email"
-        unique: true
-        keys:
-          - property : "email"
 
 
   - name: "Company"
@@ -103,6 +87,60 @@ objects:
         unique: true
         keys:
           - property : "name"
+
+
+
+  - name: "User"
+    attributes:
+      table_name: "users"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "email"
+        type: "string"
+        maximum: 320
+      - name: "password"
+        type: "string"
+        secret: true
+        minimum: 8
+        maximum: 70 # 61 is the minimum size of bcrypt hash
+      - name: "accountLocked"
+        type: "boolean"
+        default: false
+      - name: "phone"
+        type: "string"
+        mandatory: false
+      - name: "address"
+        type: "text"
+        mandatory: true
+        default: ""
+    links:
+      - name: "company"
+        target: "Company"
+    indexes:
+      - name: "email"
+        unique: true
+        keys:
+          - property : "email"
+
+  - name: "Token"
+    attributes:
+      table_name: "tokens"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "expires_at"
+        type: "datetime"
+    links:
+      - name: "user"
+        target: "User"
+    indexes:
+      - name: "id_user"
+        unique: false
+        keys:
+          - link: "user"
+
+
 
 
   - name: "Unit"
@@ -280,6 +318,10 @@ files:
     output: "output/{{project.attributes.backend_project_dir}}/src/models/{{object.name | kebabCase }}-model.js"
 
   - scope:  "project"
+    input:  "templates/api-backend/auth-model.js.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/src/models/auth-model.js"
+
+  - scope:  "project"
     input:  "templates/api-backend/view.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/src/views/view.js"
 
@@ -291,7 +333,12 @@ files:
     input:  "templates/api-backend/object-routes.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/src/routes/{{object.name | kebabCase}}-routes.js"
 
-    ########################### Backend 
+  - scope:  "project"
+    input:  "templates/api-backend/auth-routes.js.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/src/routes/auth-routes.js"
+
+
+    ########################### Multi-page frontend
 
   - scope:  "project"
     input:  "templates/mpa-frontend/package.json.liquid"
@@ -344,4 +391,6 @@ files:
   - scope:  "project"
     input:  "templates/mpa-frontend/style.css"
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/public/style.css"
+
+
 
