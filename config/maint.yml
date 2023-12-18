@@ -361,6 +361,10 @@ files:
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/api/{{object.name | kebabCase}}-api.js"
 
   - scope:  "project"
+    input:  "templates/mpa-frontend/auth-api.js.liquid"
+    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/api/auth-api.js"
+
+  - scope:  "project"
     input:  "templates/mpa-frontend/view.js.liquid"
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/view.js"
 
@@ -371,6 +375,10 @@ files:
   - scope:  "object"
     input:  "templates/mpa-frontend/object-routes.js.liquid"
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/routes/{{object.name | kebabCase}}-routes.js"
+
+  - scope:  "project"
+    input:  "templates/mpa-frontend/auth-login.ejs.liquid"
+    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/auth-login.ejs"
 
   - scope:  "object"
     input:  "templates/mpa-frontend/object-list.ejs.liquid"
