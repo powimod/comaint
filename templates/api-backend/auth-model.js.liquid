@@ -90,6 +90,30 @@ class AuthModel {
 		}
 	}
 
+	static async logout(token) {
+		// FIXME function decodeToken is duplicated 
+		const decodeToken = new Promise( (resolve, reject) => {
+			jwt.verify(token, this.#secret, (err, decoded) => {
+				if (err !== null && err.constructor.name !== 'TokenExpiredError')
+					reject('Invalid token');
+				if (decoded.type !== 'refresh')
+					reject('Not a refresh token');
+				if (isNaN(decoded.user_id) || isNaN(decoded.token_id))
+					reject(`Invalid token content`);
+				resolve([decoded.user_id, decoded.token_id]);
+			});
+		});
+		const [userId, tokenId] = await decodeToken;
+		let sql = 'DELETE FROM tokens WHERE id = ?';
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		const result = await db.query(sql, [ tokenId ]);
+		if (result.code)
+			throw new Error(result.code);
+		if (result.length === 0) 
+			throw new Error('Unknown token ID');
+	}
+
 	static async generateAccessToken({{authObjectName}}Id) {
 		const accessTokenDuration = '1m'; // TODO move this in configuration file
 		const payload = {

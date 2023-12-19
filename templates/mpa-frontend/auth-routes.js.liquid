@@ -31,6 +31,24 @@ module.exports = (app) => {
 		request.session.refreshToken = result.refreshToken;
 		response.redirect('/');
 	});
+
+	app.get('/logout', (request, response) => {
+		view.renderPage('auth-logout',  response, {});
+	});
+	app.post('/logout', async (request, response) => {
+		if (request.session.userId === null)
+			response.redirect('/'); // user is not logged in
+		assert(request.session.refreshToken !== null);
+		const result = await authApi.logout(request.session.refreshToken);
+		if (! result.ok) {
+			view.renderPage('auth-logout',  response, {error: result.error});
+			return;
+		}
+		request.session.destroy( (err) => { // a new cookie will be recreated
+			response.redirect('/'); 
+		});
+	});
+
 }
 
 

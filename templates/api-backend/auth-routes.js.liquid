@@ -86,6 +86,22 @@ exports.initialize = (app, authModel, View, config) => {
 		}
 	});
 
+	app.post('/api/{{project.attributes.api_version}}/auth/logout', async (request, response) => {
+		try {
+			const refreshToken = request.body.refreshToken;
+			if (refreshToken === undefined)
+				throw new Error(`Can't find <refreshToken> in request body`);
+			await _authModel.logout(refreshToken);
+			response.json({ ok : true});
+		}
+		catch (error) {
+			const errorMessage = (error.message !== undefined) ? error.message : error;
+			console.error(errorMessage);
+			response.json({ ok : false, error: errorMessage });
+		}
+	});
+
+
 	app.post('/api/{{project.attributes.api_version}}/auth/refresh', async (request, response) => {
 		try {
 			const refreshToken = request.body.token;

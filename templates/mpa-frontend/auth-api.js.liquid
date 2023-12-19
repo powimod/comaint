@@ -10,7 +10,7 @@ const ModelSingleton = require('./model.js');
 const model  = ModelSingleton.getInstance();
 
 
-exports.login = async function (email, password) {
+exports.login = async function(email, password) {
 	const url = new URL(`${model.config.url}/auth/login`);
 	try {
 		// TODO control email and password values are not empty
@@ -46,5 +46,34 @@ exports.login = async function (email, password) {
 			error: (error.message !== undefined) ? error.message : error
 		};
 	}
-
 }
+
+exports.logout = async function(refreshToken) {
+	const url = new URL(`${model.config.url}/auth/logout`);
+	try {
+		const params = {
+			method: 'POST',
+			headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				refreshToken: refreshToken
+			})
+		};
+		console.log(params);
+		const result = await fetch(url, params);
+		if (result.status !== 200)
+			throw new Error(`HTTP response status is ${result.status} (not 200)`);
+		const json = await result.json();
+		if (! json.ok)
+			throw new Error(json.error);
+		//TODO controlJsonResponse(json);
+		return {ok: true};
+	}
+	catch (error) {
+		return {
+			ok: false, 
+			error: (error.message !== undefined) ? error.message : error
+		};
+	}
+}
+
+

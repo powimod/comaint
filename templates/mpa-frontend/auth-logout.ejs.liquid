@@ -1,0 +1,12 @@
+		<h2>Logout</h2>
+
+		<% if (typeof error !== 'undefined') { %>
+			<p>Error : <%= error %></p>
+		<% } %>
+
+		<form action="/logout" method="POST" >
+			<div>
+				<input type="submit" value="Logout"/>
+			<div>
+		</form>
+		<a href="/">Home</a>
