@@ -1,0 +1,78 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.mpa_frontend_project_name,
+  		description : project.attributes.mpa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'auth-api.js'
+		%}
+'use script';
+const ModelSingleton = require('./model.js');
+const model  = ModelSingleton.getInstance();
+
+
+exports.login = async function(email, password) {
+	const url = new URL(`${model.config.url}/auth/login`);
+	try {
+		// TODO control email and password values are not empty
+		const params = {
+			method: 'POST',
+			headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				email: email, 
+				password: password
+			})
+		};
+		const result = await fetch(url, params);
+		if (result.status !== 200)
+			throw new Error('HTTP response status is not 200');
+		const json = await result.json();
+		if (! json.ok)
+			throw new Error(json.error);
+		//TODO controlJsonResponse(json);
+		const userId = json['user-id'];;
+		if (userId === undefined)
+			throw new Error('user-id not found in HTTP response');
+		const refreshToken = json['refresh-token'];;
+		if (refreshToken === undefined)
+			throw new Error('refresh-token not found in HTTP response');
+		const accessToken = json['access-token'];;
+		if (accessToken === undefined)
+			throw new Error('access-token not found in HTTP response');
+		return {ok: true, userId: userId, refreshToken: refreshToken, accessToken: accessToken};
+	}
+	catch (error) {
+		return {
+			ok: false, 
+			error: (error.message !== undefined) ? error.message : error
+		};
+	}
+}
+
+exports.logout = async function(refreshToken) {
+	const url = new URL(`${model.config.url}/auth/logout`);
+	try {
+		const params = {
+			method: 'POST',
+			headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				refreshToken: refreshToken
+			})
+		};
+		const result = await fetch(url, params);
+		if (result.status !== 200)
+			throw new Error(`HTTP response status is ${result.status} (not 200)`);
+		const json = await result.json();
+		if (! json.ok)
+			throw new Error(json.error);
+		//TODO controlJsonResponse(json);
+		return {ok: true};
+	}
+	catch (error) {
+		return {
+			ok: false, 
+			error: (error.message !== undefined) ? error.message : error
+		};
+	}
+}
+
+

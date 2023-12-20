@@ -41,7 +41,7 @@ attributes:
   auth_table_name: "users"
   auth_ident_property: "email"
   auth_password_property: "password"
-  auth_extra_field: 'email'
+  auth_extra_field: 'company'
 
 objects:
 
@@ -353,12 +353,20 @@ files:
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/server.js"
 
   - scope:  "project"
+    input:  "templates/mpa-frontend/api-tools.js.liquid"
+    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/api/api-tools.js"
+
+  - scope:  "project"
     input:  "templates/mpa-frontend/model.js.liquid"
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/api/model.js"
 
   - scope:  "object"
     input:  "templates/mpa-frontend/object-api.js.liquid"
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/api/{{object.name | kebabCase}}-api.js"
+
+  - scope:  "project"
+    input:  "templates/mpa-frontend/auth-api.js.liquid"
+    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/api/auth-api.js"
 
   - scope:  "project"
     input:  "templates/mpa-frontend/view.js.liquid"
@@ -368,9 +376,21 @@ files:
     input:  "templates/mpa-frontend/controller.js.liquid"
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/routes/controller.js"
 
+  - scope:  "project"
+    input:  "templates/mpa-frontend/auth-routes.js.liquid"
+    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/routes/auth-routes.js"
+
   - scope:  "object"
     input:  "templates/mpa-frontend/object-routes.js.liquid"
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/routes/{{object.name | kebabCase}}-routes.js"
+
+  - scope:  "project"
+    input:  "templates/mpa-frontend/auth-login.ejs.liquid"
+    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/auth-login.ejs"
+
+  - scope:  "project"
+    input:  "templates/mpa-frontend/auth-logout.ejs.liquid"
+    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/auth-logout.ejs"
 
   - scope:  "object"
     input:  "templates/mpa-frontend/object-list.ejs.liquid"
@@ -385,8 +405,12 @@ files:
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/layout.ejs"
 
   - scope:  "project"
-    input:  "templates/mpa-frontend/home.ejs.liquid"
-    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/home.ejs"
+    input:  "templates/mpa-frontend/private-home.ejs.liquid"
+    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/private-home.ejs"
+
+  - scope:  "project"
+    input:  "templates/mpa-frontend/public-home.ejs.liquid"
+    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/public-home.ejs"
 
   - scope:  "project"
     input:  "templates/mpa-frontend/style.css"

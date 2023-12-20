@@ -21,7 +21,8 @@ module.exports = (app) => {
                 assert(resultsPerPage !== undefined);
 
 		const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}List({
-			resultsPerPage : resultsPerPage
+			resultsPerPage : resultsPerPage,
+			accessToken: request.session.accessToken
 		});
 		if (result.ok) {
 			view.renderPage('{{object.name | kebabCase}}-list',  response, {

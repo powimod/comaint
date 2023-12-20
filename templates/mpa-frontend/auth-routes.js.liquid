@@ -1,0 +1,54 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.mpa_frontend_project_name,
+  		description : project.attributes.mpa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'auth-routes.js'
+		%}
+'use strict';
+const assert = require('assert');
+const authApi = require('../api/auth-api.js');
+
+module.exports = (app) => {
+        const ViewSingleton = require('../views/view.js');
+        const view = ViewSingleton.getInstance();
+        const ControllerSingleton = require('./controller.js');
+        const controller = ControllerSingleton.getInstance();
+
+	app.get('/login', (request, response) => {
+		view.renderPage('auth-login',  response, {});
+	});
+	app.post('/login', async (request, response) => {
+		const email = request.body.email;
+		const password = request.body.password;
+		const result = await authApi.login(email, password);
+		if (! result.ok) {
+			view.renderPage('auth-login',  response, {error: result.error});
+			return;
+		}
+		request.session.userId = result.userId;
+		request.session.accessToken = result.accessToken;
+		request.session.refreshToken = result.refreshToken;
+		response.redirect('/');
+	});
+
+	app.get('/logout', (request, response) => {
+		view.renderPage('auth-logout',  response, {});
+	});
+	app.post('/logout', async (request, response) => {
+		if (request.session.userId === null)
+			response.redirect('/'); // user is not logged in
+		assert(request.session.refreshToken !== null);
+		const result = await authApi.logout(request.session.refreshToken);
+		if (! result.ok) {
+			view.renderPage('auth-logout',  response, {error: result.error});
+			return;
+		}
+		request.session.destroy( (err) => { // a new cookie will be recreated
+			response.redirect('/'); 
+		});
+	});
+
+}
+
+

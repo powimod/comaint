@@ -6,6 +6,7 @@
 		filename    : 'controller.js'
 		%}
 'use strict';
+const assert = require('assert');
 
 class Controller {
 	#config;
@@ -13,6 +14,7 @@ class Controller {
 	#view; 
 	#app = null; // Express application
 
+	_AuthRoutes = null;
 	{% for object in project.objects -%}
 	_{{object.name | pascalCase }}Routes = null;
 	{% endfor %}
@@ -36,15 +38,39 @@ class Controller {
 		this.#app.set('views', path.join(__dirname, '..', 'views'));
 		this.#app.use(express.static(path.join(__dirname, '..', '..', 'public')));
 		this.#app.use(express.urlencoded({extended: true}));
-		/* FIXME not used ?
-		const cors = require('cors');
-		this.#app.use(cors());
-		*/
-		// TODO add session
+
+		assert (this.#config.session.secret != undefined);
+		assert (this.#config.session.maxAge != undefined);
+		const session = require('express-session');
+		this.#app.use(session({
+			secret: this.#config.session.secret, 
+			resave: false,
+			saveUninitialized: true,
+			cookie : {
+				maxAge: this.#config.session.maxAge // cookie lifetime in ms
+			}
+		}));
+		// FIXME move this middleware in auth-routes ?
+		// middleware to initialize session
+		this.#app.use( (request, response, next) => {
+			if (! request.session.userId) {
+				request.session.userId = null;
+				request.session.accessToken= null;
+				request.session.requestToken= null;
+			}
+			next();
+		});
+		
 		this.#app.get('/', (request, response) => {
-			this.#view.renderPage('home',  response, {});
+			if (request.session.userId === null) {
+				this.#view.renderPage('public-home',  response, {});
+			}
+			else {
+				this.#view.renderPage('private-home',  response, {});
+			}
 		});
 
+		this._AuthRoutes = require('./auth-routes.js')(this.#app);
 		{% for object in project.objects %}
 		this._{{object.name | pascalCase }}Routes = require('./{{object.name | kebabCase }}-routes.js')(this.#app);
 		{%- endfor %}
