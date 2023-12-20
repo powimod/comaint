@@ -29,6 +29,8 @@ exports.get{{object.name | pascalCase}}List = async function (params) {
 			throw new Error('HTTP response status is not 200');
 		const json = await result.json();
 		//TODO controlJsonResponse(json);
+		if (! json.ok )
+			throw new Error(json.error);
 		{{object.name | camelCase}}List = json.data.{{object.name | camelCase}}List;
 		if ({{object.name | camelCase}}List === undefined)
 			throw new Error('{{object.name | pascalCase}} list not found is HTTP response');
