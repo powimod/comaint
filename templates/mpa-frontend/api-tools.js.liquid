@@ -1,0 +1,36 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.mpa_frontend_project_name,
+  		description : project.attributes.mpa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'api-tools.js'
+		%}
+'use script';
+
+exports.apiRequest = async function(apiUrl, httpMethod, accessToken){
+	const httpHeaders = {
+		'Accept': 'application/json',
+		'Content-Type': 'application/json'
+	}
+	if (accessToken !== null)
+		httpHeaders['x-access-token'] = accessToken;
+	const params = {
+		method : httpMethod,
+		headers: httpHeaders
+	}
+	const result = await fetch(apiUrl, params);
+	if (result.status !== 200)
+		throw new Error(`HTTP response status is not 200 but ${result.status}`);
+	const json = await result.json();
+	if (json === null)
+		throw new Error('JSON response is null');
+	if (json.ok === undefined)
+		throw new Error('OK status not found in JSON response');
+	if (typeof(json.ok) !== 'boolean')
+		throw new Error('OK status is not a boolean in JSON response');
+	if (! json.ok )
+		throw new Error(json.error);
+	if (json.data === undefined)
+		throw new Error('data not found in JSON response');
+	return json.data;
+}

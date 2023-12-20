@@ -7,6 +7,7 @@
 		filename    : filename 
 		%}
 'use script';
+const {apiRequest} = require('./api-tools.js');
 const ModelSingleton = require('./model.js');
 const model  = ModelSingleton.getInstance();
 
@@ -15,23 +16,8 @@ exports.get{{object.name | pascalCase}}List = async function (params) {
 	if (params.resultsPerPage !== undefined)
 		url.searchParams.append('resultsPerPage', params.resultsPerPage);
 	try {
-		const fetchParams = {
-			method : 'GET',
-			headers: {
-				'Accept': 'application/json',
-				'Content-Type': 'application/json',
-				'x-access-token': params.accessToken
-			}
-		}
-		let {{object.name | camelCase}}List = [];
-		const result = await fetch(url, fetchParams);
-		if (result.status !== 200)
-			throw new Error('HTTP response status is not 200');
-		const json = await result.json();
-		//TODO controlJsonResponse(json);
-		if (! json.ok )
-			throw new Error(json.error);
-		{{object.name | camelCase}}List = json.data.{{object.name | camelCase}}List;
+		const result = await apiRequest(url, 'GET', params.accessToken);
+		let {{object.name | camelCase}}List = result.{{object.name | camelCase}}List;
 		if ({{object.name | camelCase}}List === undefined)
 			throw new Error('{{object.name | pascalCase}} list not found is HTTP response');
 		return {ok: true, {{object.name | camelCase}}List: {{object.name | camelCase}}List};
