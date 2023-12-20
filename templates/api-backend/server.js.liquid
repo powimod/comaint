@@ -42,7 +42,7 @@ function loadConfig()
 	const securityParam = nconf.get('security');
 	if (securityParam === undefined)
 		throw new Error(`Can't find <security> section in configuration file ${configFile}`);
-	for (let prop of ['tokenSecret', 'hashSalt'])
+	for (let prop of ['tokenSecret', 'hashSalt', 'refreshTokenLifespan', 'accessTokenLifespan'])
 		if (securityParam[prop] === undefined)
 			throw new Error(`Can't find <${prop}> property in <token> section of ${configFile}`);
 
