@@ -15,8 +15,16 @@ exports.get{{object.name | pascalCase}}List = async function (params) {
 	if (params.resultsPerPage !== undefined)
 		url.searchParams.append('resultsPerPage', params.resultsPerPage);
 	try {
+		const fetchParams = {
+			method : 'GET',
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json',
+				'x-access-token': params.accessToken
+			}
+		}
 		let {{object.name | camelCase}}List = [];
-		const result = await fetch(url);
+		const result = await fetch(url, fetchParams);
 		if (result.status !== 200)
 			throw new Error('HTTP response status is not 200');
 		const json = await result.json();

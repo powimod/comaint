@@ -58,7 +58,6 @@ exports.logout = async function(refreshToken) {
 				refreshToken: refreshToken
 			})
 		};
-		console.log(params);
 		const result = await fetch(url, params);
 		if (result.status !== 200)
 			throw new Error(`HTTP response status is ${result.status} (not 200)`);

@@ -194,11 +194,11 @@ class AuthModel {
 				if (isNaN(decoded.{{project.attributes.auth_extra_field}}_id))
 					reject(`Invalid token content`);
 				{%- endif %}
-				resolve(decoded.{{authObjectName}}_id
+				resolve([decoded.{{authObjectName}}_id
 				{%- if project.attributes.auth_extra_field -%}
 					, decoded.{{ project.attributes.auth_extra_field | snakeCase }}_id
 				{%- endif -%}
-				);
+				]);
 			});
 		});
 	}

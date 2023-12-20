@@ -22,6 +22,38 @@ exports.initialize = (app, authModel, View, config) => {
 	_config = config;
 	_authModel = authModel;
 
+	app.use( async (request, response, next) => {
+		assert(_authModel !== null);
+		let {{authObjectName}}Id = null;
+		{% if project.attributes.auth_extra_field -%}
+		let {{project.attributes.auth_extra_field | camelCase}}Id = null;
+		{%- endif %}
+		const token = request.headers['x-access-token'];
+		if (token !== undefined) {
+			try {
+				[{{authObjectName}}Id
+				{%- if project.attributes.auth_extra_field -%}
+				, {{project.attributes.auth_extra_field | camelCase}}Id
+				{%- endif -%}
+
+			] = await _authModel.checkAccessToken(token);
+			}
+			catch (error) {
+				const errorMessage = (error.message !== undefined) ? error.message : error;
+				console.error(errorMessage);
+			}
+		}
+		request.{{authObjectName}}Id = {{authObjectName}}Id;
+		{% if project.attributes.auth_extra_field -%}
+		request.{{project.attributes.auth_extra_field | camelCase}}Id = {{project.attributes.auth_extra_field | camelCase}}Id; 
+		{%- endif %}
+		next();
+	});
+
+
+
+
+
 	app.post('/api/{{project.attributes.api_version}}/auth/register', async (request, response) => {
 		try {
 			const {{authIdentProp}} = request.body.{{authIdentProp}};
@@ -177,6 +209,7 @@ exports.initialize = (app, authModel, View, config) => {
 
 }
 
+// FIXME not used ? 
 exports.withAuth = async (request, response, next) => {
 	assert(_authModel !== null);
 	try {
