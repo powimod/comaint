@@ -61,9 +61,9 @@ class AuthModel {
 		assert(this.#model !== null);
 		const db = this.#model.db;
 		{% liquid
-		   assign extra_field = ''
+		   assign extra = ''
 		   if project.attributes.auth_extra_field
-		     assign extra = project.attributes.auth_extra_field | snakeCase | prepend: ', '
+		     assign extra = project.attributes.auth_extra_field | snakeCase | prepend: ', id_'
 		   endif
 		%}
 		let sql = 'SELECT id, {{authIdentProp}}, {{authPasswordProp}}, account_locked{{extra}} FROM {{authTableName}} WHERE {{authIdentProp}} = ?';
@@ -82,8 +82,8 @@ class AuthModel {
 		{% liquid
 		   if project.attributes.auth_extra_field
 		   	echo "\t"
-			echo project.attributes.auth_extra_field | camelCase
-			echo project.attributes.auth_extra_field | snakeCase | prepend: ': result[0].' | append: ','
+			echo project.attributes.auth_extra_field | camelCase | append: 'Id'
+			echo project.attributes.auth_extra_field | snakeCase | prepend: ': result[0].id_' | append: ','
 		   endif
 		%}
 			{{authObjectName}}Id: result[0].id
@@ -98,12 +98,26 @@ class AuthModel {
 					reject('Invalid token');
 				if (decoded.type !== 'refresh')
 					reject('Not a refresh token');
-				if (isNaN(decoded.user_id) || isNaN(decoded.token_id))
+				if (isNaN(decoded.user_id))
 					reject(`Invalid token content`);
-				resolve([decoded.user_id, decoded.token_id]);
+				if (isNaN(decoded.token_id))
+					reject(`Invalid token content`);
+			{%- if project.attributes.auth_extra_field %}
+				if (isNaN(decoded.{{project.attributes.auth_extra_field | snakeCase}}_id))
+					reject(`Invalid token content`);
+			{%- endif %}
+				resolve([decoded.user_id, decoded.token_id
+			{%- if project.attributes.auth_extra_field -%}
+				, decoded.{{ project.attributes.auth_extra_field | snakeCase }}_id
+			{%- endif -%}
+			]);
 			});
 		});
-		const [userId, tokenId] = await decodeToken;
+		const [userId, tokenId
+		{%- if project.attributes.auth_extra_field -%}
+			, {{ project.attributes.auth_extra_field | snakeCase }}Id
+		{%- endif -%}
+		] = await decodeToken;
 		let sql = 'DELETE FROM tokens WHERE id = ?';
 		assert(this.#model !== null);
 		const db = this.#model.db;
@@ -114,16 +128,27 @@ class AuthModel {
 			throw new Error('Unknown token ID');
 	}
 
-	static async generateAccessToken({{authObjectName}}Id) {
+	static async generateAccessToken({{authObjectName}}Id
+	{%- if project.attributes.auth_extra_field -%}
+		, {{ project.attributes.auth_extra_field | camelCase }}Id
+	{%- endif -%}
+	) {
 		const accessTokenDuration = '1m'; // TODO move this in configuration file
 		const payload = {
+			{% if project.attributes.auth_extra_field -%}
+				{{ project.attributes.auth_extra_field | snakeCase }}_id: {{ project.attributes.auth_extra_field | camelCase }}Id,
+			{%- endif %}
 			type: 'access',
 			{{authObjectName}}_id: {{authObjectName}}Id
 		};
 		return jwt.sign(payload, this.#secret, { expiresIn: accessTokenDuration });
 	}
 
-	static async generateRefreshToken({{authObjectName}}Id) {
+	static async generateRefreshToken({{authObjectName}}Id
+	{%- if project.attributes.auth_extra_field -%}
+		, {{ project.attributes.auth_extra_field | camelCase }}Id
+	{%- endif -%}
+	) {
 		const db = this.#model.db;
 		const refreshTokenDuration = 365; // TODO move this in configuration file
 		const expirationDate = new Date (Date.now() + refreshTokenDuration * 86400000);
@@ -139,6 +164,9 @@ class AuthModel {
 			throw new Error('Can not store refresh token');
 		const tokenId = result.insertId;
 		const payload = {
+			{% if project.attributes.auth_extra_field -%}
+				{{ project.attributes.auth_extra_field | snakeCase }}_id: {{ project.attributes.auth_extra_field | camelCase }}Id,
+			{%- endif %}
 			type: 'refresh',
 			{{authObjectName}}_id: {{authObjectName}}Id,
 			token_id: tokenId
@@ -159,7 +187,15 @@ class AuthModel {
 					reject('Not an access token');
 				if (isNaN(decoded.{{authObjectName}}_id))
 					reject(`Invalid token content`);
-				resolve(decoded.{{authObjectName}}_id);
+				{% if project.attributes.auth_extra_field -%}
+				if (isNaN(decoded.{{project.attributes.auth_extra_field}}_id))
+					reject(`Invalid token content`);
+				{%- endif %}
+				resolve(decoded.{{authObjectName}}_id
+				{%- if project.attributes.auth_extra_field -%}
+					, decoded.{{ project.attributes.auth_extra_field | snakeCase }}_id
+				{%- endif -%}
+				);
 			});
 		});
 	}

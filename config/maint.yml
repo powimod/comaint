@@ -41,7 +41,7 @@ attributes:
   auth_table_name: "users"
   auth_ident_property: "email"
   auth_password_property: "password"
-  auth_extra_field: 'email'
+  auth_extra_field: 'company'
 
 objects:
 

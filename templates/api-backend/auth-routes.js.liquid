@@ -33,10 +33,24 @@ exports.initialize = (app, authModel, View, config) => {
 			const result = await _authModel.register({{authIdentProp}}, {{authPasswordProp}});
 			const {{authObjectName}}Id = result.{{authObjectName}}Id; 
 			assert({{authObjectName}}Id !== undefined);
-			const newAccessToken  = await _authModel.generateAccessToken({{authObjectName}}Id);
-			const newRefreshToken = await _authModel.generateRefreshToken({{authObjectName}}Id);
+			{% if project.attributes.auth_extra_field -%}
+			const {{project.attributes.auth_extra_field | camelCase}}Id = null;
+			{%- endif %}
+			const newAccessToken  = await _authModel.generateAccessToken({{authObjectName}}Id
+			{%- if project.attributes.auth_extra_field -%}
+				, {{project.attributes.auth_extra_field | camelCase}}Id
+			{%- endif -%}
+			);
+			const newRefreshToken = await _authModel.generateRefreshToken({{authObjectName}}Id
+			{%- if project.attributes.auth_extra_field -%}
+				, {{project.attributes.auth_extra_field | camelCase}}Id
+			{%- endif -%}
+			);
 			response.json({ ok : true, 
 				'{{authObjectName}}-id': {{authObjectName}}Id,
+				{% if project.attributes.auth_extra_field -%}
+				'{{project.attributes.auth_extra_field | kebabCase}}-id': {{project.attributes.auth_extra_field | camelCase}}Id,
+				{%- endif %}
 				'access-token': newAccessToken,
 				'refresh-token': newRefreshToken
 			});
@@ -58,12 +72,22 @@ exports.initialize = (app, authModel, View, config) => {
 				throw new Error(`Can't find <{{authPasswordProp}}> in request body`);
 
 			const login = await _authModel.login({{authIdentProp}}, {{authPasswordProp}});
-			const {{authObjectName}}Id = login.{{authObjectName}}Id;
-			assert (! isNaN({{authObjectName}}Id)) ;
-			const newAccessToken  = await _authModel.generateAccessToken({{authObjectName}}Id);
-			const newRefreshToken = await _authModel.generateRefreshToken({{authObjectName}}Id);
+			assert (! isNaN(login.{{authObjectName}}Id)) ;
+			const newAccessToken  = await _authModel.generateAccessToken(login.{{authObjectName}}Id
+			{%- if project.attributes.auth_extra_field -%}
+			, login.{{project.attributes.auth_extra_field | camelCase}}Id
+			{%- endif -%}
+			);
+			const newRefreshToken = await _authModel.generateRefreshToken(login.{{authObjectName}}Id
+			{%- if project.attributes.auth_extra_field -%}
+			, login.{{project.attributes.auth_extra_field | camelCase}}Id
+			{%- endif -%}
+			);
 			response.json({ ok : true, 
-				'{{authObjectName}}-id' : {{authObjectName}}Id,
+				'{{authObjectName}}-id' : login.{{authObjectName}}Id,
+				{% if project.attributes.auth_extra_field -%}
+				'{{project.attributes.auth_extra_field | snakeCase}}-id': login.{{project.attributes.auth_extra_field | camelCase}}Id,
+				{%- endif %}
 				'access-token': newAccessToken,
 				'refresh-token': newRefreshToken
 			});
@@ -107,8 +131,11 @@ exports.initialize = (app, authModel, View, config) => {
 			const refreshToken = request.body.token;
 			if (refreshToken === undefined)
 				throw new Error(`Can't find <token> in request body`);
-			const [tokenFound, tokenId, {{authObjectName}}Id ] = await _authModel.checkRefreshToken(refreshToken);
-
+			const [tokenFound, tokenId, {{authObjectName}}Id 
+			{%- if project.attributes.auth_extra_field -%}
+			, {{project.attributes.auth_extra_field | camelCase}}Id
+			{%- endif -%}
+				] = await _authModel.checkRefreshToken(refreshToken);
 			if (! tokenFound) {
 				// if a token is not found, it should be an attempt to usurp cookie :
 				// since a refresh token is deleted when used, it will not be found with a second attempt to use it.
@@ -121,11 +148,22 @@ exports.initialize = (app, authModel, View, config) => {
 			if (await _authModel.checkAccountLocked({{authObjectName}}Id))
 				throw new Error('Account locked');
 
-			const newAccessToken  = await _authModel.generateAccessToken({{authObjectName}}Id);
-			const newRefreshToken = await _authModel.generateRefreshToken({{authObjectName}}Id);
+			const newAccessToken  = await _authModel.generateAccessToken({{authObjectName}}Id
+			{%- if project.attributes.auth_extra_field -%}
+				, {{project.attributes.auth_extra_field | camelCase}}Id
+			{%- endif -%}
+			);
+			const newRefreshToken = await _authModel.generateRefreshToken({{authObjectName}}Id
+			{%- if project.attributes.auth_extra_field -%}
+				, {{project.attributes.auth_extra_field | camelCase}}Id
+			{%- endif -%}
+			);
 
 			response.json({ ok : true, 
 				'{{authObjectName}}-id' : {{authObjectName}}Id,
+				{% if project.attributes.auth_extra_field -%}
+				'{{project.attributes.auth_extra_field | kebabCase}}-id': {{project.attributes.auth_extra_field | camelCase}}Id,
+				{%- endif %}
 				'access-token': newAccessToken,
 				'refresh-token': newRefreshToken
 			});
@@ -145,8 +183,15 @@ exports.withAuth = async (request, response, next) => {
 		const token = request.headers['x-access-token'];
 		if (token === undefined) 
 			throw new Error(`HTTP header <x-access-token> not found`);
-		const {{authObjectName}}Id = await _authModel.checkAccessToken(token);
+		const [{{authObjectName}}Id 
+		{%- if project.attributes.auth_extra_field -%}
+			, {{project.attributes.auth_extra_field | camelCase}}Id
+		{%- endif -%}
+		] = await _authModel.checkAccessToken(token);
 		request.{{authObjectName}}Id = {{authObjectName}}Id;
+		{% if project.attributes.auth_extra_field -%}
+		request.{{project.attributes.auth_extra_field | camelCase}}Id = {{project.attributes.auth_extra_field | camelCase}}Id;
+		{%- endif %}
 		next();
 	}
 	catch (error) {
