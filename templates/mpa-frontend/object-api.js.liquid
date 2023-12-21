@@ -7,17 +7,19 @@
 		filename    : filename 
 		%}
 'use script';
+const assert = require('assert');
 const {apiRequest} = require('./api-tools.js');
 const ModelSingleton = require('./model.js');
 const model  = ModelSingleton.getInstance();
 
 exports.get{{object.name | pascalCase}}List = async function (params) {
+	assert(params !== undefined);
 	const url = new URL(`${model.config.url}/{{object.name | camelCase}}/list`);
 	if (params.resultsPerPage !== undefined)
 		url.searchParams.append('resultsPerPage', params.resultsPerPage);
 	try {
 		const result = await apiRequest(url, 'GET', params.accessToken);
-		let {{object.name | camelCase}}List = result.{{object.name | camelCase}}List;
+		const {{object.name | camelCase}}List = result.{{object.name | camelCase}}List;
 		if ({{object.name | camelCase}}List === undefined)
 			throw new Error('{{object.name | pascalCase}} list not found is HTTP response');
 		return {ok: true, {{object.name | camelCase}}List: {{object.name | camelCase}}List};
@@ -31,22 +33,17 @@ exports.get{{object.name | pascalCase}}List = async function (params) {
 }
 
 
-exports.get{{object.name | pascalCase}}Details = async function (id{{object.name | pascalCase}}) {
-	if (id{{object.name | pascalCase}} === undefined)
-		throw new Error('Argument <id{{object.name | pascalCase}}> required');
+exports.get{{object.name | pascalCase}}Details = async function (id{{object.name | pascalCase}}, params) {
+	assert(id{{object.name | pascalCase}} !== undefined);
+	assert(params !== undefined);
 	if (isNaN(id{{object.name | pascalCase}}))
 		throw new Error('Argument <id{{object.name | pascalCase}}> is not a number');
 	const url = new URL(`${model.config.url}/{{object.name | camelCase}}/${id{{object.name | pascalCase}}}`);
 	try {
-		let {{object.name | camelCase}} = null;
-		const result = await fetch(url);
-		if (result.status !== 200)
-			throw new Error('HTTP response status is not 200');
-		const json = await result.json();
-		//TODO controlJsonResponse(json);
-		{{object.name | camelCase}} = json.data.{{object.name | camelCase}};
+		const result = await apiRequest(url, 'GET', params.accessToken);
+		const {{object.name | camelCase}} = result.{{object.name | camelCase}};
 		if ({{object.name | camelCase}} === undefined)
-			throw new Error('{{object.name | pascalCase}} list not found is HTTP response');
+			throw new Error('{{object.name | pascalCase}} not found is HTTP response');
 		return {ok: true, {{object.name | camelCase}}: {{object.name | camelCase}}};
 	}
 	catch (error) {

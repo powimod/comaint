@@ -42,7 +42,9 @@ module.exports = (app) => {
 			throw new Error('URL parameter <{{object.name | camelCase}}_id> is missing');
 		if (isNaN({{object.name | camelCase}}Id))
 			throw new Error('URL parameter <{{object.name | camelCase}}_id> is not a number');
-		const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}Details({{object.name | camelCase}}Id);
+		const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}Details({{object.name | camelCase}}Id, {
+			accessToken: request.session.accessToken
+		});
 		if (result.ok) {
 			view.renderPage('{{object.name | kebabCase}}-details',  response, {
 				{{object.name | camelCase}}: result.{{object.name | camelCase}}
