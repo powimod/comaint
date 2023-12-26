@@ -43,6 +43,8 @@ attributes:
   auth_password_property: "password"
   auth_extra_field: 'company'
 
+  root_object: 'Company'
+
 objects:
 
 

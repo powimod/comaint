@@ -38,7 +38,29 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 		try {
 			const {{object.name | camelCase}} = await {{object.name | pascalCase}}Model.get{{object.name | pascalCase}}ById({{object.name | camelCase}}Id);
 			if ({{object.name | camelCase}} === null)
-				throw new Error(`{{object.name | pascalCase}} ID <${{object.name | camelCase}}Id}> not found`);
+			throw new Error(`{{object.name | pascalCase}} ID <${ {{object.name | camelCase}}Id }> not found`);
+			{% liquid
+			   assign root_object = project.attributes.root_object 
+			   assign root_property = ''
+			   if object.name == root_object
+			     assign root_property = 'id'
+			   else
+			     if root_object 
+		  	       for link in object.links 
+			         if link.target.name == root_object
+			           assign root_property = link.name | camelCase | append: 'Id'
+			         endif
+		  	       endfor
+			     endif
+			   endif
+			%}
+			{% if root_property == '' -%}
+			// No root property to control
+			{%- else -%}
+			// control root property 
+			if (request.{{root_object | camelCase}}Id !== {{object.name | camelCase}}.{{root_property}})
+				throw new Error('Unauthorized access');
+			{%- endif %}
 			View.sendJsonResult(response, { {{object.name | camelCase}}: {{object.name | camelCase}}} );
 		}
 		catch (error) {
