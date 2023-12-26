@@ -47,17 +47,23 @@ class {{object.name | pascalCase }}Model {
 
 	static {{object.name | camelCase }}FromDb(record) {
 		return {
-			// TODO do not return secret properties
-			{%- for property in object.properties -%}
-			{%- liquid
-			  if property.last
-				assign separator = ''
-			  else
-				assign separator = ','
-			  endif 
-			%}
-			{{property.name}} : record.{{property.name | snakeCase }}{{separator}}
-			{%- endfor %}
+		{%- liquid 
+		  assign sep=''
+		  for property in object.properties 
+		    echo sep
+		    echo '\n\t\t\t'
+		    echo property.name | append: ': record.'
+		    echo property.name | snakeCase
+		    assign sep = ','
+		  endfor
+		  for link in object.links 
+		    echo sep
+		    echo '\n\t\t\t'
+		    echo link.name | camelCase | append: 'Id'
+		    echo ' : record.'
+		    echo link.name | snakeCase | prepend: 'id_'
+		  endfor
+		%}
 		};
 	}
 
