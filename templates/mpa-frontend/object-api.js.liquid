@@ -32,6 +32,28 @@ exports.get{{object.name | pascalCase}}List = async function (params) {
 	}
 }
 
+exports.search{{object.name | pascalCase}}List = async function (filters, params) {
+	assert(filters !== undefined);
+	assert(params !== undefined);
+	const url = new URL(`${model.config.url}/{{object.name | snakeCase}}/search`);
+	for (const filter of Object.keys(filters)) 
+		url.searchParams.append(filter, filters[filter]);
+	if (params.resultsPerPage !== undefined)
+		url.searchParams.append('resultsPerPage', params.resultsPerPage);
+	try {
+		const result = await apiRequest(url, 'GET', params.accessToken);
+		const {{object.name | camelCase}}List = result.{{object.name | camelCase}}List;
+		if ({{object.name | camelCase}}List === undefined)
+			throw new Error('{{object.name | pascalCase}} list not found is HTTP response');
+		return {ok: true, {{object.name | camelCase}}List: {{object.name | camelCase}}List};
+	}
+	catch (error) {
+		return {
+			ok: false, 
+			error: (error.message !== undefined) ? error.message : error
+		};
+	}
+}
 
 exports.get{{object.name | pascalCase}}Details = async function (id{{object.name | pascalCase}}, params) {
 	assert(id{{object.name | pascalCase}} !== undefined);

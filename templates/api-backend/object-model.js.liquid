@@ -67,16 +67,31 @@ class {{object.name | pascalCase }}Model {
 		};
 	}
 
-	static async get{{object.name | pascalCase }}List(params) {
+	static async get{{object.name | pascalCase }}List(filters, params) {
+		assert(filters !== undefined);
+		assert(params !== undefined);
 		assert(this.#model !== null);
 		const db = this.#model.db;
 
+		console.log("dOm filters", filters);
+
+		const sqlValues = [];
+		const sqlFilters = [];
+		{%- for link in object.links %}
+		if (filters.{{link.name|camelCase}}Id !== undefined) {
+			sqlFilters.push('id_{{link.name|snakeCase}} = ?')
+			sqlValues.push(filters.{{link.name|camelCase}}Id);
+		}
+		{%- endfor %}
+		const whereClause = sqlFilters.length === 0 ? '' : 'WHERE ' + sqlFilters.join(' AND ');
+
 		let resultsPerPage = params.resultsPerPage; 
 		if (resultsPerPage === undefined || isNaN(resultsPerPage)) 
-			resultsPerPage = 25; // FIXME hard coded value
+			resultsPerPage = 25; // TODO hard coded value
 		else
 			resultsPerPage = parseInt(resultsPerPage);
 		if (resultsPerPage < 1) resultsPerPage = 1;
+		sqlValues.push(resultsPerPage);
 
 		let offset = params.offset; 
 		if (offset=== undefined || isNaN(resultsPerPage)) 
@@ -84,13 +99,17 @@ class {{object.name | pascalCase }}Model {
 		else
 			offset = parseInt(offset);
 		if (offset < 0) offset = 0;
+		sqlValues.push(offset);
 
-		let sql = `SELECT * FROM {{object.attributes.table_name }} LIMIT ${resultsPerPage} OFFSET ${offset}`;
+
+		let sql = `SELECT * FROM {{object.attributes.table_name }} ${whereClause} LIMIT ? OFFSET ?`;
+		console.log("dOm sql=", sql);
+		console.log("dOm val=", sqlValues);
 		// TODO select with column names and not jocker
 		// TODO order by
 		// TODO field selection 
 
-		const result = await db.query(sql);
+		const result = await db.query(sql, sqlValues);
 		if (result.code) 
 			throw new Error(result.code);
 		const {{object.name | camelCase }}List = [];

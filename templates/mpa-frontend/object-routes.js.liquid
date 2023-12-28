@@ -36,12 +36,43 @@ module.exports = (app) => {
 		}
 	});
 
+
+	app.get('/{{object.name | kebabCase}}/search', async (request, response) => {
+		const filters = {};
+		{%- for link in object.links %}
+		{% assign paramName = link.target.name | camelCase | append: 'Id' -%}
+		let {{paramName}} = request.query.{{paramName}};
+		if ( {{paramName}} !== undefined) {
+			if (isNaN({{paramName}}))
+				throw new Error('Query <{{paramName}}> is not a number');
+			{{paramName}} = parseInt({{paramName}});
+			filters['{{paramName}}'] = {{paramName}};
+		}
+		{%- endfor %}
+		const resultsPerPage = controller.config.parameters.resultsPerPage;
+                assert(resultsPerPage !== undefined);
+		const result = await {{object.name | camelCase}}Api.search{{object.name | pascalCase}}List(filters, {
+			resultsPerPage : resultsPerPage,
+			accessToken: request.session.accessToken
+		});
+		if (result.ok) {
+			view.renderPage('{{object.name | kebabCase}}-list',  response, {
+				{{object.name | camelCase}}List: result.{{object.name | camelCase}}List
+			});
+		}
+		else {
+			view.renderPage('error',  response, {
+				message: `API error: ${result.error}`
+			});
+		}
+	});
+
 	app.get('/{{object.name | kebabCase}}/:{{object.name | snakeCase}}_id', async (request, response) => {
 		const {{object.name | camelCase}}Id = request.params['{{object.name | snakeCase}}_id'];
 		if ({{object.name | camelCase}}Id === undefined)
 			throw new Error('URL parameter <{{object.name | camelCase}}_id> is missing');
 		if (isNaN({{object.name | camelCase}}Id))
-			throw new Error('URL parameter <{{object.name | camelCase}}_id> is not a number');
+			throw new Error(`URL parameter <{{object.name | camelCase}}_id>=${ {{object.name | camelCase}}Id } is not a number`);
 		const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}Details({{object.name | camelCase}}Id, {
 			accessToken: request.session.accessToken
 		});
@@ -57,6 +88,12 @@ module.exports = (app) => {
 		}
 	});
 
+	// FIXME route not used 
+	{% for link in object.reverseLinks -%}
+	app.get('/{{object.name | kebabCase}}/:{{object.name | snakeCase}}_id/{{link.source.name | kebabCase}}-list', async (request, response) => {
+		view.renderPage('error',  response, { message: "not implemented" });
+	});
+	{%- endfor %}
 
 }
 
