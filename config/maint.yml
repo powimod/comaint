@@ -164,6 +164,7 @@ objects:
         type: "string"
       - name: "description"
         type: "string"
+        mandatory: false
       - name: "equipmentUnitSectionCount"
         type: "integer"
         default: 0
@@ -194,6 +195,7 @@ objects:
         type: "string"
       - name: "description"
         type: "string"
+        mandatory: false
       - name: "equipmentCount"
         type: "integer"
         default: 0
@@ -287,6 +289,7 @@ objects:
         type: "string"
       - name: "description"
         type: "string"
+        mandatory: false
     links:
       - name: "company"
         target: "Company"
@@ -313,7 +316,7 @@ objects:
 
 files:
   - scope:  "project"
-    input:  "config/init-db.sql"
+    input:  "templates/init-db.sql.liquid"
     output: "output/init-db.sql"
 
     ########################### Backend 
