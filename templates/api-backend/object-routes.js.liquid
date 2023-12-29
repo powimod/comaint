@@ -60,7 +60,7 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 		try {
 			const {{object.name | camelCase}} = await {{object.name | pascalCase}}Model.get{{object.name | pascalCase}}ById({{object.name | camelCase}}Id);
 			if ({{object.name | camelCase}} === null)
-			throw new Error(`{{object.name | pascalCase}} ID <${ {{object.name | camelCase}}Id }> not found`);
+				throw new Error(`{{object.name | pascalCase}} ID <${ {{object.name | camelCase}}Id }> not found`);
 			{% liquid
 			   assign root_object = project.attributes.root_object 
 			   assign root_property = ''

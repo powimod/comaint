@@ -77,6 +77,12 @@ class {{object.name | pascalCase }}Model {
 
 		const sqlValues = [];
 		const sqlFilters = [];
+		{%- assign root_object = project.attributes.root_object %}
+		{% if object.name == root_object %}
+		sqlFilters.push('id = ?')
+		sqlValues.push(filters.{{object.name|camelCase}}Id);
+		{% endif %}
+
 		{%- for link in object.links %}
 		if (filters.{{link.name|camelCase}}Id !== undefined) {
 			sqlFilters.push('id_{{link.name|snakeCase}} = ?')
@@ -101,10 +107,7 @@ class {{object.name | pascalCase }}Model {
 		if (offset < 0) offset = 0;
 		sqlValues.push(offset);
 
-
 		let sql = `SELECT * FROM {{object.attributes.table_name }} ${whereClause} LIMIT ? OFFSET ?`;
-		console.log("dOm sql=", sql);
-		console.log("dOm val=", sqlValues);
 		// TODO select with column names and not jocker
 		// TODO order by
 		// TODO field selection 
