@@ -73,16 +73,13 @@ class {{object.name | pascalCase }}Model {
 		assert(this.#model !== null);
 		const db = this.#model.db;
 
-		console.log("dOm filters", filters);
-
 		const sqlValues = [];
 		const sqlFilters = [];
 		{%- assign root_object = project.attributes.root_object %}
-		{% if object.name == root_object %}
+		{%- if object.name == root_object %}
 		sqlFilters.push('id = ?')
 		sqlValues.push(filters.{{object.name|camelCase}}Id);
-		{% endif %}
-
+		{%- endif -%}
 		{%- for link in object.links %}
 		if (filters.{{link.name|camelCase}}Id !== undefined) {
 			sqlFilters.push('id_{{link.name|snakeCase}} = ?')
