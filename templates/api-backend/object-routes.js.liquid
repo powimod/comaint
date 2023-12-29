@@ -13,22 +13,6 @@ const {withAuth} = require('./auth-routes');
 module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 
 	app.get('/api/{{project.attributes.api_version}}/{{object.name | snakeCase}}/list', withAuth, async (request, response) => {
-		// TODO if request.companyId is defined, filter list to return only objects of this company
-		try {
-			let resultsPerPage = request.query.resultsPerPage;
-			let offset = request.query.offset;
-			const {{object.name | camelCase}}List = await {{object.name | pascalCase}}Model.get{{object.name | pascalCase}}List({}, {
-				resultsPerPage : resultsPerPage,
-				offset : offset
-			});
-			View.sendJsonResult(response, { {{object.name | camelCase}}List: {{object.name | camelCase}}List } );
-		}
-		catch (error) {
-			View.sendJsonError(response, error);
-		}
-	});
-
-	app.get('/api/{{project.attributes.api_version}}/{{object.name | snakeCase}}/search', withAuth, async (request, response) => {
 		const filters = {};
 		{%- for link in object.links %}
 		{% assign paramName = link.target.name | camelCase | append: 'Id' -%}

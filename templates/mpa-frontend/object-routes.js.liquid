@@ -17,27 +17,6 @@ module.exports = (app) => {
         const controller = ControllerSingleton.getInstance();
 
 	app.get('/{{object.name | kebabCase}}/list', async (request, response) => {
-		const resultsPerPage = controller.config.parameters.resultsPerPage;
-                assert(resultsPerPage !== undefined);
-
-		const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}List({
-			resultsPerPage : resultsPerPage,
-			accessToken: request.session.accessToken
-		});
-		if (result.ok) {
-			view.renderPage('{{object.name | kebabCase}}-list',  response, {
-				{{object.name | camelCase}}List: result.{{object.name | camelCase}}List
-			});
-		}
-		else {
-			view.renderPage('error',  response, {
-				message: result.error
-			});
-		}
-	});
-
-
-	app.get('/{{object.name | kebabCase}}/search', async (request, response) => {
 		const filters = {};
 		{%- for link in object.links %}
 		{% assign paramName = link.target.name | camelCase | append: 'Id' -%}
@@ -51,7 +30,7 @@ module.exports = (app) => {
 		{%- endfor %}
 		const resultsPerPage = controller.config.parameters.resultsPerPage;
                 assert(resultsPerPage !== undefined);
-		const result = await {{object.name | camelCase}}Api.search{{object.name | pascalCase}}List(filters, {
+		const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}List(filters, {
 			resultsPerPage : resultsPerPage,
 			accessToken: request.session.accessToken
 		});

@@ -20,7 +20,7 @@
 			<li><span>Link {{link.name}}</span> <span><%= {{object.name | camelCase}}.id{{link.name | pascalCase}} %></span></li>
 			{%- endfor %}
 			{% for link in object.reverseLinks -%}
-			<li><a href="/{{link.source.name | kebabCase}}/search?{{object.name | camelCase}}Id=<%= {{object.name | camelCase}}.id %>">{{link.source.name}} list</a></li>
+			<li><a href="/{{link.source.name | kebabCase}}/list?{{object.name | camelCase}}Id=<%= {{object.name | camelCase}}.id %>">{{link.source.name}} list</a></li>
 			{%- endfor %}
 			<li><a href="/{{object.name | kebabCase}}/list">Back</a></li>
 		</ul>
