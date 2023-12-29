@@ -7,6 +7,9 @@
 		%}
 'use strict';
 
+const util = require('../util.js');
+
+
 class Controller {
 	#app = null; // Express application
 	#config = null;
@@ -50,6 +53,34 @@ class Controller {
 
 		this.#app.get('/api/{{project.attributes.api_version}}', (request, response) => {
 			this.#view.sendJsonResult(response, '{{project.name}} backend API {{project.attributes.api_version}} ready');
+		});
+
+		this.#app.post('/sendMail', async (request, response) => {
+			try {
+				const email = request.body.email;
+				if (email === undefined)
+					throw new Error(`Can't find <email> in request body`);
+				const subject = request.body.subject;
+				if (subject === undefined)
+					throw new Error(`Can't find <subject> in request body`);
+				const textBody = request.body.text;
+				if (textBody === undefined)
+					throw new Error(`Can't find <text> in request body`);
+				const htmlBody = `<p>${textBody}</p>`;
+				const result = await util.sendMail(
+					email,
+					subject,
+					textBody,
+					htmlBody,
+					this.#config.mail
+				); 
+				this.#view.sendJsonResult(response, result);
+			}
+			catch (error) {
+				const errorMessage = (error.message !== undefined) ? error.message : error;
+				console.error(errorMessage);
+				response.json({ ok : false, error: errorMessage });
+			}
 		});
 
 		this.#authRoutes = require('./auth-routes.js');

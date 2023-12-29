@@ -21,7 +21,7 @@ attributes:
   backend_project_name: "Comaint API backend"
   backend_project_dir: "comaint-backend"
   backend_project_version: "0.0.1"
-  backend_project_description: "API server of Commaint project"
+  backend_project_description: "API server of Comaint project"
 
   mpa_frontend_project_name: "Comaint Multi Page Application frontend"
   mpa_frontend_project_dir: "comaint-mpa-frontend"
@@ -361,6 +361,9 @@ files:
     input:  "templates/api-backend/auth-routes.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/src/routes/auth-routes.js"
 
+  - scope:  "project"
+    input:  "templates/api-backend/util.js.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/src/util.js"
 
     ########################### Multi-page frontend
 
