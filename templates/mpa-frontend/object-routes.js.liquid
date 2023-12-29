@@ -17,53 +17,53 @@ module.exports = (app) => {
         const controller = ControllerSingleton.getInstance();
 
 	app.get('/{{object.name | kebabCase}}/list', async (request, response) => {
-		const filters = {};
-		{%- for link in object.links %}
-		{% assign paramName = link.target.name | camelCase | append: 'Id' -%}
-		let {{paramName}} = request.query.{{paramName}};
-		if ( {{paramName}} !== undefined) {
-			if (isNaN({{paramName}}))
-				throw new Error('Query <{{paramName}}> is not a number');
-			{{paramName}} = parseInt({{paramName}});
-			filters['{{paramName}}'] = {{paramName}};
-		}
-		{%- endfor %}
-		const resultsPerPage = controller.config.parameters.resultsPerPage;
-                assert(resultsPerPage !== undefined);
-		const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}List(filters, {
-			resultsPerPage : resultsPerPage,
-			accessToken: request.session.accessToken
-		});
-		if (result.ok) {
+		try {
+			const filters = {};
+			{%- for link in object.links %}
+			{% assign paramName = link.target.name | camelCase | append: 'Id' -%}
+			let {{paramName}} = request.query.{{paramName}};
+			if ( {{paramName}} !== undefined) {
+				if (isNaN({{paramName}}))
+					throw new Error('Query <{{paramName}}> is not a number');
+				filters.{{paramName}} = parseInt({{paramName}});
+			}
+			{%- endfor %}
+			const resultsPerPage = controller.config.parameters.resultsPerPage;
+			assert(resultsPerPage !== undefined);
+			const params = {
+				resultsPerPage : resultsPerPage,
+				accessToken: request.session.accessToken
+			};
+			const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}List(filters, params);
+			if (! result.ok)
+				throw new Error(`API error : ${result.error}`);
 			view.renderPage('{{object.name | kebabCase}}-list',  response, {
 				{{object.name | camelCase}}List: result.{{object.name | camelCase}}List
 			});
 		}
-		else {
-			view.renderPage('error',  response, {
-				message: `API error: ${result.error}`
-			});
+		catch (error) {
+			const errorMessage = (error.message !== undefined) ? error.message : error;
+			view.renderPage('error',  response, { message: errorMessage });
 		}
 	});
 
 	app.get('/{{object.name | kebabCase}}/:{{object.name | snakeCase}}_id', async (request, response) => {
-		const {{object.name | camelCase}}Id = request.params['{{object.name | snakeCase}}_id'];
-		if ({{object.name | camelCase}}Id === undefined)
-			throw new Error('URL parameter <{{object.name | camelCase}}_id> is missing');
-		if (isNaN({{object.name | camelCase}}Id))
-			throw new Error(`URL parameter <{{object.name | camelCase}}_id>=${ {{object.name | camelCase}}Id } is not a number`);
-		const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}Details({{object.name | camelCase}}Id, {
-			accessToken: request.session.accessToken
-		});
-		if (result.ok) {
+		try {
+			const {{object.name | camelCase}}Id = request.params['{{object.name | snakeCase}}_id'];
+			if (isNaN({{object.name | camelCase}}Id))
+				throw new Error(`URL parameter <{{object.name | camelCase}}_id>=${ {{object.name | camelCase}}Id } is not a number`);
+			const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}Details({{object.name | camelCase}}Id, {
+				accessToken: request.session.accessToken
+			});
+			if (! result.ok)
+				throw new Error(`API error : ${result.error}`);
 			view.renderPage('{{object.name | kebabCase}}-details',  response, {
 				{{object.name | camelCase}}: result.{{object.name | camelCase}}
 			});
 		}
-		else {
-			view.renderPage('error',  response, {
-				message: result.error
-			});
+		catch (error) {
+			const errorMessage = (error.message !== undefined) ? error.message : error;
+			view.renderPage('error',  response, { message: errorMessage });
 		}
 	});
 

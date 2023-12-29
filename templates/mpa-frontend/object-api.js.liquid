@@ -15,7 +15,7 @@ const model  = ModelSingleton.getInstance();
 exports.get{{object.name | pascalCase}}List = async function (filters, params) {
 	assert(filters !== undefined);
 	assert(params !== undefined);
-	const url = new URL(`${model.config.url}/{{object.name | snakeCase}}/list`);
+	const url = new URL(`${model.config.url}/{{object.name | kebabCase}}/list`);
 	for (const filter of Object.keys(filters)) 
 		url.searchParams.append(filter, filters[filter]);
 	if (params.resultsPerPage !== undefined)
@@ -40,7 +40,7 @@ exports.get{{object.name | pascalCase}}Details = async function (id{{object.name
 	assert(params !== undefined);
 	if (isNaN(id{{object.name | pascalCase}}))
 		throw new Error('Argument <id{{object.name | pascalCase}}> is not a number');
-	const url = new URL(`${model.config.url}/{{object.name | camelCase}}/${id{{object.name | pascalCase}}}`);
+	const url = new URL(`${model.config.url}/{{object.name | kebabCase}}/${id{{object.name | pascalCase}}}`);
 	try {
 		const result = await apiRequest(url, 'GET', params.accessToken);
 		const {{object.name | camelCase}} = result.{{object.name | camelCase}};

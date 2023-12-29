@@ -12,7 +12,7 @@ const {withAuth} = require('./auth-routes');
 
 module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 
-	app.get('/api/{{project.attributes.api_version}}/{{object.name | snakeCase}}/list', withAuth, async (request, response) => {
+	app.get('/api/{{project.attributes.api_version}}/{{object.name | kebabCase}}/list', withAuth, async (request, response) => {
 		const filters = {};
 		{%- for link in object.links %}
 		{% assign paramName = link.target.name | camelCase | append: 'Id' -%}
@@ -49,7 +49,7 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 	});
 
 
-	app.get('/api/{{project.attributes.api_version}}/{{object.name | snakeCase}}/:{{object.name | camelCase}}Id', withAuth, async (request, response) => {
+	app.get('/api/{{project.attributes.api_version}}/{{object.name | kebabCase}}/:{{object.name | camelCase}}Id', withAuth, async (request, response) => {
 		let {{object.name | camelCase}}Id = request.params.{{object.name | camelCase}}Id;
 		assert ({{object.name | camelCase}}Id !== undefined);
 		if (isNaN({{object.name | camelCase}}Id)) {
