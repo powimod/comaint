@@ -47,30 +47,57 @@ class {{object.name | pascalCase }}Model {
 
 	static {{object.name | camelCase }}FromDb(record) {
 		return {
-			// TODO do not return secret properties
-			{%- for property in object.properties -%}
-			{%- liquid
-			  if property.last
-				assign separator = ''
-			  else
-				assign separator = ','
-			  endif 
-			%}
-			{{property.name}} : record.{{property.name | snakeCase }}{{separator}}
-			{%- endfor %}
+		{%- liquid 
+		  assign sep=''
+		  for property in object.properties 
+		    echo sep
+		    echo '\n\t\t\t'
+		    echo property.name | append: ': record.'
+		    echo property.name | snakeCase
+		    assign sep = ','
+		  endfor
+		  for link in object.links 
+		    echo sep
+		    echo '\n\t\t\t'
+		    echo link.name | camelCase | append: 'Id'
+		    echo ' : record.'
+		    echo link.name | snakeCase | prepend: 'id_'
+		  endfor
+		%}
 		};
 	}
 
-	static async get{{object.name | pascalCase }}List(params) {
+	static async get{{object.name | pascalCase }}List(filters, params) {
+		assert(filters !== undefined);
+		assert(params !== undefined);
 		assert(this.#model !== null);
 		const db = this.#model.db;
 
+		console.log("dOm filters", filters);
+
+		const sqlValues = [];
+		const sqlFilters = [];
+		{%- assign root_object = project.attributes.root_object %}
+		{% if object.name == root_object %}
+		sqlFilters.push('id = ?')
+		sqlValues.push(filters.{{object.name|camelCase}}Id);
+		{% endif %}
+
+		{%- for link in object.links %}
+		if (filters.{{link.name|camelCase}}Id !== undefined) {
+			sqlFilters.push('id_{{link.name|snakeCase}} = ?')
+			sqlValues.push(filters.{{link.name|camelCase}}Id);
+		}
+		{%- endfor %}
+		const whereClause = sqlFilters.length === 0 ? '' : 'WHERE ' + sqlFilters.join(' AND ');
+
 		let resultsPerPage = params.resultsPerPage; 
 		if (resultsPerPage === undefined || isNaN(resultsPerPage)) 
-			resultsPerPage = 25; // FIXME hard coded value
+			resultsPerPage = 25; // TODO hard coded value
 		else
 			resultsPerPage = parseInt(resultsPerPage);
 		if (resultsPerPage < 1) resultsPerPage = 1;
+		sqlValues.push(resultsPerPage);
 
 		let offset = params.offset; 
 		if (offset=== undefined || isNaN(resultsPerPage)) 
@@ -78,13 +105,14 @@ class {{object.name | pascalCase }}Model {
 		else
 			offset = parseInt(offset);
 		if (offset < 0) offset = 0;
+		sqlValues.push(offset);
 
-		let sql = `SELECT * FROM {{object.attributes.table_name }} LIMIT ${resultsPerPage} OFFSET ${offset}`;
+		let sql = `SELECT * FROM {{object.attributes.table_name }} ${whereClause} LIMIT ? OFFSET ?`;
 		// TODO select with column names and not jocker
 		// TODO order by
 		// TODO field selection 
 
-		const result = await db.query(sql);
+		const result = await db.query(sql, sqlValues);
 		if (result.code) 
 			throw new Error(result.code);
 		const {{object.name | camelCase }}List = [];

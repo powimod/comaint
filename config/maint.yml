@@ -43,6 +43,8 @@ attributes:
   auth_password_property: "password"
   auth_extra_field: 'company'
 
+  root_object: 'Company'
+
 objects:
 
 
@@ -104,24 +106,33 @@ objects:
         secret: true
         minimum: 8
         maximum: 70 # 61 is the minimum size of bcrypt hash
+      - name: "firstname"
+        type: "string"
+        mandatory: false
+      - name: "lastname"
+        type: "string"
+        mandatory: false
       - name: "accountLocked"
         type: "boolean"
         default: false
       - name: "phone"
         type: "string"
         mandatory: false
-      - name: "address"
-        type: "text"
-        mandatory: true
-        default: ""
     links:
       - name: "company"
         target: "Company"
+        mandatory: false
     indexes:
       - name: "email"
         unique: true
         keys:
           - property : "email"
+      - name: "id_company_lastname_firstname"
+        unique: true
+        keys:
+          - link: "company"
+          - property : "lastname"
+          - property : "firstname"
 
   - name: "Token"
     attributes:
@@ -173,7 +184,6 @@ objects:
           - link: "company"
           - property : "name"
 
-            # A
   - name: "UnitSection"
     attributes:
       table_name: "unit_sections"
@@ -190,6 +200,8 @@ objects:
         attributes:
           auto_counter: true
     links:
+      - name: "company"
+        target: "Company"
       - name: "unit"
         target: "Unit"
     indexes:
@@ -226,6 +238,7 @@ objects:
     links:
       - name: "company"
         target: "Company"
+        mandatory: true 
     indexes:
       - name: "id_company_name"
         keys:
@@ -250,6 +263,9 @@ objects:
         attributes:
           auto_counter: true
     links:
+      - name: "company"
+        target: "Company"
+        mandatory: true
       - name : "family"
         target: "EquipmentFamily"
         mandatory: true
@@ -272,10 +288,15 @@ objects:
       - name: "description"
         type: "string"
     links:
+      - name: "company"
+        target: "Company"
+        mandatory: true
       - name: "type"
         target: "EquipmentType"
+        mandatory: true 
       - name: "section"
         target: "UnitSection"
+        mandatory: true 
     indexes:
       - name: "id_type_name"
         unique: true

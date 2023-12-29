@@ -19,8 +19,8 @@ exports.apiRequest = async function(apiUrl, httpMethod, accessToken){
 		headers: httpHeaders
 	}
 	const result = await fetch(apiUrl, params);
-	if (result.status !== 200)
-		throw new Error(`HTTP response status is not 200 but ${result.status}`);
+	if (result.status !== 200) 
+		throw new Error(`HTTP response status is ${result.status} (${result.statusText})`);
 	const json = await result.json();
 	if (json === null)
 		throw new Error('JSON response is null');
