@@ -35,8 +35,8 @@ class AuthModel {
 	}
 
 	static generateValidationCode() {
-		const minimum = 10000; // TODO hard code values : minimum and maximum
-		const maximum = 99999;
+		const minimum = {{authCodeProp.minimum}};
+		const maximum = {{authCodeProp.maximum}};
 		return parseInt(Math.random() * (maximum - minimum) + minimum);
 	}
 
