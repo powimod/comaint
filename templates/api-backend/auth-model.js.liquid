@@ -16,9 +16,9 @@
 'use strict';
 const assert = require('assert');
 const jwt = require('jsonwebtoken');
+const util = require('../util.js');
 
 class AuthModel {
-
 	static #model = null;
 	static #config = null;
 	static #secret = null;
@@ -34,15 +34,32 @@ class AuthModel {
 		this.#model = ModelSingleton.getInstance();
 	}
 
-	static generateCode() {
+	static generateValidationCode() {
 		const minimum = 10000; // TODO hard code values : minimum and maximum
 		const maximum = 99999;
 		return parseInt(Math.random() * (maximum - minimum) + minimum);
 	}
 
-	static async register({{authIdentProp}}, {{authPasswordProp}}) {
+	static async sendValidationCode(code, email) {
+		const subject = "Comaint registering";
+		const textBody = `Welcome,\nYour validation code is ${code}`;
+		const htmlBody = `Welcome,\nYour validation code is <b>${code}</b>`;
+		return await util.sendMail(
+				email,
+				subject,
+				textBody,
+				htmlBody,
+				this.#config.mail
+		); 
+	}
+
+	static async register({{authIdentProp}}, {{authPasswordProp}}, {{authCodeProp}}) {
+		assert({{authIdentProp}} !== undefined);
+		assert({{authPasswordProp}} !== undefined);
+		assert({{authCodeProp}} !== undefined);
 		assert(this.#model !== null);
-		// TODO control ident and password length
+
+		// check an account with same {{authIdentProp}} does not already exist
 		const db = this.#model.db;
 		let sql = 'SELECT {{authIdentProp}} FROM {{authTableName}} WHERE {{authIdentProp}} = ?';
 		let result = await db.query(sql, [ {{authIdentProp}} ]);
@@ -50,11 +67,13 @@ class AuthModel {
 			throw new Error(result.code);
 		if (result.length > 0) 
 			throw new Error('An account with this {{authIdentProp}} already exists');
+
+		// make a hash of the password
 		assert(this.#config.security.hashSalt !== undefined);
 		const saltRounds = this.#config.security.hashSalt;
 		const bcrypt = require('bcrypt');
-		const {{authCodeProp}} = this.generateCode();
 		const {{authPasswordProp}}Hash = await bcrypt.hash({{authPasswordProp}}, saltRounds)
+
 		const sqlRequest = `
 			INSERT INTO {{authTableName}}
 			({{authIdentProp|snakeCase}}, {{authPasswordProp|snakeCase}}, {{authCodeProp|snakeCase}}, {{authLockProp|snakeCase}})
@@ -68,6 +87,7 @@ class AuthModel {
 		result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
+
 		return {
 			{{authObjectName}}Id : result.insertId
 		}

@@ -10,6 +10,8 @@
 	assign authTableName  = project.attributes.auth_table_name
 	assign authIdentProp = project.attributes.auth_ident_property
 	assign authPasswordProp = project.attributes.auth_password_property
+	assign authCodeProp = project.attributes.auth_code_property
+	assign authLockProp = project.attributes.auth_lock_property
 %}
 'use strict';
 const assert = require('assert');
@@ -59,16 +61,27 @@ exports.initialize = (app, authModel, View, config) => {
 			const {{authIdentProp}} = request.body.{{authIdentProp}};
 			if ({{authIdentProp}} === undefined)
 				throw new Error(`Can't find <{{authIdentProp}}> in request body`);
+
 			const {{authPasswordProp}} = request.body.{{authPasswordProp}};
 			if ({{authPasswordProp}} === undefined)
 				throw new Error(`Can't find <{{authPasswordProp}}> in request body`);
+
 			// TODO control ident and password length
-			const result = await _authModel.register({{authIdentProp}}, {{authPasswordProp}});
+
+			// make a random validation code which will be sent by email to unlock account
+			const {{authCodeProp}} = _authModel.generateValidationCode();
+			console.log(`Validation code is ${ {{authCodeProp}} }`); // TODO remove this
+
+			const result = await _authModel.register({{authIdentProp}}, {{authPasswordProp}}, {{authCodeProp}});
 			const {{authObjectName}}Id = result.{{authObjectName}}Id; 
 			assert({{authObjectName}}Id !== undefined);
 			{% if project.attributes.auth_extra_field -%}
 			const {{project.attributes.auth_extra_field | camelCase}}Id = null;
 			{%- endif %}
+
+			await _authModel.sendValidationCode({{authCodeProp}}, {{authIdentProp}});
+
+			// generate access and refresh tokens
 			const newAccessToken  = await _authModel.generateAccessToken({{authObjectName}}Id
 			{%- if project.attributes.auth_extra_field -%}
 				, {{project.attributes.auth_extra_field | camelCase}}Id
@@ -79,6 +92,7 @@ exports.initialize = (app, authModel, View, config) => {
 				, {{project.attributes.auth_extra_field | camelCase}}Id
 			{%- endif -%}
 			);
+
 			response.json({ ok : true, 
 				'{{authObjectName}}-id': {{authObjectName}}Id,
 				{% if project.attributes.auth_extra_field -%}
