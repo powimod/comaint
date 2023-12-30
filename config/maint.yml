@@ -37,7 +37,7 @@ attributes:
   license: "GPL V3 or later"
   lang: "fr"
 
-  auth_object: "user"
+  auth_object: "User"
   auth_table_name: "users"
   auth_ident_property: "email"
   auth_password_property: "password"
@@ -120,6 +120,8 @@ objects:
       - name : "validationCode"
         type: "integer"
         mandatory: false
+        minimum: 10000
+        maximum: 99999
       - name: "phone"
         type: "string"
         mandatory: false

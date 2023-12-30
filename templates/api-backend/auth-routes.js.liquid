@@ -6,12 +6,11 @@
 		filename    : 'auth-routes.js'
 		%}
 {% liquid 
-	assign authObjectName = project.attributes.auth_object
-	assign authTableName  = project.attributes.auth_table_name
-	assign authIdentProp = project.attributes.auth_ident_property
-	assign authPasswordProp = project.attributes.auth_password_property
-	assign authCodeProp = project.attributes.auth_code_property
-	assign authLockProp = project.attributes.auth_lock_property
+	assign authObject = project.objects | where: 'name',  project.attributes.auth_object | first
+	assign authIdentProp = authObject.properties | where: 'name', project.attributes.auth_ident_property | first
+	assign authPasswordProp = authObject.properties | where: 'name', project.attributes.auth_password_property | first
+	assign authCodeProp = authObject.properties | where: 'name', project.attributes.auth_code_property | first
+	assign authLockProp = authObject.properties | where: 'name', project.attributes.auth_lock_property | first
 %}
 'use strict';
 const assert = require('assert');
@@ -26,14 +25,14 @@ exports.initialize = (app, authModel, View, config) => {
 
 	app.use( async (request, response, next) => {
 		assert(_authModel !== null);
-		let {{authObjectName}}Id = null;
+		let {{authObject.name}}Id = null;
 		{% if project.attributes.auth_extra_field -%}
 		let {{project.attributes.auth_extra_field | camelCase}}Id = null;
 		{%- endif %}
 		const token = request.headers['x-access-token'];
 		if (token !== undefined) {
 			try {
-				[{{authObjectName}}Id
+				[{{authObject.name}}Id
 				{%- if project.attributes.auth_extra_field -%}
 				, {{project.attributes.auth_extra_field | camelCase}}Id
 				{%- endif -%}
@@ -45,7 +44,7 @@ exports.initialize = (app, authModel, View, config) => {
 				console.error(errorMessage);
 			}
 		}
-		request.{{authObjectName}}Id = {{authObjectName}}Id;
+		request.{{authObject.name}}Id = {{authObject.name}}Id;
 		{% if project.attributes.auth_extra_field -%}
 		request.{{project.attributes.auth_extra_field | camelCase}}Id = {{project.attributes.auth_extra_field | camelCase}}Id; 
 		{%- endif %}
@@ -58,43 +57,43 @@ exports.initialize = (app, authModel, View, config) => {
 
 	app.post('/api/{{project.attributes.api_version}}/auth/register', async (request, response) => {
 		try {
-			const {{authIdentProp}} = request.body.{{authIdentProp}};
-			if ({{authIdentProp}} === undefined)
-				throw new Error(`Can't find <{{authIdentProp}}> in request body`);
+			const {{authIdentProp.name}} = request.body.{{authIdentProp.name}};
+			if ({{authIdentProp.name}} === undefined)
+				throw new Error(`Can't find <{{authIdentProp.name}}> in request body`);
 
-			const {{authPasswordProp}} = request.body.{{authPasswordProp}};
-			if ({{authPasswordProp}} === undefined)
-				throw new Error(`Can't find <{{authPasswordProp}}> in request body`);
+			const {{authPasswordProp.name}} = request.body.{{authPasswordProp.name}};
+			if ({{authPasswordProp.name}} === undefined)
+				throw new Error(`Can't find <{{authPasswordProp.name}}> in request body`);
 
 			// TODO control ident and password length
 
 			// make a random validation code which will be sent by email to unlock account
-			const {{authCodeProp}} = _authModel.generateValidationCode();
-			console.log(`Validation code is ${ {{authCodeProp}} }`); // TODO remove this
+			const {{authCodeProp.name}} = _authModel.generateValidationCode();
+			console.log(`Validation code is ${ {{authCodeProp.name}} }`); // TODO remove this
 
-			const result = await _authModel.register({{authIdentProp}}, {{authPasswordProp}}, {{authCodeProp}});
-			const {{authObjectName}}Id = result.{{authObjectName}}Id; 
-			assert({{authObjectName}}Id !== undefined);
+			const result = await _authModel.register({{authIdentProp.name}}, {{authPasswordProp.name}}, {{authCodeProp.name}});
+			const {{authObject.name}}Id = result.{{authObject.name}}Id; 
+			assert({{authObject.name}}Id !== undefined);
 			{% if project.attributes.auth_extra_field -%}
 			const {{project.attributes.auth_extra_field | camelCase}}Id = null;
 			{%- endif %}
 
-			await _authModel.sendValidationCode({{authCodeProp}}, {{authIdentProp}});
+			await _authModel.sendValidationCode({{authCodeProp.name}}, {{authIdentProp.name}});
 
 			// generate access and refresh tokens
-			const newAccessToken  = await _authModel.generateAccessToken({{authObjectName}}Id
+			const newAccessToken  = await _authModel.generateAccessToken({{authObject.name}}Id
 			{%- if project.attributes.auth_extra_field -%}
 				, {{project.attributes.auth_extra_field | camelCase}}Id
 			{%- endif -%}
 			);
-			const newRefreshToken = await _authModel.generateRefreshToken({{authObjectName}}Id
+			const newRefreshToken = await _authModel.generateRefreshToken({{authObject.name}}Id
 			{%- if project.attributes.auth_extra_field -%}
 				, {{project.attributes.auth_extra_field | camelCase}}Id
 			{%- endif -%}
 			);
 
 			response.json({ ok : true, 
-				'{{authObjectName}}-id': {{authObjectName}}Id,
+				'{{authObject.name}}-id': {{authObject.name}}Id,
 				{% if project.attributes.auth_extra_field -%}
 				'{{project.attributes.auth_extra_field | kebabCase}}-id': {{project.attributes.auth_extra_field | camelCase}}Id,
 				{%- endif %}
@@ -111,27 +110,27 @@ exports.initialize = (app, authModel, View, config) => {
 
 	app.post('/api/{{project.attributes.api_version}}/auth/login', async (request, response) => {
 		try {
-			const {{authIdentProp}} = request.body.{{authIdentProp}};
-			if ({{authIdentProp}} === undefined)
-				throw new Error(`Can't find <{{authIdentProp}}> in request body`);
-			const {{authPasswordProp}} = request.body.{{authPasswordProp}};
-			if ({{authPasswordProp}} === undefined)
-				throw new Error(`Can't find <{{authPasswordProp}}> in request body`);
+			const {{authIdentProp.name}} = request.body.{{authIdentProp.name}};
+			if ({{authIdentProp.name}} === undefined)
+				throw new Error(`Can't find <{{authIdentProp.name}}> in request body`);
+			const {{authPasswordProp.name}} = request.body.{{authPasswordProp.name}};
+			if ({{authPasswordProp.name}} === undefined)
+				throw new Error(`Can't find <{{authPasswordProp.name}}> in request body`);
 
-			const login = await _authModel.login({{authIdentProp}}, {{authPasswordProp}});
-			assert (! isNaN(login.{{authObjectName}}Id)) ;
-			const newAccessToken  = await _authModel.generateAccessToken(login.{{authObjectName}}Id
+			const login = await _authModel.login({{authIdentProp.name}}, {{authPasswordProp.name}});
+			assert (! isNaN(login.{{authObject.name}}Id)) ;
+			const newAccessToken  = await _authModel.generateAccessToken(login.{{authObject.name}}Id
 			{%- if project.attributes.auth_extra_field -%}
 			, login.{{project.attributes.auth_extra_field | camelCase}}Id
 			{%- endif -%}
 			);
-			const newRefreshToken = await _authModel.generateRefreshToken(login.{{authObjectName}}Id
+			const newRefreshToken = await _authModel.generateRefreshToken(login.{{authObject.name}}Id
 			{%- if project.attributes.auth_extra_field -%}
 			, login.{{project.attributes.auth_extra_field | camelCase}}Id
 			{%- endif -%}
 			);
 			response.json({ ok : true, 
-				'{{authObjectName}}-id' : login.{{authObjectName}}Id,
+				'{{authObject.name}}-id' : login.{{authObject.name}}Id,
 				{% if project.attributes.auth_extra_field -%}
 				'{{project.attributes.auth_extra_field | snakeCase}}-id': login.{{project.attributes.auth_extra_field | camelCase}}Id,
 				{%- endif %}
@@ -178,7 +177,7 @@ exports.initialize = (app, authModel, View, config) => {
 			const refreshToken = request.body.token;
 			if (refreshToken === undefined)
 				throw new Error(`Can't find <token> in request body`);
-			const [tokenFound, tokenId, {{authObjectName}}Id 
+			const [tokenFound, tokenId, {{authObject.name}}Id 
 			{%- if project.attributes.auth_extra_field -%}
 			, {{project.attributes.auth_extra_field | camelCase}}Id
 			{%- endif -%}
@@ -186,28 +185,28 @@ exports.initialize = (app, authModel, View, config) => {
 			if (! tokenFound) {
 				// if a token is not found, it should be an attempt to usurp cookie :
 				// since a refresh token is deleted when used, it will not be found with a second attempt to use it.
-				await _authModel.lockAccount({{authObjectName}}Id);
+				await _authModel.lockAccount({{authObject.name}}Id);
 				throw new Error('Attempt to reuse a token');
 			}
 
 			await _authModel.deleteRefreshToken(tokenId);
 
-			if (await _authModel.checkAccountLocked({{authObjectName}}Id))
+			if (await _authModel.checkAccountLocked({{authObject.name}}Id))
 				throw new Error('Account locked');
 
-			const newAccessToken  = await _authModel.generateAccessToken({{authObjectName}}Id
+			const newAccessToken  = await _authModel.generateAccessToken({{authObject.name}}Id
 			{%- if project.attributes.auth_extra_field -%}
 				, {{project.attributes.auth_extra_field | camelCase}}Id
 			{%- endif -%}
 			);
-			const newRefreshToken = await _authModel.generateRefreshToken({{authObjectName}}Id
+			const newRefreshToken = await _authModel.generateRefreshToken({{authObject.name}}Id
 			{%- if project.attributes.auth_extra_field -%}
 				, {{project.attributes.auth_extra_field | camelCase}}Id
 			{%- endif -%}
 			);
 
 			response.json({ ok : true, 
-				'{{authObjectName}}-id' : {{authObjectName}}Id,
+				'{{authObject.name}}-id' : {{authObject.name}}Id,
 				{% if project.attributes.auth_extra_field -%}
 				'{{project.attributes.auth_extra_field | kebabCase}}-id': {{project.attributes.auth_extra_field | camelCase}}Id,
 				{%- endif %}
@@ -231,12 +230,12 @@ exports.withAuth = async (request, response, next) => {
 		const token = request.headers['x-access-token'];
 		if (token === undefined) 
 			throw new Error(`HTTP header <x-access-token> not found`);
-		const [{{authObjectName}}Id 
+		const [{{authObject.name}}Id 
 		{%- if project.attributes.auth_extra_field -%}
 			, {{project.attributes.auth_extra_field | camelCase}}Id
 		{%- endif -%}
 		] = await _authModel.checkAccessToken(token);
-		request.{{authObjectName}}Id = {{authObjectName}}Id;
+		request.{{authObject.name}}Id = {{authObject.name}}Id;
 		{% if project.attributes.auth_extra_field -%}
 		request.{{project.attributes.auth_extra_field | camelCase}}Id = {{project.attributes.auth_extra_field | camelCase}}Id;
 		{%- endif %}
