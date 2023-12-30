@@ -41,6 +41,8 @@ attributes:
   auth_table_name: "users"
   auth_ident_property: "email"
   auth_password_property: "password"
+  auth_code_property: "validationCode"
+  auth_lock_property: "accountLocked"
   auth_extra_field: 'company'
 
   root_object: 'Company'
@@ -115,6 +117,9 @@ objects:
       - name: "accountLocked"
         type: "boolean"
         default: false
+      - name : "validationCode"
+        type: "integer"
+        mandatory: false
       - name: "phone"
         type: "string"
         mandatory: false

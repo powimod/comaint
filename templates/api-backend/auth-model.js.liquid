@@ -10,6 +10,8 @@
 	assign authTableName  = project.attributes.auth_table_name
 	assign authIdentProp = project.attributes.auth_ident_property
 	assign authPasswordProp = project.attributes.auth_password_property
+	assign authCodeProp = project.attributes.auth_code_property
+	assign authLockProp = project.attributes.auth_lock_property
 %}
 'use strict';
 const assert = require('assert');
@@ -32,8 +34,15 @@ class AuthModel {
 		this.#model = ModelSingleton.getInstance();
 	}
 
+	static generateCode() {
+		const minimum = 10000; // TODO hard code values : minimum and maximum
+		const maximum = 99999;
+		return parseInt(Math.random() * (maximum - minimum) + minimum);
+	}
+
 	static async register({{authIdentProp}}, {{authPasswordProp}}) {
 		assert(this.#model !== null);
+		// TODO control ident and password length
 		const db = this.#model.db;
 		let sql = 'SELECT {{authIdentProp}} FROM {{authTableName}} WHERE {{authIdentProp}} = ?';
 		let result = await db.query(sql, [ {{authIdentProp}} ]);
@@ -44,11 +53,17 @@ class AuthModel {
 		assert(this.#config.security.hashSalt !== undefined);
 		const saltRounds = this.#config.security.hashSalt;
 		const bcrypt = require('bcrypt');
+		const {{authCodeProp}} = this.generateCode();
 		const {{authPasswordProp}}Hash = await bcrypt.hash({{authPasswordProp}}, saltRounds)
-		const sqlRequest = `INSERT INTO {{authTableName}}({{authIdentProp}}, {{authPasswordProp}}) VALUES (?, ?);`;
+		const sqlRequest = `
+			INSERT INTO {{authTableName}}
+			({{authIdentProp|snakeCase}}, {{authPasswordProp|snakeCase}}, {{authCodeProp|snakeCase}}, {{authLockProp|snakeCase}})
+			VALUES (?, ?, ?, ?);`;
 		const sqlParams = [
 			{{authIdentProp}},
-			{{authPasswordProp}}Hash
+			{{authPasswordProp}}Hash,
+			{{authCodeProp}},
+			false // account locked
 		];
 		result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
@@ -67,7 +82,7 @@ class AuthModel {
 		     assign extra = project.attributes.auth_extra_field | snakeCase | prepend: ', id_'
 		   endif
 		%}
-		let sql = 'SELECT id, {{authIdentProp}}, {{authPasswordProp}}, account_locked{{extra}} FROM {{authTableName}} WHERE {{authIdentProp}} = ?';
+		let sql = 'SELECT id, {{authIdentProp}}, {{authPasswordProp}}, {{authLockProp}}{{extra}} FROM {{authTableName}} WHERE {{authIdentProp}} = ?';
 		const result = await db.query(sql, [ {{authIdentProp}} ]);
 		if (result.code)
 			throw new Error(result.code);
@@ -77,7 +92,7 @@ class AuthModel {
 		const {{authPasswordProp}}Valid = await bcrypt.compare({{authPasswordProp}}, result[0].{{authPasswordProp}});
 		if (! {{authPasswordProp}}Valid)
 			throw new Error('Unknown {{authIdentProp}} or invalid {{authPasswordProp}}');
-		if (result[0].account_locked)
+		if (result[0].{{authLockProp}})
 			throw new Error('{{authObjectName | pascalCase}} account is locked');
 		return {
 		{% liquid
@@ -246,14 +261,14 @@ class AuthModel {
 	static async checkAccountLocked({{authObjectName}}Id) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
-		const sqlRequest = 'SELECT account_locked FROM {{authTableName}} WHERE id= ?';
+		const sqlRequest = 'SELECT {{authLockProp}} FROM {{authTableName}} WHERE id= ?';
 		const sqlParams = [ {{authObjectName}}Id ];
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
 		if (result.length === 0) 
 			throw new Error('{{authObjectName | pascalCase}} not found');
-		const locked = result[0].account_locked;
+		const locked = result[0].{{authLockProp}};
 		return locked;
 	}
 
@@ -261,7 +276,7 @@ class AuthModel {
 		assert(this.#model !== null);
 		const db = this.#model.db;
 		// lock account
-		let sqlRequest = 'UPDATE {{authTableName}} SET account_locked = ? WHERE id= ?';
+		let sqlRequest = 'UPDATE {{authTableName}} SET {{authLockProp}} = ? WHERE id= ?';
 		let sqlParams = [ true, {{authObjectName}}Id ];
 		let result = await db.query(sqlRequest, sqlParams);
 		if (result.code)

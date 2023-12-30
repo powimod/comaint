@@ -62,6 +62,7 @@ exports.initialize = (app, authModel, View, config) => {
 			const {{authPasswordProp}} = request.body.{{authPasswordProp}};
 			if ({{authPasswordProp}} === undefined)
 				throw new Error(`Can't find <{{authPasswordProp}}> in request body`);
+			// TODO control ident and password length
 			const result = await _authModel.register({{authIdentProp}}, {{authPasswordProp}});
 			const {{authObjectName}}Id = result.{{authObjectName}}Id; 
 			assert({{authObjectName}}Id !== undefined);
