@@ -89,7 +89,7 @@ class AuthModel {
 			throw new Error(result.code);
 
 		return {
-			{{authObject.name}}Id : result.insertId
+			{{authObject.name|camelCase}}Id : result.insertId
 		}
 	}
 
@@ -102,7 +102,8 @@ class AuthModel {
 		     assign extra = project.attributes.auth_extra_field | snakeCase | prepend: ', id_'
 		   endif
 		%}
-		let sql = 'SELECT id, {{authIdentProp.name}}, {{authPasswordProp.name}}, {{authLockProp.name}}{{extra}} FROM {{authTableName}} WHERE {{authIdentProp.name}} = ?';
+		let sql = `SELECT id, {{authIdentProp.name|snakeCase}}, {{authPasswordProp.name|snakeCase}}, {{authLockProp.name|snakeCase}}{{extra}} 
+			FROM {{authTableName}} WHERE {{authIdentProp.name}} = ?`;
 		const result = await db.query(sql, [ {{authIdentProp.name}} ]);
 		if (result.code)
 			throw new Error(result.code);
@@ -113,7 +114,7 @@ class AuthModel {
 		if (! {{authPasswordProp.name}}Valid)
 			throw new Error('Unknown {{authIdentProp.name}} or invalid {{authPasswordProp.name}}');
 		if (result[0].{{authLockProp.name}})
-			throw new Error('{{authObject.name | pascalCase}} account is locked');
+			throw new Error('{{authObject.name|pascalCase}} account is locked');
 		return {
 		{% liquid
 		   if project.attributes.auth_extra_field
@@ -122,7 +123,7 @@ class AuthModel {
 			echo project.attributes.auth_extra_field | snakeCase | prepend: ': result[0].id_' | append: ','
 		   endif
 		%}
-			{{authObject.name}}Id: result[0].id
+			{{authObject.name|camelCase}}Id: result[0].id
 		}
 	}
 
@@ -134,7 +135,7 @@ class AuthModel {
 					reject('Invalid token');
 				if (decoded.type !== 'refresh')
 					reject('Not a refresh token');
-				if (isNaN(decoded.user_id))
+				if (isNaN(decoded.{{authObject.name|snakeCase}}_id))
 					reject(`Invalid token content`);
 				if (isNaN(decoded.token_id))
 					reject(`Invalid token content`);
@@ -142,14 +143,14 @@ class AuthModel {
 				if (isNaN(decoded.{{project.attributes.auth_extra_field | snakeCase}}_id))
 					reject(`Invalid token content`);
 			{%- endif %}
-				resolve([decoded.user_id, decoded.token_id
+				resolve([decoded.{{authObject.name|snakeCase}}_id, decoded.token_id
 			{%- if project.attributes.auth_extra_field -%}
 				, decoded.{{ project.attributes.auth_extra_field | snakeCase }}_id
 			{%- endif -%}
 			]);
 			});
 		});
-		const [userId, tokenId
+		const [{{authObject.name|camelCase}}Id, tokenId
 		{%- if project.attributes.auth_extra_field -%}
 			, {{ project.attributes.auth_extra_field | snakeCase }}Id
 		{%- endif -%}
@@ -164,7 +165,7 @@ class AuthModel {
 			throw new Error('Unknown token ID');
 	}
 
-	static async generateAccessToken({{authObject.name}}Id
+	static async generateAccessToken({{authObject.name|camelCase}}Id
 	{%- if project.attributes.auth_extra_field -%}
 		, {{ project.attributes.auth_extra_field | camelCase }}Id
 	{%- endif -%}
@@ -176,12 +177,12 @@ class AuthModel {
 				{{ project.attributes.auth_extra_field | snakeCase }}_id: {{ project.attributes.auth_extra_field | camelCase }}Id,
 			{%- endif %}
 			type: 'access',
-			{{authObject.name}}_id: {{authObject.name}}Id
+			{{authObject.name|snakeCase}}_id: {{authObject.name|camelCase}}Id
 		};
 		return jwt.sign(payload, this.#secret, { expiresIn: `${accessTokenLifespan}m`});
 	}
 
-	static async generateRefreshToken({{authObject.name}}Id
+	static async generateRefreshToken({{authObject.name|camelCase}}Id
 	{%- if project.attributes.auth_extra_field -%}
 		, {{ project.attributes.auth_extra_field | camelCase }}Id
 	{%- endif -%}
@@ -190,9 +191,9 @@ class AuthModel {
 		assert (this.#config.security.refreshTokenLifespan !== undefined);
 		const refreshTokenLifespan = this.#config.security.refreshTokenLifespan;
 		const expirationDate = new Date (Date.now() + refreshTokenLifespan * 86400000); // 24 hours in ms
-		const sqlRequest = 'INSERT INTO tokens(id_{{authObject.name}}, expires_at) VALUES (?, ?)';
+		const sqlRequest = 'INSERT INTO tokens(id_{{authObject.name|snakeCase}}, expires_at) VALUES (?, ?)';
 		const sqlParams = [
-			{{authObject.name}}Id,
+			{{authObject.name|camelCase}}Id,
 			expirationDate
 		];
 		const result = await db.query(sqlRequest, sqlParams);
@@ -206,7 +207,7 @@ class AuthModel {
 				{{ project.attributes.auth_extra_field | snakeCase }}_id: {{ project.attributes.auth_extra_field | camelCase }}Id,
 			{%- endif %}
 			type: 'refresh',
-			{{authObject.name}}_id: {{authObject.name}}Id,
+			{{authObject.name|snakeCase}}_id: {{authObject.name|camelCase}}Id,
 			token_id: tokenId
 		};
 		return jwt.sign(payload, this.#secret, { expiresIn: `${refreshTokenLifespan}days` });
@@ -223,13 +224,13 @@ class AuthModel {
 				}
 				if (decoded.type !== 'access')
 					reject('Not an access token');
-				if (isNaN(decoded.{{authObject.name}}_id))
+				if (isNaN(decoded.{{authObject.name|snakeCase}}_id))
 					reject(`Invalid token content`);
 				{% if project.attributes.auth_extra_field -%}
 				if (isNaN(decoded.{{project.attributes.auth_extra_field}}_id))
 					reject(`Invalid token content`);
 				{%- endif %}
-				resolve([decoded.{{authObject.name}}_id
+				resolve([decoded.{{authObject.name|snakeCase}}_id
 				{%- if project.attributes.auth_extra_field -%}
 					, decoded.{{ project.attributes.auth_extra_field | snakeCase }}_id
 				{%- endif -%}
@@ -251,12 +252,12 @@ class AuthModel {
 				}
 				if (decoded.type !== 'refresh')
 					reject('Not an refresh token');
-				if (isNaN(decoded.token_id) || isNaN(decoded.{{authObject.name}}_id))
+				if (isNaN(decoded.token_id) || isNaN(decoded.{{authObject.name|snakeCase}}_id))
 					reject(`Invalid token content`);
-				resolve([decoded.token_id, decoded.{{authObject.name}}_id]);
+				resolve([decoded.token_id, decoded.{{authObject.name|snakeCase}}_id]);
 			});
 		});
-		const [tokenId, {{authObject.name}}Id] = await decodeToken;
+		const [tokenId, {{authObject.name|camelCase}}Id] = await decodeToken;
 
 		const sqlRequest = 'SELECT id FROM tokens WHERE id = ?';
 		const sqlParams = [ tokenId ];
@@ -265,7 +266,7 @@ class AuthModel {
 			throw new Error(result.code);
 		const tokenFound = (result.length === 0) ? false : true
 		
-		return [tokenFound, tokenId, {{authObject.name}}Id];
+		return [tokenFound, tokenId, {{authObject.name|camelCase}}Id];
 	}
 
 
@@ -278,34 +279,34 @@ class AuthModel {
 		return (result.affectedRows === 0) ? false : true;
 	}
 
-	static async checkAccountLocked({{authObject.name}}Id) {
+	static async checkAccountLocked({{authObject.name|camelCase}}Id) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
 		const sqlRequest = 'SELECT {{authLockProp.name}} FROM {{authTableName}} WHERE id= ?';
-		const sqlParams = [ {{authObject.name}}Id ];
+		const sqlParams = [ {{authObject.name|camelCase}}Id ];
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
 		if (result.length === 0) 
-			throw new Error('{{authObject.name | pascalCase}} not found');
+			throw new Error('{{authObject.name|pascalCase}} not found');
 		const locked = result[0].{{authLockProp.name}};
 		return locked;
 	}
 
-	static async lockAccount({{authObject.name}}Id) {
+	static async lockAccount({{authObject.name|camelCase}}Id) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
 		// lock account
 		let sqlRequest = 'UPDATE {{authTableName}} SET {{authLockProp.name}} = ? WHERE id= ?';
-		let sqlParams = [ true, {{authObject.name}}Id ];
+		let sqlParams = [ true, {{authObject.name|camelCase}}Id ];
 		let result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
 		if (result.affectedRows=== 0) 
-			throw new Error('{{authObject.name | pascalCase}} not found');
+			throw new Error('{{authObject.name|pascalCase}} not found');
 		// remove existing {{authObject.name}} tokens
-		sqlRequest = 'DELETE FROM tokens WHERE id_{{authObject.name}} = ?';
-		sqlParams = [ {{authObject.name}}Id ];
+		sqlRequest = 'DELETE FROM tokens WHERE id_{{authObject.name|snakeCase}} = ?';
+		sqlParams = [ {{authObject.name|camelCase}}Id ];
 		result = await db.query(sqlRequest, sqlParams);
 	}
 

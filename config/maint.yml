@@ -103,6 +103,8 @@ objects:
       - name: "email"
         type: "string"
         maximum: 320
+        attributes:
+          pattern: "^\\S+@\\S+\\.\\S+$"
       - name: "password"
         type: "string"
         secret: true

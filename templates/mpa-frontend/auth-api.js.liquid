@@ -5,6 +5,9 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'auth-api.js'
 		%}
+{% liquid 
+	assign authObject = project.objects | where: 'name',  project.attributes.auth_object | first
+%}
 'use script';
 const ModelSingleton = require('./model.js');
 const model  = ModelSingleton.getInstance();
@@ -29,16 +32,16 @@ exports.login = async function(email, password) {
 		if (! json.ok)
 			throw new Error(json.error);
 		//TODO controlJsonResponse(json);
-		const userId = json['user-id'];;
-		if (userId === undefined)
-			throw new Error('user-id not found in HTTP response');
+		const {{authObject.name|camelCase}}Id = json['{{authObject.name|camelCase}}Id'];;
+		if ({{authObject.name|camelCase}}Id === undefined)
+			throw new Error('{{authObject.name|camelCase}}Id not found in HTTP response');
 		const refreshToken = json['refresh-token'];;
 		if (refreshToken === undefined)
 			throw new Error('refresh-token not found in HTTP response');
 		const accessToken = json['access-token'];;
 		if (accessToken === undefined)
 			throw new Error('access-token not found in HTTP response');
-		return {ok: true, userId: userId, refreshToken: refreshToken, accessToken: accessToken};
+			return {ok: true, {{authObject.name|camelCase}}Id: {{authObject.name|camelCase}}Id, refreshToken: refreshToken, accessToken: accessToken};
 	}
 	catch (error) {
 		return {

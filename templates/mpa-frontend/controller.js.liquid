@@ -56,7 +56,7 @@ class Controller {
 			if (! request.session.userId) {
 				request.session.userId = null;
 				request.session.accessToken= null;
-				request.session.requestToken= null;
+				request.session.refreshToken= null;
 			}
 			next();
 		});
