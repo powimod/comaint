@@ -50,17 +50,7 @@ class Controller {
 				maxAge: this.#config.session.maxAge // cookie lifetime in ms
 			}
 		}));
-		// FIXME move this middleware in auth-routes ?
-		// middleware to initialize session
-		this.#app.use( (request, response, next) => {
-			if (! request.session.userId) {
-				request.session.userId = null;
-				request.session.accessToken= null;
-				request.session.refreshToken= null;
-			}
-			next();
-		});
-		
+				
 		this.#app.get('/', (request, response) => {
 			if (request.session.userId === null) {
 				this.#view.renderPage('public-home',  response, {});

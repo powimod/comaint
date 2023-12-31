@@ -15,6 +15,16 @@ module.exports = (app) => {
         const ControllerSingleton = require('./controller.js');
         const controller = ControllerSingleton.getInstance();
 
+	.// middleware to initialize session
+	app.use( (request, response, next) => {
+		if (! request.session.userId) {
+			request.session.userId = null;
+			request.session.accessToken= null;
+			request.session.refreshToken= null;
+		}
+		next();
+	});
+
 	app.get('/login', (request, response) => {
 		view.renderPage('auth-login',  response, {});
 	});
