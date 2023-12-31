@@ -50,8 +50,12 @@ class Controller {
 				maxAge: this.#config.session.maxAge // cookie lifetime in ms
 			}
 		}));
+
+		// auth-routes must be declared first since it contains a middleware to initialize session
+		this._AuthRoutes = require('./auth-routes.js')(this.#app);
 				
 		this.#app.get('/', (request, response) => {
+			console.log("dOm home - session", request.session);
 			if (request.session.userId === null) {
 				this.#view.renderPage('public-home',  response, {});
 			}
@@ -60,7 +64,6 @@ class Controller {
 			}
 		});
 
-		this._AuthRoutes = require('./auth-routes.js')(this.#app);
 		{% for object in project.objects %}
 		this._{{object.name | pascalCase }}Routes = require('./{{object.name | kebabCase }}-routes.js')(this.#app);
 		{%- endfor %}

@@ -428,6 +428,10 @@ files:
     input:  "templates/mpa-frontend/auth-logout.ejs.liquid"
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/auth-logout.ejs"
 
+  - scope:  "project"
+    input:  "templates/mpa-frontend/auth-register.ejs.liquid"
+    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/auth-register.ejs"
+
   - scope:  "object"
     input:  "templates/mpa-frontend/object-list.ejs.liquid"
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/{{object.name | kebabCase}}-list.ejs"

@@ -15,7 +15,7 @@ module.exports = (app) => {
         const ControllerSingleton = require('./controller.js');
         const controller = ControllerSingleton.getInstance();
 
-	.// middleware to initialize session
+	// middleware to initialize session
 	app.use( (request, response, next) => {
 		if (! request.session.userId) {
 			request.session.userId = null;
@@ -29,6 +29,7 @@ module.exports = (app) => {
 		view.renderPage('auth-login',  response, {});
 	});
 	app.post('/login', async (request, response) => {
+		// TODO add try/catch bloc
 		const email = request.body.email;
 		const password = request.body.password;
 		const result = await authApi.login(email, password);
@@ -42,12 +43,17 @@ module.exports = (app) => {
 		response.redirect('/');
 	});
 
+
 	app.get('/logout', (request, response) => {
 		view.renderPage('auth-logout',  response, {});
 	});
+
 	app.post('/logout', async (request, response) => {
-		if (request.session.userId === null)
+		// TODO add try/catch bloc
+		if (request.session.userId === null) {
 			response.redirect('/'); // user is not logged in
+			return;
+		}
 		assert(request.session.refreshToken !== null);
 		const result = await authApi.logout(request.session.refreshToken);
 		if (! result.ok) {
@@ -59,6 +65,18 @@ module.exports = (app) => {
 		});
 	});
 
+	app.get('/register', (request, response) => {
+		view.renderPage('auth-register',  response, {});
+	});
+	app.post('/register', async (request, response) => {
+		try {
+			throw new Error("Register not implemented");
+		}
+		catch (error) {
+			const errorMessage = (error.message !== undefined) ? error.message : error;
+			view.renderPage('error',  response, { message: errorMessage });
+		}
+	});
 }
 
 
