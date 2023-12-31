@@ -5,6 +5,9 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'controller.js'
 		%}
+{% liquid 
+	assign authObject = project.objects | where: 'name',  project.attributes.auth_object | first
+%}
 'use strict';
 const assert = require('assert');
 
@@ -55,8 +58,7 @@ class Controller {
 		this._AuthRoutes = require('./auth-routes.js')(this.#app);
 				
 		this.#app.get('/', (request, response) => {
-			console.log("dOm home - session", request.session);
-			if (request.session.userId === null) {
+			if (request.session.{{authObject.name|camelCase}}Id === null) {
 				this.#view.renderPage('public-home',  response, {});
 			}
 			else {

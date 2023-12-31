@@ -273,8 +273,7 @@ exports.withAuth = async (request, response, next) => {
 }
 
 exports.withUserAuth = async (request, response, next) => {
-	console.log("dOm withUserAuth  userId:" + request.userId + ", companyId:" + request.companyId);
-	if (request.userId === null) {
+	if (request.{{authObject.name|camelCase}}Id === null) {
 		console.error('Unautorized access');
 		response.json({ ok: false, error: 'Unautorized access'});
 		return;
