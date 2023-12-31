@@ -109,9 +109,11 @@ exports.initialize = (app, authModel, View, config) => {
 		}
 	});
 
-	app.post('/api/{{project.attributes.api_version}}/auth/validate', async (request, response) => {
+	app.post('/api/{{project.attributes.api_version}}/auth/validateRegistration', async (request, response) => {
+		assert(request.{{authObject.name|camelCase}}Id !== undefined);
+		const {{authObject.name|camelCase}}Id = request.{{authObject.name|camelCase}}Id;
 		try {
-			const {{authCodeProp.name}} = request.body.{{authCodeProp.name}};
+			let {{authCodeProp.name}} = request.body.{{authCodeProp.name}};
 			if ({{authCodeProp.name}} === undefined)
 				throw new Error(`Can't find <{{authCodeProp.name}}> in request body`);
 			if (isNaN({{authCodeProp.name}}))
@@ -120,6 +122,8 @@ exports.initialize = (app, authModel, View, config) => {
 			if ({{authCodeProp.name}} < {{authCodeProp.minimum}} || {{authCodeProp.name}} > {{authCodeProp.maximum}})
 				throw new Error(`<{{authCodeProp.name}}> in request body is out of range`);
 
+			await _authModel.validateRegistration({{authObject.name|camelCase}}Id, {{authCodeProp.name}});
+			response.json({ ok : true});
 		}
 		catch (error) {
 			const errorMessage = (error.message !== undefined) ? error.message : error;

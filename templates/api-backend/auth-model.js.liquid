@@ -82,7 +82,7 @@ class AuthModel {
 			{{authIdentProp.name}},
 			{{authPasswordProp.name}}Hash,
 			{{authCodeProp.name}},
-			false // account locked
+			true // account locked
 		];
 		result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
@@ -91,6 +91,39 @@ class AuthModel {
 		return {
 			{{authObject.name|camelCase}}Id : result.insertId
 		}
+	}
+
+	static async validateRegistration({{authObject.name|camelCase}}Id, {{authCodeProp.name}}) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		let sqlRequest = `
+			SELECT {{authCodeProp.name|snakeCase}}, {{authLockProp.name|snakeCase}}
+			FROM {{authTableName}}
+			WHERE id = ?;`;
+		let sqlParams = [
+			{{authObject.name|camelCase}}Id,
+		];
+		let result = await db.query(sqlRequest, sqlParams);
+		if (result.code)
+			throw new Error(result.code);
+		if (result.length === 0) 
+			throw new Error('Unknown user ID');
+		if ({{authCodeProp.name}} !== result[0].{{authCodeProp.name|snakeCase}})
+			throw new Error('Invalid code');
+		if (! result[0].{{authLockProp.name|snakeCase}})
+			throw new Error('Account is not locked');
+
+		// unlock {{authObject.name|pascalCase}} account and reset validation code
+		sqlRequest = `UPDATE {{authTableName}} 
+			SET {{authLockProp.name|snakeCase}} = ?, {{authCodeProp.name|snakeCase}} = ?
+			WHERE id= ?`;
+		sqlParams = [ false, null, {{authObject.name|camelCase}}Id ];
+		result = await db.query(sqlRequest, sqlParams);
+		if (result.code)
+			throw new Error(result.code);
+		if (result.affectedRows=== 0) 
+			throw new Error('{{authObject.name|pascalCase}} not found');
+
 	}
 
 	static async login({{authIdentProp.name}}, {{authPasswordProp.name}}) {
@@ -297,7 +330,7 @@ class AuthModel {
 		assert(this.#model !== null);
 		const db = this.#model.db;
 		// lock account
-		let sqlRequest = 'UPDATE {{authTableName}} SET {{authLockProp.name}} = ? WHERE id= ?';
+		let sqlRequest = 'UPDATE {{authTableName}} SET {{authLockProp.name|snakeCase}} = ? WHERE id= ?';
 		let sqlParams = [ true, {{authObject.name|camelCase}}Id ];
 		let result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
