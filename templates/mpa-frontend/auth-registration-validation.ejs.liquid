@@ -1,0 +1,22 @@
+{% liquid 
+	assign authObject = project.objects | where: 'name',  project.attributes.auth_object | first
+	assign authCodeProp = authObject.properties | where: 'name', project.attributes.auth_code_property | first
+%}
+
+		<h2>Registration</h2>
+
+		<% if (typeof error !== 'undefined') { %>
+			<p>Error : <%= error %></p>
+		<% } %>
+
+		<form action="/register" method="POST" >
+			<div>
+				<label for="{{authCodeProp.name|snakeCase}}">{{authCodeProp.name|pascalCase}}</label>
+				<input id="{{authCodeProp.name|snakeCase}}" name="{{authCodeProp.name|snakeCase}}" type="text"/>
+			</div>
+			<div>
+				<input type="submit" value="Validate"/>
+			<div>
+		</form>
+		<a href="/">Home</a>
+

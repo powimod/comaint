@@ -73,12 +73,25 @@ module.exports = (app) => {
 	});
 	app.post('/register', async (request, response) => {
 		try {
-			throw new Error("Register not implemented");
+			const email = request.body.email;
+			const password = request.body.password;
+			/*
+			const result = await authApi.register(email, password);
+			if (! result.ok) {
+				view.renderPage('auth-validate-registration',  response, {error: result.error});
+				return;
+			}
+			*/
+			response.redirect('/validate-registration'); 
 		}
 		catch (error) {
 			const errorMessage = (error.message !== undefined) ? error.message : error;
 			view.renderPage('error',  response, { message: errorMessage });
 		}
+	});
+
+	app.get('/validate-registration', (request, response) => {
+		view.renderPage('auth-registration-validation',  response, {});
 	});
 }
 
