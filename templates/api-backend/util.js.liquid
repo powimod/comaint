@@ -40,8 +40,11 @@ exports.sendMail = (mailTo, subject, textBody, htmlBody, conf) => {
 			html: htmlBody
 		};
 		transporter.sendMail(mailOptions, (error, info) => {
-			if (error) 
+			if (error) {
 				reject(error);
+				return;
+			}
+			console.log('dom mail info', info);
 			resolve(`Message ${info.messageId} sent: ${info.response}`);
 		});
 	});
