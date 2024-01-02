@@ -7,6 +7,9 @@
 		%}
 {% liquid 
 	assign authObject = project.objects | where: 'name',  project.attributes.auth_object | first
+	assign authIdentProp = authObject.properties | where: 'name', project.attributes.auth_ident_property | first
+	assign authPasswordProp = authObject.properties | where: 'name', project.attributes.auth_password_property | first
+	assign authCodeProp = authObject.properties | where: 'name', project.attributes.auth_code_property | first
 %}
 'use strict';
 const assert = require('assert');
@@ -22,8 +25,8 @@ module.exports = (app) => {
 	app.use( (request, response, next) => {
 		if (! request.session.{{authObject.name|camelCase}}Id) {
 			request.session.{{authObject.name|camelCase}}Id = null;
-			request.session.accessToken= null;
-			request.session.refreshToken= null;
+			request.session.accessToken = null;
+			request.session.refreshToken = null;
 		}
 		next();
 	});
@@ -32,18 +35,29 @@ module.exports = (app) => {
 		view.renderPage('auth-login',  response, {});
 	});
 	app.post('/login', async (request, response) => {
-		// TODO add try/catch bloc
-		const email = request.body.email;
-		const password = request.body.password;
-		const result = await authApi.login(email, password);
-		if (! result.ok) {
-			view.renderPage('auth-login',  response, {error: result.error});
-			return;
+		try {
+			const {{authIdentProp.name|camelCase}} = request.body.{{authIdentProp.name|camelCase}};
+			const {{authPasswordProp.name|camelCase}} = request.body.{{authPasswordProp.name|camelCase}};
+			const params = { accessToken: request.session.accessToken };
+			const result = await authApi.login({{authIdentProp.name|camelCase}}, {{authPasswordProp.name|camelCase}}, params);
+			if (! result.ok) {
+				view.renderPage('auth-login',  response, {error: result.error});
+				return;
+			}
+			assert(result.{{authObject.name|camelCase}}Id !== undefined);
+			assert(result.accessToken !== undefined);
+			assert(result.refreshToken !== undefined);
+
+			request.session.{{authObject.name|camelCase}}Id = result.{{authObject.name|camelCase}}Id;
+			request.session.accessToken = result.accessToken;
+			request.session.refreshToken = result.refreshToken;
+
+			response.redirect('/');
 		}
-		request.session.{{authObject.name|camelCase}}Id = result.{{authObject.name|camelCase}}Id;
-		request.session.accessToken = result.accessToken;
-		request.session.refreshToken = result.refreshToken;
-		response.redirect('/');
+		catch (error) {
+			const errorMessage = (error.message !== undefined) ? error.message : error;
+			view.renderPage('error',  response, { message: errorMessage });
+		}
 	});
 
 
@@ -52,20 +66,26 @@ module.exports = (app) => {
 	});
 
 	app.post('/logout', async (request, response) => {
-		// TODO add try/catch bloc
-		if (request.session.{{authObject.name|camelCase}}Id === null) {
-			response.redirect('/'); // {{authObject.name|pascalCase}} is not logged in
-			return;
+		try  {
+			if (request.session.{{authObject.name|camelCase}}Id === null) {
+				response.redirect('/'); // {{authObject.name|pascalCase}} is not logged in
+				return;
+			}
+			assert(request.session.refreshToken !== null);
+			const params = { accessToken: request.session.accessToken };
+			const result = await authApi.logout(request.session.refreshToken, params);
+			if (! result.ok) {
+				view.renderPage('auth-logout',  response, {error: result.error});
+				return;
+			}
+			request.session.destroy( (err) => { // a new cookie will be recreated
+				response.redirect('/'); 
+			});
 		}
-		assert(request.session.refreshToken !== null);
-		const result = await authApi.logout(request.session.refreshToken);
-		if (! result.ok) {
-			view.renderPage('auth-logout',  response, {error: result.error});
-			return;
+		catch (error) {
+			const errorMessage = (error.message !== undefined) ? error.message : error;
+			view.renderPage('error',  response, { message: errorMessage });
 		}
-		request.session.destroy( (err) => { // a new cookie will be recreated
-			response.redirect('/'); 
-		});
 	});
 
 	app.get('/register', (request, response) => {
@@ -73,15 +93,22 @@ module.exports = (app) => {
 	});
 	app.post('/register', async (request, response) => {
 		try {
-			const email = request.body.email;
-			const password = request.body.password;
-			/*
-			const result = await authApi.register(email, password);
+			const {{authIdentProp.name|camelCase}} = request.body.{{authIdentProp.name|camelCase}};
+			const {{authPasswordProp.name|camelCase}} = request.body.{{authPasswordProp.name|camelCase}};
+			const params = { accessToken: request.session.accessToken };
+			const result = await authApi.register({{authIdentProp.name|camelCase}}, {{authPasswordProp.name|camelCase}}, params);
 			if (! result.ok) {
-				view.renderPage('auth-validate-registration',  response, {error: result.error});
+				view.renderPage('auth-register',  response, {error: result.error});
 				return;
 			}
-			*/
+			assert(result.{{authObject.name|camelCase}}Id !== undefined);
+			assert(result.accessToken !== undefined);
+			assert(result.refreshToken !== undefined);
+
+			request.session.{{authObject.name|camelCase}}Id = result.{{authObject.name|camelCase}}Id;
+			request.session.accessToken = result.accessToken;
+			request.session.refreshToken = result.refreshToken;
+
 			response.redirect('/validate-registration'); 
 		}
 		catch (error) {
@@ -93,6 +120,20 @@ module.exports = (app) => {
 	app.get('/validate-registration', (request, response) => {
 		view.renderPage('auth-registration-validation',  response, {});
 	});
+	app.post('/validate-registration', async (request, response) => {
+		try {
+			const {{authCodeProp.name|camelCase}} = request.body.{{authCodeProp.name|snakeCase}};
+			const params = { accessToken: request.session.accessToken };
+			const result = await authApi.validateRegistration({{authCodeProp.name|camelCase}}, params);
+			if (! result.ok) {
+				view.renderPage('auth-registration-validation',  response, {error: result.error});
+				return;
+			}
+			response.redirect('/'); 
+		}
+		catch (error) {
+			const errorMessage = (error.message !== undefined) ? error.message : error;
+			view.renderPage('error',  response, { message: errorMessage });
+		}
+	});
 }
-
-

@@ -7,38 +7,36 @@
 		%}
 {% liquid 
 	assign authObject = project.objects | where: 'name',  project.attributes.auth_object | first
+	assign authIdentProp = authObject.properties | where: 'name', project.attributes.auth_ident_property | first
+	assign authPasswordProp = authObject.properties | where: 'name', project.attributes.auth_password_property | first
+	assign authCodeProp = authObject.properties | where: 'name', project.attributes.auth_code_property | first
 %}
 'use script';
+const assert = require('assert');
+const {apiRequest} = require('./api-tools.js');
 const ModelSingleton = require('./model.js');
 const model  = ModelSingleton.getInstance();
 
 
-exports.login = async function(email, password) {
+exports.login = async function({{authIdentProp.name|camelCase}}, {{authPasswordProp.name|camelCase}}, params) {
+	assert({{authIdentProp.name|camelCase}} !== undefined);
+	assert({{authPasswordProp.name|camelCase}} !== undefined);
 	const url = new URL(`${model.config.url}/auth/login`);
 	try {
-		// TODO control email and password values are not empty
-		const params = {
-			method: 'POST',
-			headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				email: email, 
-				password: password
-			})
+		// TODO control {{authIdentProp.name|camelCase}} and {{authPasswordProp.name|camelCase}} values are not empty
+
+		const requestBody = {
+			{{authIdentProp.name|camelCase}}: {{authIdentProp.name|camelCase}}, 
+			{{authPasswordProp.name|camelCase}}: {{authPasswordProp.name|camelCase}}
 		};
-		const result = await fetch(url, params);
-		if (result.status !== 200)
-			throw new Error('HTTP response status is not 200');
-		const json = await result.json();
-		if (! json.ok)
-			throw new Error(json.error);
-		//TODO controlJsonResponse(json);
-		const {{authObject.name|camelCase}}Id = json['{{authObject.name|camelCase}}Id'];;
+		const result = await apiRequest(url, 'POST', params.accessToken, requestBody);
+		const {{authObject.name|camelCase}}Id = result['{{authObject.name|camelCase}}Id'];;
 		if ({{authObject.name|camelCase}}Id === undefined)
 			throw new Error('{{authObject.name|camelCase}}Id not found in HTTP response');
-		const refreshToken = json['refresh-token'];;
+		const refreshToken = result['refresh-token'];;
 		if (refreshToken === undefined)
 			throw new Error('refresh-token not found in HTTP response');
-		const accessToken = json['access-token'];;
+		const accessToken = result['access-token'];;
 		if (accessToken === undefined)
 			throw new Error('access-token not found in HTTP response');
 			return {ok: true, {{authObject.name|camelCase}}Id: {{authObject.name|camelCase}}Id, refreshToken: refreshToken, accessToken: accessToken};
@@ -51,23 +49,84 @@ exports.login = async function(email, password) {
 	}
 }
 
-exports.logout = async function(refreshToken) {
+exports.logout = async function(refreshToken, params) {
+	assert(refreshToken !== undefined);
 	const url = new URL(`${model.config.url}/auth/logout`);
 	try {
-		const params = {
-			method: 'POST',
-			headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				refreshToken: refreshToken
-			})
+		const requestBody = {
+			refreshToken: refreshToken
 		};
-		const result = await fetch(url, params);
-		if (result.status !== 200)
-			throw new Error(`HTTP response status is ${result.status} (not 200)`);
-		const json = await result.json();
-		if (! json.ok)
-			throw new Error(json.error);
-		//TODO controlJsonResponse(json);
+		const result = await apiRequest(url, 'POST', params.accessToken, requestBody);
+
+		return {ok: true};
+	}
+	catch (error) {
+		return {
+			ok: false, 
+			error: (error.message !== undefined) ? error.message : error
+		};
+	}
+}
+
+exports.register = async function({{authIdentProp.name|camelCase}}, {{authPasswordProp.name|camelCase}}, params) {
+	assert({{authIdentProp.name|camelCase}} !== undefined);
+	assert ({{authPasswordProp.name|camelCase}} !== undefined);
+	const url = new URL(`${model.config.url}/auth/register`);
+	try {
+		// TODO control {{authIdentProp.name|camelCase}} and {{authPasswordProp.name|camelCase}} values are not empty
+		const requestBody = { 
+			{{authIdentProp.name|camelCase}}: {{authIdentProp.name|camelCase}}, 
+			{{authPasswordProp.name|camelCase}}: {{authPasswordProp.name|camelCase}}
+		};
+		const result = await apiRequest(url, 'POST', params.accessToken, requestBody);
+		const {{authObject.name|camelCase}}Id = result['{{authObject.name|camelCase}}Id'];;
+		if ({{authObject.name|camelCase}}Id === undefined)
+			throw new Error('{{authObject.name|camelCase}}Id not found in HTTP response');
+		const refreshToken = result['refresh-token'];;
+		if (refreshToken === undefined)
+			throw new Error('refresh-token not found in HTTP response');
+		const accessToken = result['access-token'];;
+		if (accessToken === undefined)
+			throw new Error('access-token not found in HTTP response');
+		return {
+			ok: true, 
+			{{authObject.name|camelCase}}Id: {{authObject.name|camelCase}}Id, 
+			refreshToken: refreshToken,
+			accessToken: accessToken
+		};
+	}
+	catch (error) {
+		return {
+			ok: false, 
+			error: (error.message !== undefined) ? error.message : error
+		};
+	}
+}
+
+exports.validateRegistration = async function({{authCodeProp.name|camelCase}}, params) {
+	assert({{authCodeProp.name|camelCase}} !== undefined);
+	assert(params !== undefined);
+	assert(params.accessToken !== null);
+	const url = new URL(`${model.config.url}/auth/validateRegistration`);
+	try {
+		// TODO control {{authCodeProp.name|camelCase}} value is not empty
+
+		const requestBody = {
+			{{authCodeProp.name|camelCase}}: {{authCodeProp.name|camelCase}}
+		};
+		const result = await apiRequest(url, 'POST', params.accessToken, requestBody);
+		/* TODO cleanup
+		const {{authObject.name|camelCase}}Id = result['{{authObject.name|camelCase}}Id'];;
+		if ({{authObject.name|camelCase}}Id === undefined)
+			throw new Error('{{authObject.name|camelCase}}Id not found in HTTP response');
+		const refreshToken = result['refresh-token'];;
+		if (refreshToken === undefined)
+			throw new Error('refresh-token not found in HTTP response');
+		const accessToken = result['access-token'];;
+		if (accessToken === undefined)
+			throw new Error('access-token not found in HTTP response');
+		return {ok: true, {{authObject.name|camelCase}}Id: {{authObject.name|camelCase}}Id, refreshToken: refreshToken, accessToken: accessToken};
+		*/
 		return {ok: true};
 	}
 	catch (error) {

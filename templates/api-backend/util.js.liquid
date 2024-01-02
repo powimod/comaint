@@ -44,7 +44,6 @@ exports.sendMail = (mailTo, subject, textBody, htmlBody, conf) => {
 				reject(error);
 				return;
 			}
-			console.log('dom mail info', info);
 			resolve(`Message ${info.messageId} sent: ${info.response}`);
 		});
 	});

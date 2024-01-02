@@ -107,7 +107,7 @@ class AuthModel {
 		if (result.code)
 			throw new Error(result.code);
 		if (result.length === 0) 
-			throw new Error('Unknown {{authCodeProp.name|pascalCase}} ID');
+			throw new Error('Unknown {{authObject.name|pascalCase}} Id');
 		if ({{authCodeProp.name}} !== result[0].{{authCodeProp.name|snakeCase}})
 			throw new Error('Invalid code');
 		if (! result[0].{{authLockProp.name|snakeCase}})

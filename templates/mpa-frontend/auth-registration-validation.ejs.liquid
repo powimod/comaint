@@ -9,7 +9,7 @@
 			<p>Error : <%= error %></p>
 		<% } %>
 
-		<form action="/register" method="POST" >
+		<form action="/validate-registration" method="POST" >
 			<div>
 				<label for="{{authCodeProp.name|snakeCase}}">{{authCodeProp.name|pascalCase}}</label>
 				<input id="{{authCodeProp.name|snakeCase}}" name="{{authCodeProp.name|snakeCase}}" type="text"/>

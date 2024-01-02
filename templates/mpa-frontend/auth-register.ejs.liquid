@@ -1,3 +1,8 @@
+{% liquid 
+	assign authObject = project.objects | where: 'name',  project.attributes.auth_object | first
+	assign authIdentProp = authObject.properties | where: 'name', project.attributes.auth_ident_property | first
+	assign authPasswordProp = authObject.properties | where: 'name', project.attributes.auth_password_property | first
+%}
 		<h2>Registration</h2>
 
 		<% if (typeof error !== 'undefined') { %>
@@ -6,15 +11,15 @@
 
 		<form action="/register" method="POST" >
 			<div>
-				<label for="email">EMail</label>
-				<input id="email" name="email" type="text"/>
+				<label for="{{authIdentProp.name|snakeCase}}">{{authIdentProp.name|pascalCase}}</label>
+				<input id="{{authIdentProp.name|snakeCase}}" name="{{authIdentProp.name|snakeCase}}" type="text"/>
 			</div>
 			<div>
-				<label for="password">Password</label>
-				<input id="password" name="password" type="password"/>
+				<label for="{{authPasswordProp.name|snakeCase}}">Password</label>
+				<input id="{{authPasswordProp.name|snakeCase}}" name="{{authPasswordProp.name|snakeCase}}" type="password"/>
 			</div>
 			<div>
-				<input type="submit" value="Login"/>
+				<input type="submit" value="Next"/>
 			<div>
 		</form>
 		<a href="/">Home</a>
