@@ -7,7 +7,7 @@
 		%}
 'use script';
 
-exports.apiRequest = async function(apiUrl, httpMethod, accessToken){
+exports.apiRequest = async function(apiUrl, httpMethod, accessToken, requestBody = null){
 	const httpHeaders = {
 		'Accept': 'application/json',
 		'Content-Type': 'application/json'
@@ -18,6 +18,8 @@ exports.apiRequest = async function(apiUrl, httpMethod, accessToken){
 		method : httpMethod,
 		headers: httpHeaders
 	}
+	if (requestBody !== null)
+		params.body = JSON.stringify(requestBody);
 	const result = await fetch(apiUrl, params);
 	if (result.status !== 200) 
 		throw new Error(`HTTP response status is ${result.status} (${result.statusText})`);

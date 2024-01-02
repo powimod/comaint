@@ -44,12 +44,20 @@ function loadConfig()
 		throw new Error(`Can't find <security> section in configuration file ${configFile}`);
 	for (let prop of ['tokenSecret', 'hashSalt', 'refreshTokenLifespan', 'accessTokenLifespan'])
 		if (securityParam[prop] === undefined)
-			throw new Error(`Can't find <${prop}> property in <token> section of ${configFile}`);
+			throw new Error(`Can't find <${prop}> property in <security> section of ${configFile}`);
+
+	const mailParam = nconf.get('mail');
+	if (mailParam === undefined)
+		throw new Error(`Can't find <mail> section in configuration file ${configFile}`);
+	for (let prop of ['host', 'port', 'user', 'password', 'from'])
+		if (mailParam[prop] === undefined)
+			throw new Error(`Can't find <${prop}> property in <mail> section of ${configFile}`);
 
 	const config = {
 		db: dbParam,
 		server: serverParam,
-		security: securityParam
+		security: securityParam,
+		mail: mailParam
 	}
 
 	return config;

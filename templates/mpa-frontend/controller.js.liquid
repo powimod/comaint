@@ -5,6 +5,9 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'controller.js'
 		%}
+{% liquid 
+	assign authObject = project.objects | where: 'name',  project.attributes.auth_object | first
+%}
 'use strict';
 const assert = require('assert');
 
@@ -50,19 +53,12 @@ class Controller {
 				maxAge: this.#config.session.maxAge // cookie lifetime in ms
 			}
 		}));
-		// FIXME move this middleware in auth-routes ?
-		// middleware to initialize session
-		this.#app.use( (request, response, next) => {
-			if (! request.session.userId) {
-				request.session.userId = null;
-				request.session.accessToken= null;
-				request.session.requestToken= null;
-			}
-			next();
-		});
-		
+
+		// auth-routes must be declared first since it contains a middleware to initialize session
+		this._AuthRoutes = require('./auth-routes.js')(this.#app);
+				
 		this.#app.get('/', (request, response) => {
-			if (request.session.userId === null) {
+			if (request.session.{{authObject.name|camelCase}}Id === null) {
 				this.#view.renderPage('public-home',  response, {});
 			}
 			else {
@@ -70,7 +66,6 @@ class Controller {
 			}
 		});
 
-		this._AuthRoutes = require('./auth-routes.js')(this.#app);
 		{% for object in project.objects %}
 		this._{{object.name | pascalCase }}Routes = require('./{{object.name | kebabCase }}-routes.js')(this.#app);
 		{%- endfor %}

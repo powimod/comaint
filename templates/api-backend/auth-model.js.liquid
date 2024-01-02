@@ -6,17 +6,19 @@
 		filename    : 'auth-model.js'
 		%}
 {% liquid 
-	assign authObjectName = project.attributes.auth_object
-	assign authTableName  = project.attributes.auth_table_name
-	assign authIdentProp = project.attributes.auth_ident_property
-	assign authPasswordProp = project.attributes.auth_password_property
+	assign authObject = project.objects | where: 'name',  project.attributes.auth_object | first
+	assign authTableName  = authObject.attributes.table_name
+	assign authIdentProp = authObject.properties | where: 'name', project.attributes.auth_ident_property | first
+	assign authPasswordProp = authObject.properties | where: 'name', project.attributes.auth_password_property | first
+	assign authCodeProp = authObject.properties | where: 'name', project.attributes.auth_code_property | first
+	assign authLockProp = authObject.properties | where: 'name', project.attributes.auth_lock_property | first
 %}
 'use strict';
 const assert = require('assert');
 const jwt = require('jsonwebtoken');
+const util = require('../util.js');
 
 class AuthModel {
-
 	static #model = null;
 	static #config = null;
 	static #secret = null;
@@ -32,33 +34,99 @@ class AuthModel {
 		this.#model = ModelSingleton.getInstance();
 	}
 
-	static async register({{authIdentProp}}, {{authPasswordProp}}) {
+	static generateValidationCode() {
+		const minimum = {{authCodeProp.minimum}};
+		const maximum = {{authCodeProp.maximum}};
+		return parseInt(Math.random() * (maximum - minimum) + minimum);
+	}
+
+	static async sendValidationCode(code, email) {
+		const subject = "Comaint registering";
+		const textBody = `Welcome,\nYour validation code is ${code}`;
+		const htmlBody = `Welcome,\nYour validation code is <b>${code}</b>`;
+		return await util.sendMail(
+				email,
+				subject,
+				textBody,
+				htmlBody,
+				this.#config.mail
+		); 
+	}
+
+	static async register({{authIdentProp.name}}, {{authPasswordProp.name}}, {{authCodeProp.name}}) {
+		assert({{authIdentProp.name}} !== undefined);
+		assert({{authPasswordProp.name}} !== undefined);
+		assert({{authCodeProp.name}} !== undefined);
 		assert(this.#model !== null);
+
+		// check an account with same {{authIdentProp.name}} does not already exist
 		const db = this.#model.db;
-		let sql = 'SELECT {{authIdentProp}} FROM {{authTableName}} WHERE {{authIdentProp}} = ?';
-		let result = await db.query(sql, [ {{authIdentProp}} ]);
+		let sql = 'SELECT {{authIdentProp.name}} FROM {{authTableName}} WHERE {{authIdentProp.name}} = ?';
+		let result = await db.query(sql, [ {{authIdentProp.name}} ]);
 		if (result.code)
 			throw new Error(result.code);
 		if (result.length > 0) 
-			throw new Error('An account with this {{authIdentProp}} already exists');
+			throw new Error('An account with this {{authIdentProp.name}} already exists');
+
+		// make a hash of the password
 		assert(this.#config.security.hashSalt !== undefined);
 		const saltRounds = this.#config.security.hashSalt;
 		const bcrypt = require('bcrypt');
-		const {{authPasswordProp}}Hash = await bcrypt.hash({{authPasswordProp}}, saltRounds)
-		const sqlRequest = `INSERT INTO {{authTableName}}({{authIdentProp}}, {{authPasswordProp}}) VALUES (?, ?);`;
+		const {{authPasswordProp.name}}Hash = await bcrypt.hash({{authPasswordProp.name}}, saltRounds)
+
+		const sqlRequest = `
+			INSERT INTO {{authTableName}}
+			({{authIdentProp.name|snakeCase}}, {{authPasswordProp.name|snakeCase}}, {{authCodeProp.name|snakeCase}}, {{authLockProp.name|snakeCase}})
+			VALUES (?, ?, ?, ?);`;
 		const sqlParams = [
-			{{authIdentProp}},
-			{{authPasswordProp}}Hash
+			{{authIdentProp.name}},
+			{{authPasswordProp.name}}Hash,
+			{{authCodeProp.name}},
+			true // account locked
 		];
 		result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
+
 		return {
-			{{authObjectName}}Id : result.insertId
+			{{authObject.name|camelCase}}Id : result.insertId
 		}
 	}
 
-	static async login({{authIdentProp}}, {{authPasswordProp}}) {
+	static async validateRegistration({{authObject.name|camelCase}}Id, {{authCodeProp.name}}) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		let sqlRequest = `
+			SELECT {{authCodeProp.name|snakeCase}}, {{authLockProp.name|snakeCase}}
+			FROM {{authTableName}}
+			WHERE id = ?;`;
+		let sqlParams = [
+			{{authObject.name|camelCase}}Id,
+		];
+		let result = await db.query(sqlRequest, sqlParams);
+		if (result.code)
+			throw new Error(result.code);
+		if (result.length === 0) 
+			throw new Error('Unknown {{authObject.name|pascalCase}} Id');
+		if ({{authCodeProp.name}} !== result[0].{{authCodeProp.name|snakeCase}})
+			throw new Error('Invalid code');
+		if (! result[0].{{authLockProp.name|snakeCase}})
+			throw new Error('Account is not locked');
+
+		// unlock {{authObject.name|pascalCase}} account and reset validation code
+		sqlRequest = `UPDATE {{authTableName}} 
+			SET {{authLockProp.name|snakeCase}} = ?, {{authCodeProp.name|snakeCase}} = ?
+			WHERE id= ?`;
+		sqlParams = [ false, null, {{authObject.name|camelCase}}Id ];
+		result = await db.query(sqlRequest, sqlParams);
+		if (result.code)
+			throw new Error(result.code);
+		if (result.affectedRows=== 0) 
+			throw new Error('{{authObject.name|pascalCase}} not found');
+
+	}
+
+	static async login({{authIdentProp.name}}, {{authPasswordProp.name}}) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
 		{% liquid
@@ -67,18 +135,19 @@ class AuthModel {
 		     assign extra = project.attributes.auth_extra_field | snakeCase | prepend: ', id_'
 		   endif
 		%}
-		let sql = 'SELECT id, {{authIdentProp}}, {{authPasswordProp}}, account_locked{{extra}} FROM {{authTableName}} WHERE {{authIdentProp}} = ?';
-		const result = await db.query(sql, [ {{authIdentProp}} ]);
+		let sql = `SELECT id, {{authIdentProp.name|snakeCase}}, {{authPasswordProp.name|snakeCase}}, {{authLockProp.name|snakeCase}}{{extra}} 
+			FROM {{authTableName}} WHERE {{authIdentProp.name}} = ?`;
+		const result = await db.query(sql, [ {{authIdentProp.name}} ]);
 		if (result.code)
 			throw new Error(result.code);
 		if (result.length === 0) 
-			throw new Error('Unknown {{authIdentProp}} or invalid {{authPasswordProp}}');
+			throw new Error('Unknown {{authIdentProp.name}} or invalid {{authPasswordProp.name}}');
 		const bcrypt = require('bcrypt');
-		const {{authPasswordProp}}Valid = await bcrypt.compare({{authPasswordProp}}, result[0].{{authPasswordProp}});
-		if (! {{authPasswordProp}}Valid)
-			throw new Error('Unknown {{authIdentProp}} or invalid {{authPasswordProp}}');
-		if (result[0].account_locked)
-			throw new Error('{{authObjectName | pascalCase}} account is locked');
+		const {{authPasswordProp.name}}Valid = await bcrypt.compare({{authPasswordProp.name}}, result[0].{{authPasswordProp.name}});
+		if (! {{authPasswordProp.name}}Valid)
+			throw new Error('Unknown {{authIdentProp.name}} or invalid {{authPasswordProp.name}}');
+		if (result[0].{{authLockProp.name}})
+			throw new Error('{{authObject.name|pascalCase}} account is locked');
 		return {
 		{% liquid
 		   if project.attributes.auth_extra_field
@@ -87,7 +156,7 @@ class AuthModel {
 			echo project.attributes.auth_extra_field | snakeCase | prepend: ': result[0].id_' | append: ','
 		   endif
 		%}
-			{{authObjectName}}Id: result[0].id
+			{{authObject.name|camelCase}}Id: result[0].id
 		}
 	}
 
@@ -99,7 +168,7 @@ class AuthModel {
 					reject('Invalid token');
 				if (decoded.type !== 'refresh')
 					reject('Not a refresh token');
-				if (isNaN(decoded.user_id))
+				if (isNaN(decoded.{{authObject.name|snakeCase}}_id))
 					reject(`Invalid token content`);
 				if (isNaN(decoded.token_id))
 					reject(`Invalid token content`);
@@ -107,14 +176,14 @@ class AuthModel {
 				if (isNaN(decoded.{{project.attributes.auth_extra_field | snakeCase}}_id))
 					reject(`Invalid token content`);
 			{%- endif %}
-				resolve([decoded.user_id, decoded.token_id
+				resolve([decoded.{{authObject.name|snakeCase}}_id, decoded.token_id
 			{%- if project.attributes.auth_extra_field -%}
 				, decoded.{{ project.attributes.auth_extra_field | snakeCase }}_id
 			{%- endif -%}
 			]);
 			});
 		});
-		const [userId, tokenId
+		const [{{authObject.name|camelCase}}Id, tokenId
 		{%- if project.attributes.auth_extra_field -%}
 			, {{ project.attributes.auth_extra_field | snakeCase }}Id
 		{%- endif -%}
@@ -129,7 +198,7 @@ class AuthModel {
 			throw new Error('Unknown token ID');
 	}
 
-	static async generateAccessToken({{authObjectName}}Id
+	static async generateAccessToken({{authObject.name|camelCase}}Id
 	{%- if project.attributes.auth_extra_field -%}
 		, {{ project.attributes.auth_extra_field | camelCase }}Id
 	{%- endif -%}
@@ -141,12 +210,12 @@ class AuthModel {
 				{{ project.attributes.auth_extra_field | snakeCase }}_id: {{ project.attributes.auth_extra_field | camelCase }}Id,
 			{%- endif %}
 			type: 'access',
-			{{authObjectName}}_id: {{authObjectName}}Id
+			{{authObject.name|snakeCase}}_id: {{authObject.name|camelCase}}Id
 		};
 		return jwt.sign(payload, this.#secret, { expiresIn: `${accessTokenLifespan}m`});
 	}
 
-	static async generateRefreshToken({{authObjectName}}Id
+	static async generateRefreshToken({{authObject.name|camelCase}}Id
 	{%- if project.attributes.auth_extra_field -%}
 		, {{ project.attributes.auth_extra_field | camelCase }}Id
 	{%- endif -%}
@@ -155,9 +224,9 @@ class AuthModel {
 		assert (this.#config.security.refreshTokenLifespan !== undefined);
 		const refreshTokenLifespan = this.#config.security.refreshTokenLifespan;
 		const expirationDate = new Date (Date.now() + refreshTokenLifespan * 86400000); // 24 hours in ms
-		const sqlRequest = 'INSERT INTO tokens(id_{{authObjectName}}, expires_at) VALUES (?, ?)';
+		const sqlRequest = 'INSERT INTO tokens(id_{{authObject.name|snakeCase}}, expires_at) VALUES (?, ?)';
 		const sqlParams = [
-			{{authObjectName}}Id,
+			{{authObject.name|camelCase}}Id,
 			expirationDate
 		];
 		const result = await db.query(sqlRequest, sqlParams);
@@ -171,7 +240,7 @@ class AuthModel {
 				{{ project.attributes.auth_extra_field | snakeCase }}_id: {{ project.attributes.auth_extra_field | camelCase }}Id,
 			{%- endif %}
 			type: 'refresh',
-			{{authObjectName}}_id: {{authObjectName}}Id,
+			{{authObject.name|snakeCase}}_id: {{authObject.name|camelCase}}Id,
 			token_id: tokenId
 		};
 		return jwt.sign(payload, this.#secret, { expiresIn: `${refreshTokenLifespan}days` });
@@ -188,13 +257,13 @@ class AuthModel {
 				}
 				if (decoded.type !== 'access')
 					reject('Not an access token');
-				if (isNaN(decoded.{{authObjectName}}_id))
+				if (isNaN(decoded.{{authObject.name|snakeCase}}_id))
 					reject(`Invalid token content`);
 				{% if project.attributes.auth_extra_field -%}
 				if (isNaN(decoded.{{project.attributes.auth_extra_field}}_id))
 					reject(`Invalid token content`);
 				{%- endif %}
-				resolve([decoded.{{authObjectName}}_id
+				resolve([decoded.{{authObject.name|snakeCase}}_id
 				{%- if project.attributes.auth_extra_field -%}
 					, decoded.{{ project.attributes.auth_extra_field | snakeCase }}_id
 				{%- endif -%}
@@ -216,12 +285,12 @@ class AuthModel {
 				}
 				if (decoded.type !== 'refresh')
 					reject('Not an refresh token');
-				if (isNaN(decoded.token_id) || isNaN(decoded.{{authObjectName}}_id))
+				if (isNaN(decoded.token_id) || isNaN(decoded.{{authObject.name|snakeCase}}_id))
 					reject(`Invalid token content`);
-				resolve([decoded.token_id, decoded.{{authObjectName}}_id]);
+				resolve([decoded.token_id, decoded.{{authObject.name|snakeCase}}_id]);
 			});
 		});
-		const [tokenId, {{authObjectName}}Id] = await decodeToken;
+		const [tokenId, {{authObject.name|camelCase}}Id] = await decodeToken;
 
 		const sqlRequest = 'SELECT id FROM tokens WHERE id = ?';
 		const sqlParams = [ tokenId ];
@@ -230,7 +299,7 @@ class AuthModel {
 			throw new Error(result.code);
 		const tokenFound = (result.length === 0) ? false : true
 		
-		return [tokenFound, tokenId, {{authObjectName}}Id];
+		return [tokenFound, tokenId, {{authObject.name|camelCase}}Id];
 	}
 
 
@@ -243,34 +312,34 @@ class AuthModel {
 		return (result.affectedRows === 0) ? false : true;
 	}
 
-	static async checkAccountLocked({{authObjectName}}Id) {
+	static async checkAccountLocked({{authObject.name|camelCase}}Id) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
-		const sqlRequest = 'SELECT account_locked FROM {{authTableName}} WHERE id= ?';
-		const sqlParams = [ {{authObjectName}}Id ];
+		const sqlRequest = 'SELECT {{authLockProp.name}} FROM {{authTableName}} WHERE id= ?';
+		const sqlParams = [ {{authObject.name|camelCase}}Id ];
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
 		if (result.length === 0) 
-			throw new Error('{{authObjectName | pascalCase}} not found');
-		const locked = result[0].account_locked;
+			throw new Error('{{authObject.name|pascalCase}} not found');
+		const locked = result[0].{{authLockProp.name}};
 		return locked;
 	}
 
-	static async lockAccount({{authObjectName}}Id) {
+	static async lockAccount({{authObject.name|camelCase}}Id) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
 		// lock account
-		let sqlRequest = 'UPDATE {{authTableName}} SET account_locked = ? WHERE id= ?';
-		let sqlParams = [ true, {{authObjectName}}Id ];
+		let sqlRequest = 'UPDATE {{authTableName}} SET {{authLockProp.name|snakeCase}} = ? WHERE id= ?';
+		let sqlParams = [ true, {{authObject.name|camelCase}}Id ];
 		let result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
 		if (result.affectedRows=== 0) 
-			throw new Error('{{authObjectName | pascalCase}} not found');
-		// remove existing {{authObjectName}} tokens
-		sqlRequest = 'DELETE FROM tokens WHERE id_{{authObjectName}} = ?';
-		sqlParams = [ {{authObjectName}}Id ];
+			throw new Error('{{authObject.name|pascalCase}} not found');
+		// remove existing {{authObject.name}} tokens
+		sqlRequest = 'DELETE FROM tokens WHERE id_{{authObject.name|snakeCase}} = ?';
+		sqlParams = [ {{authObject.name|camelCase}}Id ];
 		result = await db.query(sqlRequest, sqlParams);
 	}
 

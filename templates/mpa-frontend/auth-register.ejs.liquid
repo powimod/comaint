@@ -3,24 +3,23 @@
 	assign authIdentProp = authObject.properties | where: 'name', project.attributes.auth_ident_property | first
 	assign authPasswordProp = authObject.properties | where: 'name', project.attributes.auth_password_property | first
 %}
-		<h2>Login</h2>
-		<!-- TODO script to control {{authPasswordProp.name|snakeCase}} and email values -->
+		<h2>Registration</h2>
 
 		<% if (typeof error !== 'undefined') { %>
 			<p>Error : <%= error %></p>
 		<% } %>
 
-		<form action="/login" method="POST" >
+		<form action="/register" method="POST" >
 			<div>
 				<label for="{{authIdentProp.name|snakeCase}}">{{authIdentProp.name|pascalCase}}</label>
 				<input id="{{authIdentProp.name|snakeCase}}" name="{{authIdentProp.name|snakeCase}}" type="text"/>
 			</div>
 			<div>
-				<label for="{{authPasswordProp.name|snakeCase}}">{{authPasswordProp.name|pascalCase}}</label>
-				<input id="{{authPasswordProp.name|snakeCase}}" name="{{authPasswordProp.name|snakeCase}}" type="{{authPasswordProp.name|snakeCase}}"/>
+				<label for="{{authPasswordProp.name|snakeCase}}">Password</label>
+				<input id="{{authPasswordProp.name|snakeCase}}" name="{{authPasswordProp.name|snakeCase}}" type="password"/>
 			</div>
 			<div>
-				<input type="submit" value="Login"/>
+				<input type="submit" value="Next"/>
 			<div>
 		</form>
 		<a href="/">Home</a>

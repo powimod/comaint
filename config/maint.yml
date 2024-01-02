@@ -21,7 +21,7 @@ attributes:
   backend_project_name: "Comaint API backend"
   backend_project_dir: "comaint-backend"
   backend_project_version: "0.0.1"
-  backend_project_description: "API server of Commaint project"
+  backend_project_description: "API server of Comaint project"
 
   mpa_frontend_project_name: "Comaint Multi Page Application frontend"
   mpa_frontend_project_dir: "comaint-mpa-frontend"
@@ -37,10 +37,12 @@ attributes:
   license: "GPL V3 or later"
   lang: "fr"
 
-  auth_object: "user"
+  auth_object: "User"
   auth_table_name: "users"
   auth_ident_property: "email"
   auth_password_property: "password"
+  auth_code_property: "validationCode"
+  auth_lock_property: "accountLocked"
   auth_extra_field: 'company'
 
   root_object: 'Company'
@@ -101,6 +103,8 @@ objects:
       - name: "email"
         type: "string"
         maximum: 320
+        attributes:
+          pattern: "^\\S+@\\S+\\.\\S+$"
       - name: "password"
         type: "string"
         secret: true
@@ -115,6 +119,11 @@ objects:
       - name: "accountLocked"
         type: "boolean"
         default: false
+      - name : "validationCode"
+        type: "integer"
+        mandatory: false
+        minimum: 10000
+        maximum: 99999
       - name: "phone"
         type: "string"
         mandatory: false
@@ -164,6 +173,7 @@ objects:
         type: "string"
       - name: "description"
         type: "string"
+        mandatory: false
       - name: "equipmentUnitSectionCount"
         type: "integer"
         default: 0
@@ -194,6 +204,7 @@ objects:
         type: "string"
       - name: "description"
         type: "string"
+        mandatory: false
       - name: "equipmentCount"
         type: "integer"
         default: 0
@@ -287,6 +298,7 @@ objects:
         type: "string"
       - name: "description"
         type: "string"
+        mandatory: false
     links:
       - name: "company"
         target: "Company"
@@ -313,7 +325,7 @@ objects:
 
 files:
   - scope:  "project"
-    input:  "config/init-db.sql"
+    input:  "templates/init-db.sql.liquid"
     output: "output/init-db.sql"
 
     ########################### Backend 
@@ -358,6 +370,9 @@ files:
     input:  "templates/api-backend/auth-routes.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/src/routes/auth-routes.js"
 
+  - scope:  "project"
+    input:  "templates/api-backend/util.js.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/src/util.js"
 
     ########################### Multi-page frontend
 
@@ -412,6 +427,14 @@ files:
   - scope:  "project"
     input:  "templates/mpa-frontend/auth-logout.ejs.liquid"
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/auth-logout.ejs"
+
+  - scope:  "project"
+    input:  "templates/mpa-frontend/auth-register.ejs.liquid"
+    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/auth-register.ejs"
+
+  - scope:  "project"
+    input:  "templates/mpa-frontend/auth-registration-validation.ejs.liquid"
+    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/views/auth-registration-validation.ejs"
 
   - scope:  "object"
     input:  "templates/mpa-frontend/object-list.ejs.liquid"
