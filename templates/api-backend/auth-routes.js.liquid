@@ -40,6 +40,7 @@ exports.initialize = (app, authModel, View, config) => {
 			}
 			catch (error) {
 				View.sendJsonError(response, error);
+				return;
 			}
 		}
 		request.{{authObject.name|camelCase}}Id = {{authObject.name|camelCase}}Id;
@@ -106,6 +107,7 @@ exports.initialize = (app, authModel, View, config) => {
 
 	app.post('/api/{{project.attributes.api_version}}/auth/validateRegistration', exports.withAuth, async (request, response) => {
 		assert(request.{{authObject.name|camelCase}}Id !== undefined);
+		// FIXME userId is already defined with token (request.userId)
 		const {{authObject.name|camelCase}}Id = request.{{authObject.name|camelCase}}Id;
 		try {
 			let {{authCodeProp.name|camelCase}} = request.body.{{authCodeProp.name|camelCase}};
@@ -233,27 +235,14 @@ exports.initialize = (app, authModel, View, config) => {
 }
 
 exports.withAuth = async (request, response, next) => {
-	assert(_authModel !== null);
-	try {
-		const token = request.headers['x-access-token'];
-		if (token === undefined) 
-			throw new Error(`HTTP header <x-access-token> not found`);
-		const [{{authObject.name|camelCase}}Id 
-		{%- if project.attributes.auth_extra_field -%}
-			, {{project.attributes.auth_extra_field | camelCase}}Id
-		{%- endif -%}
-		] = await _authModel.checkAccessToken(token);
-		request.{{authObject.name|camelCase}}Id = {{authObject.name|camelCase}}Id;
-		{% if project.attributes.auth_extra_field -%}
-		request.{{project.attributes.auth_extra_field | camelCase}}Id = {{project.attributes.auth_extra_field | camelCase}}Id;
-		{%- endif %}
-		next();
+	if (request.{{authObject.name|camelCase}}Id === null) {
+		response.json({ ok: false, error: 'Unauthorized access (not logged in)'});
+		return;
 	}
-	catch (error) {
-		response.json({ ok: false, error: error});
-	}
+	next();
 }
 
+// FIXME duplicated code with previous middleware (withAuth)
 exports.withUserAuth = async (request, response, next) => {
 	if (request.{{authObject.name|camelCase}}Id === null) {
 		View.sendJsonError(response, 'Unautorized access');

@@ -212,7 +212,7 @@ class AuthModel {
 			type: 'access',
 			{{authObject.name|snakeCase}}_id: {{authObject.name|camelCase}}Id
 		};
-		return jwt.sign(payload, this.#secret, { expiresIn: `${accessTokenLifespan}m`});
+		return jwt.sign(payload, this.#secret, { expiresIn: `${accessTokenLifespan}s`});
 	}
 
 	static async generateRefreshToken({{authObject.name|camelCase}}Id
@@ -254,14 +254,21 @@ class AuthModel {
 						reject('Expired token');
 					else
 						reject('Invalid token');
+					return;
 				}
-				if (decoded.type !== 'access')
+				if (decoded.type !== 'access') {
 					reject('Not an access token');
-				if (isNaN(decoded.{{authObject.name|snakeCase}}_id))
+					return;
+				}
+				if (isNaN(decoded.{{authObject.name|snakeCase}}_id)) {
 					reject(`Invalid token content`);
+					return;
+				}
 				{% if project.attributes.auth_extra_field -%}
-				if (isNaN(decoded.{{project.attributes.auth_extra_field}}_id))
+				if (isNaN(decoded.{{project.attributes.auth_extra_field}}_id)) {
 					reject(`Invalid token content`);
+					return;
+				}
 				{%- endif %}
 				resolve([decoded.{{authObject.name|snakeCase}}_id
 				{%- if project.attributes.auth_extra_field -%}
