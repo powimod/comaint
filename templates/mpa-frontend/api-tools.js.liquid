@@ -7,32 +7,139 @@
 		%}
 'use script';
 
-exports.apiRequest = async function(apiUrl, httpMethod, accessToken, requestBody = null){
-	const httpHeaders = {
-		'Accept': 'application/json',
-		'Content-Type': 'application/json'
+const assert = require('assert');
+
+class ApiTool {
+
+	#apiBaseUrl = null;
+	#accessToken = null;
+	#refreshToken = null;
+
+	async initialize(config) {
+		assert(config !== undefined);
+		assert(this.#apiBaseUrl === null);
+		assert(config.backend.url !== undefined);
+		this.#apiBaseUrl = config.backend.url; // FIXME remove this : http://127.0.0.1:9001/api/v1
 	}
-	if (accessToken !== null)
-		httpHeaders['x-access-token'] = accessToken;
-	const params = {
-		method : httpMethod,
-		headers: httpHeaders
+
+	setCookies(accessToken, refreshToken) {
+		this.#accessToken = accessToken;
+		this.#refreshToken = refreshToken;
 	}
-	if (requestBody !== null)
-		params.body = JSON.stringify(requestBody);
-	const result = await fetch(apiUrl, params);
-	if (result.status !== 200) 
-		throw new Error(`HTTP response status is ${result.status} (${result.statusText})`);
-	const json = await result.json();
-	if (json === null)
-		throw new Error('JSON response is null');
-	if (json.ok === undefined)
-		throw new Error('OK status not found in JSON response');
-	if (typeof(json.ok) !== 'boolean')
-		throw new Error('OK status is not a boolean in JSON response');
-	if (! json.ok )
-		throw new Error(json.error);
-	if (json.data === undefined)
-		throw new Error('data not found in JSON response');
-	return json.data;
+
+	async request(route, httpMethod, requestBody = null, params = null){
+		assert(this.#apiBaseUrl !== null);
+		const apiUrl = new URL(`${this.#apiBaseUrl}/${route}`);
+		if (params !== null) {
+			if (params.filters !== undefined) {
+				for (const filter of Object.keys(params.filters)) 
+					apiUrl.searchParams.append(filter, params.filters[filter]);
+			}
+			if (params.resultsPerPage !== undefined)
+				apiUrl.searchParams.append('resultsPerPage', params.resultsPerPage);
+		}
+		const httpHeaders = {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json'
+		}
+		if (this.#accessToken !== null)
+			httpHeaders['x-access-token'] = this.#accessToken;
+		const requestParams = {
+			method : httpMethod,
+			headers: httpHeaders
+		}
+		if (requestBody !== null)
+			requestParams.body = JSON.stringify(requestBody);
+
+		// first attempt
+		let result = await fetch(apiUrl, requestParams);
+		if (result.status !== 200) 
+			throw new Error(`HTTP response status is ${result.status} (${result.statusText})`);
+		let json = await result.json();
+		if (json === null)
+			throw new Error('JSON response is null');
+		if (json.ok === undefined)
+			throw new Error('OK status not found in JSON response');
+		if (typeof(json.ok) !== 'boolean')
+			throw new Error('OK status is not a boolean in JSON response');
+
+		if (json.ok === false && json.error === 'Expired token' ) {
+			console.log('Refreshing access token...');
+			assert(this.#refreshToken !== null);
+			const refreshApiUrl = new URL(`${this.#apiBaseUrl}/auth/refresh`);
+			const refreshHttpHeaders = {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			}
+			const refreshRequestBody = {
+				token: this.#refreshToken
+			};
+			const refreshParams = {
+				method: 'POST',
+				headers: refreshHttpHeaders,
+				body: JSON.stringify(refreshRequestBody)
+			};
+			result = await fetch(refreshApiUrl, refreshParams);
+			if (result.status !== 200) 
+				throw new Error(`HTTP response status is ${result.status} (${result.statusText})`);
+			json = await result.json();
+			if (json === null)
+				throw new Error('JSON response is null');
+			if (json.ok === undefined)
+				throw new Error('OK status not found in JSON response');
+			if (typeof(json.ok) !== 'boolean')
+				throw new Error('OK status is not a boolean in JSON response');
+
+			console.log("dOm json", json);
+			assert(json.data.userId !== undefined);
+			//assert(json.data.companyId !== undefined);
+			assert(json.data['access-token'] !== undefined);
+			assert(json.data['refresh-token'] !== undefined);
+
+			this.#accessToken = json.data['access-token'];
+			this.#refreshToken = json.data['refresh-token'];
+
+			console.log("dOm new access token", json.data['access-token']);
+			httpHeaders['x-access-token'] =json.data['access-token']; 
+			/* TODO update request
+			request.session.userId = json.data.userId;
+			//request.session.companyId = json.data.companyId;
+			console.log("dOm session", json.session);
+			*/
+
+			// second attempt
+			result = await fetch(apiUrl, requestParams);
+			if (result.status !== 200) 
+				throw new Error(`HTTP response status is ${result.status} (${result.statusText})`);
+			json = await result.json();
+			if (json === null)
+				throw new Error('JSON response is null');
+			if (json.ok === undefined)
+				throw new Error('OK status not found in JSON response');
+			if (typeof(json.ok) !== 'boolean')
+				throw new Error('OK status is not a boolean in JSON response');
+		}
+
+		if (! json.ok )
+			throw new Error(json.error);
+		if (json.data === undefined)
+			throw new Error('data not found in JSON response');
+		return json.data;
+	}
+
 }
+
+class ApiToolSingleton {
+	static instance = null;
+
+	constructor() {
+		throw new Error('Can not instanciate singleton object!');
+	}
+	static getInstance() {
+		if (! ApiToolSingleton.instance)
+			ApiToolSingleton.instance = new ApiTool();
+		return ApiToolSingleton.instance;
+	}
+}
+
+module.exports = ApiToolSingleton;

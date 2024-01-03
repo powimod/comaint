@@ -32,7 +32,8 @@ module.exports = (app) => {
 			assert(resultsPerPage !== undefined);
 			const params = {
 				resultsPerPage : resultsPerPage,
-				accessToken: request.session.accessToken
+				accessToken: request.session.accessToken,
+				refreshToken: request.session.refreshToken
 			};
 			const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}List(filters, params);
 			if (! result.ok)
@@ -52,12 +53,14 @@ module.exports = (app) => {
 			const {{object.name | camelCase}}Id = request.params['{{object.name | snakeCase}}_id'];
 			if (isNaN({{object.name | camelCase}}Id))
 				throw new Error(`URL parameter <{{object.name | camelCase}}_id>=${ {{object.name | camelCase}}Id } is not a number`);
-			const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}Details({{object.name | camelCase}}Id, {
-				accessToken: request.session.accessToken
-			});
+			const params = {
+				accessToken: request.session.accessToken,
+				refreshToken: request.session.refreshToken
+			};
+			const result = await {{object.name | camelCase}}Api.get{{object.name | pascalCase}}Details({{object.name | camelCase}}Id, params); 
 			if (! result.ok)
 				throw new Error(`API error : ${result.error}`);
-			view.renderPage('{{object.name | kebabCase}}-details',  response, {
+			view.renderPage('{{object.name | kebabCase}}-details', response, {
 				{{object.name | camelCase}}: result.{{object.name | camelCase}}
 			});
 		}
