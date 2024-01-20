@@ -507,7 +507,7 @@ files:
 
   - scope:  "project"
     input:  "templates/assets/logo.svg"
-    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/assets/icon.svg"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/logo.svg"
 
   - scope:  "project"
     input:  "templates/spa-frontend/app.jsx.liquid"

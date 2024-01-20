@@ -6,12 +6,10 @@
 		filename    : 'components/header.jsx'
 		%}
 
-import Logo from "../assets/logo.svg"
-
 const Header = (props) => {
 	return (
 		<header>
-			<img className="logo" src={Logo} alt="Logo {{project.name | pascalCase}}&nbsp;"/>
+			<div className="logo">&nbsp;</div>
 			<span className="title">{{project.attributes.public_home_page_title}}</span>
 			<span className="subtitle">{{project.attributes.public_home_page_subtitle}}</span>
 		</header>

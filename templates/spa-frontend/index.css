@@ -18,11 +18,22 @@ header {
 	background-color: #104992;
 	color: white;
 }
-header img.logo {
+header div.logo {
 	grid-area: logo;
-	width: 200px;
-	padding: 5px;
+	width: 150px;
+	background-color:white; /* logo color */
+
+	mask-size: contain;
+	mask-position: center;
+	mask-repeat: no-repeat;
+	mask-image: url("logo.svg");
+
+	-webkit-mask-size: contain;
+	-webkit-mask-position: center;
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-image: url("logo.svg");
 }
+
 header span.title {
 	grid-area: title;
 }
