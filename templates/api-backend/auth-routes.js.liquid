@@ -163,15 +163,6 @@ exports.initialize = (app, authModel, View, config) => {
 		}
 	});
 
-	app.get('/api/{{project.attributes.api_version}}/auth/logout', async (request, response) => {
-		try {
-			throw new Error("Logout is not yet implemented");
-		}
-		catch (error) {
-			View.sendJsonError(response, error);
-		}
-	});
-
 	app.post('/api/{{project.attributes.api_version}}/auth/logout', async (request, response) => {
 		try {
 			const refreshToken = request.body.refreshToken;
