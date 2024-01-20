@@ -11,14 +11,14 @@ header {
 		"logo title"
 		"logo subtitle";
 	grid-template-columns: auto 1fr;
-	background-color: #104992;
-	color: white;
+	background-color: var(--header-background-color);
+	color: var(--header-text-color);
 
 	div.logo {
 		grid-area: logo;
 		width: 150px;
 		margin-right:1rem;
-		background-color:white; /* logo color */
+		background-color: var(--header-text-color); /* logo color */
 
 		mask-size: contain;
 		mask-position: center;
