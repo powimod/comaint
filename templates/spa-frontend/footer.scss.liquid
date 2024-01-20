@@ -5,6 +5,9 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'footer.scss'
 		%}
+
+$screen-width-limit-medium: 600px !default;
+
 footer {
 	display: grid;
 	grid-template-areas: 
@@ -21,7 +24,8 @@ footer {
 		padding: 0.2rem;
 	}
 	li {
-		list-style: square;
+		list-style: none;
+		padding: 1rem;
 	}
 	p {
 		color: lightBlue;
@@ -31,5 +35,16 @@ footer {
 	}
 	p.concept {
 		grid-area: concept;
+	}
+}
+@media (min-width: $screen-width-limit-medium)  {
+	footer {
+		grid-template-areas: 
+			"links links"
+			"copyright concept";
+		ul {
+			flex-direction: row;
+			color:red;
+		}
 	}
 }

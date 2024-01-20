@@ -7,7 +7,9 @@
 		%}
 @use 'global';
 @use 'header';
-@use 'footer';
+@use 'footer' with (
+	$screen-width-limit-medium: 400px
+);
 
 main h1 {
 	color: #104992; 
