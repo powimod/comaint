@@ -56,7 +56,7 @@ exports.login = async function({{authIdentProp.name|camelCase}}, {{authPasswordP
 
 exports.logout = async function(refreshToken, params) {
 	assert(refreshToken !== undefined);
-	const url = '/auth/logout';
+	const url = 'auth/logout';
 	try {
 		const requestBody = {
 			refreshToken: refreshToken
@@ -112,7 +112,7 @@ exports.validateRegistration = async function({{authCodeProp.name|camelCase}}, p
 	assert({{authCodeProp.name|camelCase}} !== undefined);
 	assert(params !== undefined);
 	assert(params.accessToken !== null);
-	const url = '/auth/validateRegistration';
+	const url = 'auth/validateRegistration';
 	try {
 		// TODO control {{authCodeProp.name|camelCase}} value is not empty
 

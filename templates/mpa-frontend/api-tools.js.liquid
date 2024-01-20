@@ -30,6 +30,7 @@ class ApiTool {
 	async request(route, httpMethod, requestBody = null, params = null){
 		assert(this.#apiBaseUrl !== null);
 		const apiUrl = new URL(`${this.#apiBaseUrl}/${route}`);
+		console.log(`API call ${apiUrl}`);
 		if (params !== null) {
 			if (params.filters !== undefined) {
 				for (const filter of Object.keys(params.filters)) 
@@ -90,7 +91,6 @@ class ApiTool {
 			if (typeof(json.ok) !== 'boolean')
 				throw new Error('OK status is not a boolean in JSON response');
 
-			console.log("dOm json", json);
 			assert(json.data.userId !== undefined);
 			//assert(json.data.companyId !== undefined);
 			assert(json.data['access-token'] !== undefined);
@@ -99,12 +99,10 @@ class ApiTool {
 			this.#accessToken = json.data['access-token'];
 			this.#refreshToken = json.data['refresh-token'];
 
-			console.log("dOm new access token", json.data['access-token']);
 			httpHeaders['x-access-token'] =json.data['access-token']; 
 			/* TODO update request
 			request.session.userId = json.data.userId;
 			//request.session.companyId = json.data.companyId;
-			console.log("dOm session", json.session);
 			*/
 
 			// second attempt
