@@ -33,6 +33,12 @@ attributes:
   mpa_frontend_project_version: "0.0.1"
   mpa_frontend_project_description: "Multi page application frontend of Comaint project"
 
+  spa_frontend_project_name: "Comaint Single Page Application frontend"
+  spa_frontend_project_dir: "comaint-spa-frontend"
+  spa_frontend_project_version: "0.0.1"
+  spa_frontend_project_description: "Single page application frontend of Comaint project"
+  spa_frontend_port: 9002
+
   database_name: "db_comaint"
   database_schema_version: "1"
   api_version: "v1"
@@ -399,7 +405,7 @@ files:
     output: "output/{{project.attributes.api_lib_project_dir}}/src/{{object.name | kebabCase}}-api.js"
 
 
-    ########################### Multi-page frontend
+    ########################### Multi Page frontend
 
   - scope:  "project"
     input:  "templates/mpa-frontend/package.json.liquid"
@@ -470,4 +476,33 @@ files:
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/public/style.css"
 
 
+    ########################### Single Page Frontend
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/package.json.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/package.json"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/vite.config.js.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/vite.config.js"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/index.html.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/index.html"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/index.css"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/index.css"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/main.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/main.jsx"
+
+  - scope:  "project"
+    input:  "templates/assets/icon.svg"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/icon.svg"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/app.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/App.jsx"
 

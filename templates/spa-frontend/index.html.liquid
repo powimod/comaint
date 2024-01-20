@@ -1,0 +1,21 @@
+<!doctype html>
+{% render "../../templates/license_header_html.liquid",
+		project     : project.attributes.mpa_frontend_project_name,
+  		description : project.attributes.mpa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'index.html'
+		%}
+
+<html lang="{{project.attributes.lang}}">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{project.name|pascalCase}}</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
