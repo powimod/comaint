@@ -1,0 +1,46 @@
+{% render "../../templates/license_header_scss.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'header.scss'
+		%}
+header {
+	display: grid;
+	grid-template-areas: 
+		"logo title"
+		"logo subtitle";
+	grid-template-columns: auto 1fr;
+	background-color: #104992;
+	color: white;
+
+	div.logo {
+		grid-area: logo;
+		width: 150px;
+		margin-right:1rem;
+		background-color:white; /* logo color */
+
+		mask-size: contain;
+		mask-position: center;
+		mask-repeat: no-repeat;
+		mask-image: url("logo.svg");
+
+		-webkit-mask-size: contain;
+		-webkit-mask-position: center;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-image: url("logo.svg");
+	}
+
+	span.title {
+		grid-area: title;
+		font-size: 1.8rem;
+		font-style: italic;
+	}
+
+	span.subtitle {
+		grid-area: subtitle;
+		font-size: 1.3rem;
+		font-style: italic;
+		color:lightBlue;
+	}
+}

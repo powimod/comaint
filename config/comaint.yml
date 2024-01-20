@@ -500,6 +500,19 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/main.scss"
 
   - scope:  "project"
+    input:  "templates/spa-frontend/global.scss.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/global.scss"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/header.scss.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/header.scss"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/footer.scss.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/footer.scss"
+
+
+  - scope:  "project"
     input:  "templates/spa-frontend/main.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/main.jsx"
 

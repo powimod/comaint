@@ -3,12 +3,18 @@
   		description : project.attributes.spa_frontend_project_description,
 		authors     : project.attributes.authors,
 		copyright   : project.attributes.copyright,
-		filename    : 'main.scss'
+		filename    : 'global.scss'
 		%}
-@use 'global';
-@use 'header';
-@use 'footer';
-
-main h1 {
-	color: #104992; 
+*{
+        box-sizing: border-box;
+        margin: 0;
+	padding: 0;
 }
+html {
+        font-size: 62.5%;
+}
+body{
+	font-size: 1.5rem;
+}
+
+
