@@ -1,1 +1,72 @@
-/* CSS empty file */
+*{
+        box-sizing: border-box;
+        margin: 0;
+	padding: 0;
+}
+html {
+        font-size: 62.5%;
+}
+body{
+	font-size: 1.5rem;
+}
+header {
+	display: grid;
+	grid-template-areas: 
+		"logo title"
+		"logo subtitle";
+	grid-template-columns: auto 1fr;
+	background-color: #104992;
+	color: white;
+}
+header div.logo {
+	grid-area: logo;
+	width: 150px;
+	margin-right:1rem;
+	background-color:white; /* logo color */
+
+	mask-size: contain;
+	mask-position: center;
+	mask-repeat: no-repeat;
+	mask-image: url("logo.svg");
+
+	-webkit-mask-size: contain;
+	-webkit-mask-position: center;
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-image: url("logo.svg");
+}
+
+header span.title {
+	grid-area: title;
+	font-size: 1.8rem;
+	font-style: italic;
+}
+header span.subtitle {
+	grid-area: subtitle;
+	font-size: 1.3rem;
+	font-style: italic;
+}
+footer {
+	display: grid;
+	grid-template-areas: 
+		"links links"
+		"copyright copyright"
+		"concept   concept";
+	background-color: #104992;
+	color: white;
+	padding: 0.5rem;
+}
+footer ul {
+	grid-area: links;
+	display: flex;
+	flex-direction: column;
+	padding: 0.2rem;
+}
+footer li {
+	list-style: square;
+}
+footer  p.copyright {
+	grid-area: copyright;
+}
+footer  p.concept {
+	grid-area: concept;
+}

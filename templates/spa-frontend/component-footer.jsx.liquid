@@ -1,0 +1,24 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'components/footer.jsx'
+		%}
+
+const Footer = (props) => {
+	return (
+		<footer>
+			<ul>
+				<li>Nous contacter</li>
+				<li>Mentions légales</li>
+				<li>Politique de confidentialité</li>
+				<li>Conditions générales</li>
+			</ul>
+			<p className="copyright">All right reserved {{project.attributes.compagny}} {{project.attributes.copyright}}</p>
+			<p className="concept">Conception Powimod</p>
+		</footer>
+	)
+}
+
+export default Footer

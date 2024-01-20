@@ -7,11 +7,21 @@
 		%}
 
 import { useState } from 'react'
+import {Routes, Route, Navigate} from "react-router-dom"
+
+import Header from "./components/header"
+import Footer from "./components/footer"
+import Home from "./containers/home"
 
 function App() {
 	return (
 		<>
-			<div>Welcome to {{project.name|pascalCase}}</div>
+			<Header/>
+			<Routes>
+				<Route path='/' element={<Home/>}/>
+				<Route path='*' element={<Navigate to="/" />}/>
+			</Routes>
+			<Footer/>
 		</>
 	)
 }
