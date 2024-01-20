@@ -8,9 +8,16 @@
 
 const Footer = (props) => {
 	return (
-		<header>
-			<div>Footer {{project.name | pascalCase}}</div>
-		</header>
+		<footer>
+			<ul>
+				<li>Nous contacter</li>
+				<li>Mentions légales</li>
+				<li>Politique de confidentialité</li>
+				<li>Conditions générales</li>
+			</ul>
+			<p className="copyright">All right reserved {{project.attributes.compagny}} {{project.attributes.copyright}}</p>
+			<p className="concept">Conception Powimod</p>
+		</footer>
 	)
 }
 
