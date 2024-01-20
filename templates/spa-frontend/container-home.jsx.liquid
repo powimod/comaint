@@ -1,0 +1,18 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'containers/home.jsx'
+		%}
+
+const Home = (props) => {
+	return (
+		<main>
+			<h1>Welcome to {{project.name | pascalCase}}</h1>
+			<p>This is the public home page</p>
+		</main>
+	)
+}
+
+export default Home

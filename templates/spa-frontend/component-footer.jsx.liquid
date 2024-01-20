@@ -1,0 +1,17 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'components/footer.jsx'
+		%}
+
+const Footer = (props) => {
+	return (
+		<header>
+			<div>Footer {{project.name | pascalCase}}</div>
+		</header>
+	)
+}
+
+export default Footer
