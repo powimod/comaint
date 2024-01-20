@@ -1,0 +1,50 @@
+{% render "../../templates/license_header_scss.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'footer.scss'
+		%}
+
+$screen-width-limit-medium: 600px !default;
+
+footer {
+	display: grid;
+	grid-template-areas: 
+		"links links"
+		"copyright copyright"
+		"concept   concept";
+	background-color: var(--header-background-color);
+	color: var(--header-text-color);
+	padding: 0.5rem;
+	ul {
+		grid-area: links;
+		display: flex;
+		flex-direction: column;
+		padding: 0.2rem;
+	}
+	li {
+		list-style: none;
+		padding: 1rem;
+	}
+	p {
+		color: lightBlue;
+	}
+	p.copyright {
+		grid-area: copyright;
+	}
+	p.concept {
+		grid-area: concept;
+	}
+}
+@media (min-width: $screen-width-limit-medium)  {
+	footer {
+		grid-template-areas: 
+			"links links"
+			"copyright concept";
+		ul {
+			flex-direction: row;
+			color:red;
+		}
+	}
+}

@@ -1,0 +1,29 @@
+{% render "../../templates/license_header_scss.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'global.scss'
+		%}
+
+
+*{
+        box-sizing: border-box;
+        margin: 0;
+	padding: 0;
+	font-size: 1.5rem;
+}
+:root {
+	--global-color-1: #104992; /* dark blue */
+	--global-color-2: white; /* white */
+	--header-background-color: var(--global-color-1);
+	--header-text-color: var(--global-color-2);
+}
+html {
+        font-size: 62.5%;
+}
+body{
+	background-color: var(--global-color-2);
+}
+
+

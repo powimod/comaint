@@ -1,0 +1,18 @@
+{% render "../../templates/license_header_scss.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'main.scss'
+		%}
+@use 'global';
+@use 'header';
+@use 'footer' with (
+	$screen-width-limit-medium: 400px
+);
+
+main h1 {
+	color: #104992; 
+	background-color: var(--global-color-2);
+	font-size: 1.7rem;
+}
