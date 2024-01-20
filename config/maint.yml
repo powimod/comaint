@@ -23,6 +23,11 @@ attributes:
   backend_project_version: "0.0.1"
   backend_project_description: "API server of Comaint project"
 
+  api_lib_project_name: "Comaint API libary project"
+  api_lib_project_dir: "comaint-api-lib"
+  api_lib_project_version: "0.0.1"
+  api_lib_project_description: "Javascript libary to easily access Comain API"
+
   mpa_frontend_project_name: "Comaint Multi Page Application frontend"
   mpa_frontend_project_dir: "comaint-mpa-frontend"
   mpa_frontend_project_version: "0.0.1"
@@ -374,6 +379,26 @@ files:
     input:  "templates/api-backend/util.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/src/util.js"
 
+    ########################### API library
+   
+  - scope:  "project"
+    input:  "templates/api-lib/api-tools.js.liquid"
+    output: "output/{{project.attributes.api_lib_project_dir}}/src/api-tools.js"
+
+
+  - scope:  "project"
+    input:  "templates/api-lib/auth-api.js.liquid"
+    output: "output/{{project.attributes.api_lib_project_dir}}/src/auth-api.js"
+
+  - scope:  "project"
+    input:  "templates/api-lib/model.js.liquid"
+    output: "output/{{project.attributes.api_lib_project_dir}}/src/model.js"
+
+  - scope:  "object"
+    input:  "templates/api-lib/object-api.js.liquid"
+    output: "output/{{project.attributes.api_lib_project_dir}}/src/{{object.name | kebabCase}}-api.js"
+
+
     ########################### Multi-page frontend
 
   - scope:  "project"
@@ -387,22 +412,6 @@ files:
   - scope:  "project"
     input:  "templates/mpa-frontend/server.js.liquid"
     output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/server.js"
-
-  - scope:  "project"
-    input:  "templates/mpa-frontend/api-tools.js.liquid"
-    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/api/api-tools.js"
-
-  - scope:  "project"
-    input:  "templates/mpa-frontend/model.js.liquid"
-    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/api/model.js"
-
-  - scope:  "object"
-    input:  "templates/mpa-frontend/object-api.js.liquid"
-    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/api/{{object.name | kebabCase}}-api.js"
-
-  - scope:  "project"
-    input:  "templates/mpa-frontend/auth-api.js.liquid"
-    output: "output/{{project.attributes.mpa_frontend_project_dir}}/src/api/auth-api.js"
 
   - scope:  "project"
     input:  "templates/mpa-frontend/view.js.liquid"
