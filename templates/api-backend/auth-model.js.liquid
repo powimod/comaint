@@ -61,7 +61,7 @@ class AuthModel {
 
 		// check an account with same {{authIdentProp.name}} does not already exist
 		const db = this.#model.db;
-		let sql = 'SELECT {{authIdentProp.name}} FROM {{authTableName}} WHERE {{authIdentProp.name}} = ?';
+		let sql = 'SELECT {{authIdentProp.name|snakeCase}} FROM {{authTableName}} WHERE {{authIdentProp.name}} = ?';
 		let result = await db.query(sql, [ {{authIdentProp.name}} ]);
 		if (result.code)
 			throw new Error(result.code);
@@ -164,30 +164,47 @@ class AuthModel {
 		// FIXME function decodeToken is duplicated 
 		const decodeToken = new Promise( (resolve, reject) => {
 			jwt.verify(token, this.#secret, (err, decoded) => {
-				if (err !== null && err.constructor.name !== 'TokenExpiredError')
+				if (err !== null && err.constructor.name !== 'TokenExpiredError') {
 					reject('Invalid token');
-				if (decoded.type !== 'refresh')
+					return;
+				}
+				if (decoded.type !== 'refresh') {
 					reject('Not a refresh token');
-				if (isNaN(decoded.{{authObject.name|snakeCase}}_id))
+					return;
+				}
+				if (isNaN(decoded.{{authObject.name|snakeCase}}_id)) {
 					reject(`Invalid token content`);
-				if (isNaN(decoded.token_id))
+					return;
+				}
+				if (isNaN(decoded.token_id)) {
 					reject(`Invalid token content`);
+					return;
+				}
 			{%- if project.attributes.auth_extra_field %}
-				if (isNaN(decoded.{{project.attributes.auth_extra_field | snakeCase}}_id))
+				if (isNaN(decoded.{{project.attributes.auth_extra_field | snakeCase}}_id)) {
 					reject(`Invalid token content`);
+					return;
+				}
 			{%- endif %}
-				resolve([decoded.{{authObject.name|snakeCase}}_id, decoded.token_id
+				resolve([decoded.token_id, decoded.{{authObject.name|snakeCase}}_id
 			{%- if project.attributes.auth_extra_field -%}
 				, decoded.{{ project.attributes.auth_extra_field | snakeCase }}_id
 			{%- endif -%}
 			]);
 			});
 		});
-		const [{{authObject.name|camelCase}}Id, tokenId
+		const [tokenId, {{authObject.name|camelCase}}Id
 		{%- if project.attributes.auth_extra_field -%}
 			, {{ project.attributes.auth_extra_field | snakeCase }}Id
 		{%- endif -%}
 		] = await decodeToken;
+		assert(tokenId !== undefined);
+		assert({{authObject.name|camelCase}}Id !== undefined);
+		{% if project.attributes.auth_extra_field -%}
+		assert({{project.attributes.auth_extra_field | camelCase | append: 'Id'}} !== undefined);
+		{%- endif %}
+
+
 		let sql = 'DELETE FROM tokens WHERE id = ?';
 		assert(this.#model !== null);
 		const db = this.#model.db;
@@ -212,7 +229,7 @@ class AuthModel {
 			type: 'access',
 			{{authObject.name|snakeCase}}_id: {{authObject.name|camelCase}}Id
 		};
-		return jwt.sign(payload, this.#secret, { expiresIn: `${accessTokenLifespan}m`});
+		return jwt.sign(payload, this.#secret, { expiresIn: `${accessTokenLifespan}s`});
 	}
 
 	static async generateRefreshToken({{authObject.name|camelCase}}Id
@@ -254,14 +271,21 @@ class AuthModel {
 						reject('Expired token');
 					else
 						reject('Invalid token');
+					return;
 				}
-				if (decoded.type !== 'access')
+				if (decoded.type !== 'access') {
 					reject('Not an access token');
-				if (isNaN(decoded.{{authObject.name|snakeCase}}_id))
+					return;
+				}
+				if (isNaN(decoded.{{authObject.name|snakeCase}}_id)) {
 					reject(`Invalid token content`);
+					return;
+				}
 				{% if project.attributes.auth_extra_field -%}
-				if (isNaN(decoded.{{project.attributes.auth_extra_field}}_id))
+				if (isNaN(decoded.{{project.attributes.auth_extra_field}}_id)) {
 					reject(`Invalid token content`);
+					return;
+				}
 				{%- endif %}
 				resolve([decoded.{{authObject.name|snakeCase}}_id
 				{%- if project.attributes.auth_extra_field -%}
@@ -282,15 +306,34 @@ class AuthModel {
 						reject('Expired token');
 					else
 						reject('Invalid token');
+					return;
 				}
-				if (decoded.type !== 'refresh')
+				if (decoded.type !== 'refresh') {
 					reject('Not an refresh token');
-				if (isNaN(decoded.token_id) || isNaN(decoded.{{authObject.name|snakeCase}}_id))
+					return;
+				}
+				if (isNaN(decoded.token_id) || isNaN(decoded.{{authObject.name|snakeCase}}_id)) {
 					reject(`Invalid token content`);
-				resolve([decoded.token_id, decoded.{{authObject.name|snakeCase}}_id]);
+					return;
+				}
+				resolve([decoded.token_id, decoded.{{authObject.name|snakeCase}}_id
+				{%- if project.attributes.auth_extra_field -%}
+					, decoded.{{project.attributes.auth_extra_field | snakeCase | append: '_id'}}
+				{%- endif -%}
+				]);
 			});
 		});
-		const [tokenId, {{authObject.name|camelCase}}Id] = await decodeToken;
+		const [tokenId, {{authObject.name|camelCase}}Id
+			{%- if project.attributes.auth_extra_field -%}
+				, {{project.attributes.auth_extra_field | camelCase | append: 'Id'}}
+			{%- endif -%}
+		] = await decodeToken;
+
+		assert(tokenId !== undefined);
+		assert({{authObject.name|camelCase}}Id !== undefined);
+		{% if project.attributes.auth_extra_field -%}
+		assert({{project.attributes.auth_extra_field | camelCase | append: 'Id'}} !== undefined);
+		{%- endif %}
 
 		const sqlRequest = 'SELECT id FROM tokens WHERE id = ?';
 		const sqlParams = [ tokenId ];
@@ -299,7 +342,12 @@ class AuthModel {
 			throw new Error(result.code);
 		const tokenFound = (result.length === 0) ? false : true
 		
-		return [tokenFound, tokenId, {{authObject.name|camelCase}}Id];
+		//TODO return extra field
+		return [tokenFound, tokenId, {{authObject.name|camelCase}}Id 
+			{%- if project.attributes.auth_extra_field -%}
+				, {{project.attributes.auth_extra_field | snakeCase | append: 'Id'}}
+			{%- endif -%}
+		];
 	}
 
 
@@ -315,7 +363,7 @@ class AuthModel {
 	static async checkAccountLocked({{authObject.name|camelCase}}Id) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
-		const sqlRequest = 'SELECT {{authLockProp.name}} FROM {{authTableName}} WHERE id= ?';
+		const sqlRequest = 'SELECT {{authLockProp.name | snakeCase}} FROM {{authTableName}} WHERE id= ?';
 		const sqlParams = [ {{authObject.name|camelCase}}Id ];
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)

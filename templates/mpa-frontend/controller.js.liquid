@@ -10,6 +10,8 @@
 %}
 'use strict';
 const assert = require('assert');
+const ApiToolSingleton = require('../api/api-tools.js');
+const apiTool = ApiToolSingleton.getInstance();
 
 class Controller {
 	#config;
@@ -33,6 +35,8 @@ class Controller {
 		this.#config = config;
 		this.#model = model;
 		this.#view = view; 
+
+		apiTool.initialize(config);
 
 		var path = require('path');
 		const express = require('express');

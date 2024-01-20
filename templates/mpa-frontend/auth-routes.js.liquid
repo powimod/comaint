@@ -14,6 +14,8 @@
 'use strict';
 const assert = require('assert');
 const authApi = require('../api/auth-api.js');
+const ApiToolSingleton = require('../api/api-tools.js');
+const apiTool = ApiToolSingleton.getInstance();
 
 module.exports = (app) => {
         const ViewSingleton = require('../views/view.js');
@@ -27,6 +29,7 @@ module.exports = (app) => {
 			request.session.{{authObject.name|camelCase}}Id = null;
 			request.session.accessToken = null;
 			request.session.refreshToken = null;
+			apiTool.setCookies(request.session.accessToken, request.session.refreshToken);
 		}
 		next();
 	});
@@ -38,7 +41,10 @@ module.exports = (app) => {
 		try {
 			const {{authIdentProp.name|camelCase}} = request.body.{{authIdentProp.name|camelCase}};
 			const {{authPasswordProp.name|camelCase}} = request.body.{{authPasswordProp.name|camelCase}};
-			const params = { accessToken: request.session.accessToken };
+			const params = { 
+				accessToken: request.session.accessToken,
+				refreshToken: request.session.refreshToken
+			};
 			const result = await authApi.login({{authIdentProp.name|camelCase}}, {{authPasswordProp.name|camelCase}}, params);
 			if (! result.ok) {
 				view.renderPage('auth-login',  response, {error: result.error});
@@ -51,6 +57,7 @@ module.exports = (app) => {
 			request.session.{{authObject.name|camelCase}}Id = result.{{authObject.name|camelCase}}Id;
 			request.session.accessToken = result.accessToken;
 			request.session.refreshToken = result.refreshToken;
+			apiTool.setCookies(request.session.accessToken, request.session.refreshToken);
 
 			response.redirect('/');
 		}
@@ -72,7 +79,10 @@ module.exports = (app) => {
 				return;
 			}
 			assert(request.session.refreshToken !== null);
-			const params = { accessToken: request.session.accessToken };
+			const params = { 
+				accessToken: request.session.accessToken,
+				refreshToken: request.session.refreshToken
+			};
 			const result = await authApi.logout(request.session.refreshToken, params);
 			if (! result.ok) {
 				view.renderPage('auth-logout',  response, {error: result.error});
@@ -95,7 +105,10 @@ module.exports = (app) => {
 		try {
 			const {{authIdentProp.name|camelCase}} = request.body.{{authIdentProp.name|camelCase}};
 			const {{authPasswordProp.name|camelCase}} = request.body.{{authPasswordProp.name|camelCase}};
-			const params = { accessToken: request.session.accessToken };
+			const params = { 
+				accessToken: request.session.accessToken,
+				refreshToken: request.session.refreshToken
+			};
 			const result = await authApi.register({{authIdentProp.name|camelCase}}, {{authPasswordProp.name|camelCase}}, params);
 			if (! result.ok) {
 				view.renderPage('auth-register',  response, {error: result.error});
@@ -108,6 +121,8 @@ module.exports = (app) => {
 			request.session.{{authObject.name|camelCase}}Id = result.{{authObject.name|camelCase}}Id;
 			request.session.accessToken = result.accessToken;
 			request.session.refreshToken = result.refreshToken;
+
+			apiTool.setCookies(request.session.accessToken, request.session.refreshToken);
 
 			response.redirect('/validate-registration'); 
 		}
@@ -123,7 +138,10 @@ module.exports = (app) => {
 	app.post('/validate-registration', async (request, response) => {
 		try {
 			const {{authCodeProp.name|camelCase}} = request.body.{{authCodeProp.name|snakeCase}};
-			const params = { accessToken: request.session.accessToken };
+			const params = { 
+				accessToken: request.session.accessToken,
+				refreshToken: request.session.refreshToken
+			};
 			const result = await authApi.validateRegistration({{authCodeProp.name|camelCase}}, params);
 			if (! result.ok) {
 				view.renderPage('auth-registration-validation',  response, {error: result.error});
