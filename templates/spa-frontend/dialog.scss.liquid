@@ -6,5 +6,35 @@
 		filename    : 'dialog.scss'
 		%}
 dialog {
-	border: solid red 1px;
+	position: relative;
+	margin: auto; /* horizontal and vertical center */
+	max-width: 40rem;
+	padding: 2rem;
+	border: 0;
+	border-radius: 0.5rem;
+	box-shadow: 0 0 0.5rem 0.25rem hsl(0 0% 0% / 10%);
 }
+
+dialog::backdrop {
+	background: hsl(0 0% 0% / 70%);
+}
+
+dialog div:first-child {
+	padding: 0.5rem;
+}
+
+dialog div:last-child { /* button bar */
+	border-top: solid 1px black;
+	margin-top: 1.5rem;
+	padding-top: 1.5rem;
+	display: flex;
+	justify-content: center;
+}
+
+dialog div:last-child button { /* button bar */
+	min-width: 6rem; /* TODO hard coded min button size */
+	min-height: 4rem; /* TODO hard coded min button size */
+	margin-left: 1rem;
+	margin-right: 1rem;
+}
+
