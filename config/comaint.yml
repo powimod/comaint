@@ -533,15 +533,15 @@ files:
 
   - scope:  "project"
     input:  "templates/spa-frontend/component-header.jsx.liquid"
-    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/header.jsx"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/Header.jsx"
 
   - scope:  "project"
     input:  "templates/spa-frontend/component-footer.jsx.liquid"
-    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/footer.jsx"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/Footer.jsx"
 
   - scope:  "project"
     input:  "templates/spa-frontend/container-home.jsx.liquid"
-    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/home.jsx"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/Home.jsx"
 
   - scope:  "project"
     input:  "templates/spa-frontend/dialog.jsx.liquid"
