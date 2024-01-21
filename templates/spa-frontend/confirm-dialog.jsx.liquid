@@ -1,0 +1,27 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'ConfirmDialog.js'
+		%}
+import { useState, useRef, useEffect } from 'react'
+import Dialog from './Dialog';
+
+const ConfirmDialog = ({isOpen, onResponse, children}) => {
+	const onConfirm = () => {
+		onResponse(true);
+	}
+	const onCancel = () => {
+		onResponse(false);
+	}
+	return (<Dialog isOpen={isOpen} onResponse={onResponse}>
+		<div>{children}</div>
+		<div>
+			<button onClick={onConfirm}>Yes</button> {/* TODO translation */}
+			<button onClick={onCancel}>No</button> {/* TODO translation */}
+		</div>
+	</Dialog>);
+}
+
+export default ConfirmDialog;

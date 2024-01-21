@@ -1,0 +1,31 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'Dialog.js'
+		%}
+import { useState, useRef, useEffect } from 'react'
+
+const Dialog = ({isOpen, onResponse, children}) => {
+	const [ isDialogOpen, setDialogOpen ] = useState(isOpen);
+	const dialogRef = useRef(null);
+
+	useEffect(() => {
+		console.assert(dialogRef !== null);
+		if (isDialogOpen)
+			dialogRef.current.showModal();
+		else
+			dialogRef.current.close();
+	}, [isDialogOpen]);
+
+	useEffect(() => {
+		setDialogOpen(isOpen);
+	}, [isOpen]);
+
+	return (<dialog ref={dialogRef}>
+		{children}
+	</dialog>);
+}
+
+export default Dialog;

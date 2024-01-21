@@ -5,12 +5,24 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'components/footer.jsx'
 		%}
+import {useState} from 'react';
+import MessageDialog from './dialog/MessageDialog';
 
 const Footer = (props) => {
+
+	const [isContactUsDialogOpen, setContactUsDialogOpen] = useState(false);
+	const openContactUsDialog = () => {
+		setContactUsDialogOpen(true);
+	}
+	const onContactUsDialogClose = () => {
+		setContactUsDialogOpen(false);
+	}
+
 	return (
 		<footer>
 			<ul>
-				<li>Nous contacter</li>
+				<li onClick={openContactUsDialog}>Contact us</li>
+				<MessageDialog isOpen={isContactUsDialogOpen} onClose={onContactUsDialogClose}>Contact us by email</MessageDialog>
 				<li>Mentions légales</li>
 				<li>Politique de confidentialité</li>
 				<li>Conditions générales</li>
