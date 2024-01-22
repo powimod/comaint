@@ -1,0 +1,90 @@
+{% render "../../templates/license_header_scss.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'dialog.scss'
+		%}
+dialog {
+	position: relative;
+	margin: auto; /* horizontal and vertical center */
+	max-width: 40rem;
+	padding: 2rem;
+	border: 0;
+	border-radius: 0.5rem;
+	box-shadow: 0 0 0.5rem 0.25rem hsl(0 0% 0% / 10%);
+}
+
+dialog::backdrop {
+	background: hsl(0 0% 0% / 70%);
+}
+
+dialog div:first-child {
+	padding: 0.5rem;
+}
+
+dialog div:last-child { /* button bar */
+	border-top: solid 1px black;
+	margin-top: 1.5rem;
+	padding-top: 1.5rem;
+	display: flex;
+	justify-content: center;
+}
+
+dialog div:last-child button { /* button bar */
+	min-width: 6rem; /* TODO hard coded min button size */
+	min-height: 4rem; /* TODO hard coded min button size */
+	margin-left: 1rem;
+	margin-right: 1rem;
+}
+
+div.popup {
+	padding: 1rem;
+	position: absolute;
+	max-width: 70%;
+	top:20%;
+	left:20%;
+	border-radius: 0.5rem;
+	box-shadow: 0 0 0.5rem 0.25rem hsl(0 0% 0% / 60%);
+	color: white;
+	background-color: black;
+}
+
+div.popupStack {
+	pointer-events: none; /* popup stack must not respond to click */
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	max-width: 50%;
+	min-width: 15rem;
+	top:10%;
+	height: 80%;
+	right:10%;
+}
+
+div.popupStack > div{
+	pointer-events: auto; /* popup (with close button) must respond to click */
+	border: solid black 1px;
+	border-radius: 5px;
+	margin: 1rem;
+	padding: 1rem;
+	border-radius: 0.5rem;
+	box-shadow: 0 0 0.5rem 0.25rem hsl(0 0% 0% / 60%);
+	color: white;
+	background-color: black;
+}
+div.popupStack > div > div:last-child{
+	padding-top: 1.5rem;
+	display: flex;
+	justify-content: center;
+}
+
+div.popupStack button {
+	min-width: 5rem; /* TODO hard coded min button size */
+	min-height: 3rem; /* TODO hard coded min button size */
+	margin-left: 1rem;
+	margin-right: 1rem;
+}
+
+

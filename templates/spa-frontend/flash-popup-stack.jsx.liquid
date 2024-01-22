@@ -1,0 +1,59 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'FlashPopupStack.jsx'
+		%}
+import {useState, useRef} from 'react'
+
+const FlashPopupStack = ({flashPopupStack}) => {
+	const onCloseButtonClicked = (popupId) => {
+		removeFlashPopupStack(flashPopupStack, popupId);
+	}
+	return (<div className="popupStack"> {
+			flashPopupStack.messageStack.map( (popup) =>  (
+				<div key={popup.id}> {
+					(popup.tempo !== null) ? popup.message : <>
+						<div>{popup.message}</div>
+						<div><button onClick={ev => onCloseButtonClicked(popup.id)}>OK</button></div>
+					</>
+				}</div>
+			))
+		} </div>);
+}
+
+const newFlashPopupStack = () => {
+	const [ _messageStack, _setMessageStack] = useState([]);
+	const _keyRef = useRef(null);
+	return {
+		messageStack: _messageStack,
+		setMessageStack: _setMessageStack,
+		keyRef: _keyRef
+	}
+}
+
+const flashPopupStackAppend = (flashPopupStack, newMessage, tempo = null) => {
+	flashPopupStack.keyRef.current++
+	const popupId = flashPopupStack.keyRef.current
+	if (tempo !== null) 
+		setTimeout( () => {
+			removeFlashPopupStack(flashPopupStack, popupId);
+		}, tempo);
+	flashPopupStack.setMessageStack( (messageStack) => [{ 
+		id: popupId, 
+		message:newMessage, 
+		tempo: tempo
+	}, ...messageStack ])
+}
+
+const removeFlashPopupStack = (flashPopupStack, popupId) => {
+	flashPopupStack.setMessageStack( (messageStack) => messageStack.filter( popup => { return (popup.id !== popupId)} ));	 
+}
+
+const flashPopupStackClear = (flashPopupStack) => {
+	flashPopupStack.setMessageStack( (messageStack) =>  []);	 
+}
+
+export { newFlashPopupStack, flashPopupStackAppend, flashPopupStackClear };
+export default FlashPopupStack;

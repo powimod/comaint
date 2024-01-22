@@ -504,13 +504,16 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/global.scss"
 
   - scope:  "project"
+    input:  "templates/spa-frontend/dialog.scss.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/dialog.scss"
+
+  - scope:  "project"
     input:  "templates/spa-frontend/header.scss.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/header.scss"
 
   - scope:  "project"
     input:  "templates/spa-frontend/footer.scss.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/footer.scss"
-
 
   - scope:  "project"
     input:  "templates/spa-frontend/main.jsx.liquid"
@@ -530,13 +533,32 @@ files:
 
   - scope:  "project"
     input:  "templates/spa-frontend/component-header.jsx.liquid"
-    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/header.jsx"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/Header.jsx"
 
   - scope:  "project"
     input:  "templates/spa-frontend/component-footer.jsx.liquid"
-    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/footer.jsx"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/Footer.jsx"
 
   - scope:  "project"
     input:  "templates/spa-frontend/container-home.jsx.liquid"
-    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/home.jsx"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/Home.jsx"
 
+  - scope:  "project"
+    input:  "templates/spa-frontend/dialog.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/dialog/Dialog.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/confirm-dialog.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/dialog/ConfirmDialog.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/message-dialog.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/dialog/MessageDialog.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/bubble-popup.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/dialog/BubblePopup.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/flash-popup-stack.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/dialog/FlashPopupStack.jsx"

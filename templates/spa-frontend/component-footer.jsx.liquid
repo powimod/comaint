@@ -3,21 +3,47 @@
   		description : project.attributes.spa_frontend_project_description,
 		authors     : project.attributes.authors,
 		copyright   : project.attributes.copyright,
-		filename    : 'components/footer.jsx'
+		filename    : 'components/Footer.jsx'
 		%}
 
+import {useState} from 'react';
+//import MessageDialog from './dialog/MessageDialog';
+import BubblePopup, {showBubblePopup, newBubblePopup, hideBubblePopup} from './dialog/BubblePopup';
+//import FlashPopupStack, {flashPopupStackAppend, newFlashPopupStack, flashPopupStackClear} from './dialog/FlashPopupStack'; 
+
+
 const Footer = (props) => {
+	const popup = newBubblePopup()
+	//const flashPopupStack = newFlashPopupStack()
+
+
+	//const [isContactUsDialogOpen, setContactUsDialogOpen] = useState(false);
+	const openContactUsDialog = () => {
+		//setContactUsDialogOpen(true);
+		showBubblePopup(popup, 'Contact us by email', 1500);
+		//flashPopupStackAppend(flashPopupStack, "Contact us by email");
+	}
+	const onContactUsDialogClose = () => {
+		//setContactUsDialogOpen(false);
+		hideBubblePopup(popup);
+	}
+
 	return (
+		<>
 		<footer>
 			<ul>
-				<li>Nous contacter</li>
+				<li onClick={openContactUsDialog}>Contact us</li>
 				<li>Mentions légales</li>
 				<li>Politique de confidentialité</li>
 				<li>Conditions générales</li>
 			</ul>
-			<p className="copyright">All right reserved {{project.attributes.compagny}} {{project.attributes.copyright}}</p>
+			<p className="copyright">All right reserved Comaint 2023-2024</p>
 			<p className="concept">Conception Powimod</p>
 		</footer>
+		{/* <MessageDialog isOpen={isContactUsDialogOpen} onClose={onContactUsDialogClose}>Contact us by email</MessageDialog> */}
+		<BubblePopup popup={popup}/>
+		{/* <FlashPopupStack flashPopupStack={flashPopupStack}/> */}
+		</>
 	)
 }
 
