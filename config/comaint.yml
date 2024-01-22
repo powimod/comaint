@@ -559,3 +559,6 @@ files:
     input:  "templates/spa-frontend/flash-popup.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/dialog/FlashPopup.jsx"
 
+  - scope:  "project"
+    input:  "templates/spa-frontend/flash-popup-stack.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/dialog/FlashPopupStack.jsx"

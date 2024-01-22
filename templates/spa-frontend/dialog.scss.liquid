@@ -50,3 +50,24 @@ div.popup {
 	box-shadow: 0 0 0.5rem 0.25rem hsl(0 0% 0% / 60%);
 }
 
+div.popupStack {
+	pointer-events: none; /* popup stack must not respond to click */
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	max-width: 50%;
+	min-width: 15rem;
+	top:10%;
+	height: 80%;
+	right:10%;
+}
+
+div.popupStack > div{
+	pointer-events: auto; /* popup (with close button) must respond to click */
+	border: solid black 1px;
+	border-radius: 5px;
+	margin: 1rem;
+	padding: 0.5rem;
+}
+
