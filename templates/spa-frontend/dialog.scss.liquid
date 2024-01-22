@@ -39,8 +39,6 @@ dialog div:last-child button { /* button bar */
 }
 
 div.popup {
-	color: white;
-	background-color: black;
 	padding: 1rem;
 	position: absolute;
 	max-width: 70%;
@@ -48,6 +46,8 @@ div.popup {
 	left:20%;
 	border-radius: 0.5rem;
 	box-shadow: 0 0 0.5rem 0.25rem hsl(0 0% 0% / 60%);
+	color: white;
+	background-color: black;
 }
 
 div.popupStack {
@@ -68,6 +68,23 @@ div.popupStack > div{
 	border: solid black 1px;
 	border-radius: 5px;
 	margin: 1rem;
-	padding: 0.5rem;
+	padding: 1rem;
+	border-radius: 0.5rem;
+	box-shadow: 0 0 0.5rem 0.25rem hsl(0 0% 0% / 60%);
+	color: white;
+	background-color: black;
 }
+div.popupStack > div > div:last-child{
+	padding-top: 1.5rem;
+	display: flex;
+	justify-content: center;
+}
+
+div.popupStack button {
+	min-width: 5rem; /* TODO hard coded min button size */
+	min-height: 3rem; /* TODO hard coded min button size */
+	margin-left: 1rem;
+	margin-right: 1rem;
+}
+
 

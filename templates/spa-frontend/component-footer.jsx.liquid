@@ -8,28 +8,31 @@
 
 import {useState} from 'react';
 //import MessageDialog from './dialog/MessageDialog';
-import FlashPopup, {showFlashPopup, newFlashPopup, hideFlashPopup} from './dialog/FlashPopup';
+import BubblePopup, {showBubblePopup, newBubblePopup, hideBubblePopup} from './dialog/BubblePopup';
+//import FlashPopupStack, {flashPopupStackAppend, newFlashPopupStack, flashPopupStackClear} from './dialog/FlashPopupStack'; 
 
 
 const Footer = (props) => {
-	const popup = newFlashPopup()
+	const popup = newBubblePopup()
+	//const flashPopupStack = newFlashPopupStack()
+
 
 	//const [isContactUsDialogOpen, setContactUsDialogOpen] = useState(false);
 	const openContactUsDialog = () => {
 		//setContactUsDialogOpen(true);
-		showFlashPopup(popup, 'Contact us by email', 1500);
+		showBubblePopup(popup, 'Contact us by email', 1500);
+		//flashPopupStackAppend(flashPopupStack, "Contact us by email");
 	}
 	const onContactUsDialogClose = () => {
 		//setContactUsDialogOpen(false);
-		hideFlashPopup(popup);
+		hideBubblePopup(popup);
 	}
 
 	return (
+		<>
 		<footer>
 			<ul>
 				<li onClick={openContactUsDialog}>Contact us</li>
-		{/* <MessageDialog isOpen={isContactUsDialogOpen} onClose={onContactUsDialogClose}>Contact us by email</MessageDialog> */}
-				<FlashPopup popup={popup}/>
 				<li>Mentions légales</li>
 				<li>Politique de confidentialité</li>
 				<li>Conditions générales</li>
@@ -37,6 +40,10 @@ const Footer = (props) => {
 			<p className="copyright">All right reserved Comaint 2023-2024</p>
 			<p className="concept">Conception Powimod</p>
 		</footer>
+		{/* <MessageDialog isOpen={isContactUsDialogOpen} onClose={onContactUsDialogClose}>Contact us by email</MessageDialog> */}
+		<BubblePopup popup={popup}/>
+		{/* <FlashPopupStack flashPopupStack={flashPopupStack}/> */}
+		</>
 	)
 }
 

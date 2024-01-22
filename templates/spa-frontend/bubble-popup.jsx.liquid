@@ -3,18 +3,18 @@
   		description : project.attributes.spa_frontend_project_description,
 		authors     : project.attributes.authors,
 		copyright   : project.attributes.copyright,
-		filename    : 'FlashPopup.jsx'
+		filename    : 'BubblePopup.jsx'
 		%}
 import {useState, useRef} from 'react'
 
-const FlashPopup = ({popup}) => {
+const BubblePopup = ({popup}) => {
 	return (<>
 		{ popup.message !== null && ( <div className='popup'>{popup.message}</div> ) }
 		<div>{popup.timeoutId}</div>
 	</>);
 }
 
-const newFlashPopup = () => {
+const newBubblePopup = () => {
 	const [ _message, _setMessage] = useState(null);
 	const _timeoutIdRef = useRef(null);
 	return {
@@ -24,7 +24,7 @@ const newFlashPopup = () => {
 	}
 }
 
-const showFlashPopup = (popup, message, tempo = null) => {
+const showBubblePopup = (popup, message, tempo = null) => {
 	let timeoutId = popup.timeoutIdRef.current;
 	if (timeoutId !== null) {
 		clearTimeout(timeoutId);
@@ -40,9 +40,9 @@ const showFlashPopup = (popup, message, tempo = null) => {
 	}
 }
 
-const hideFlashPopup = (popup) => {
-	showFlashPopup(popup, null);
+const hideBubblePopup = (popup) => {
+	showBubblePopup(popup, null);
 }
 
-export { newFlashPopup, showFlashPopup, hideFlashPopup };
-export default FlashPopup;
+export { newBubblePopup, showBubblePopup, hideBubblePopup };
+export default BubblePopup;

@@ -13,10 +13,10 @@ const FlashPopupStack = ({flashPopupStack}) => {
 	}
 	return (<div className="popupStack"> {
 			flashPopupStack.messageStack.map( (popup) =>  (
-				<div key={popup.id} className='popup'> {
+				<div key={popup.id}> {
 					(popup.tempo !== null) ? popup.message : <>
 						<div>{popup.message}</div>
-						<button onClick={ev => onCloseButtonClicked(popup.id)}>OK</button>
+						<div><button onClick={ev => onCloseButtonClicked(popup.id)}>OK</button></div>
 					</>
 				}</div>
 			))
