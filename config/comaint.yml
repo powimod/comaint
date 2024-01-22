@@ -532,16 +532,28 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/App.jsx"
 
   - scope:  "project"
+    input:  "templates/spa-frontend/container-home.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/Home.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/container-privacy-policy.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/PrivacyPolicy.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/container-terms-of-use.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/TermsOfUse.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/container-contact-us.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/ContactUs.jsx"
+
+  - scope:  "project"
     input:  "templates/spa-frontend/component-header.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/Header.jsx"
 
   - scope:  "project"
     input:  "templates/spa-frontend/component-footer.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/Footer.jsx"
-
-  - scope:  "project"
-    input:  "templates/spa-frontend/container-home.jsx.liquid"
-    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/Home.jsx"
 
   - scope:  "project"
     input:  "templates/spa-frontend/dialog.jsx.liquid"

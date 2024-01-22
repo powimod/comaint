@@ -5,43 +5,46 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'components/Footer.jsx'
 		%}
-
 import {useState} from 'react';
+import {Link} from 'react-router-dom'
+
+// TODO code cleanup
 //import MessageDialog from './dialog/MessageDialog';
-import BubblePopup, {showBubblePopup, newBubblePopup, hideBubblePopup} from './dialog/BubblePopup';
+//import BubblePopup, {showBubblePopup, newBubblePopup, hideBubblePopup} from './dialog/BubblePopup';
 //import FlashPopupStack, {flashPopupStackAppend, newFlashPopupStack, flashPopupStackClear} from './dialog/FlashPopupStack'; 
 
 
 const Footer = (props) => {
-	const popup = newBubblePopup()
+	//const popup = newBubblePopup()
 	//const flashPopupStack = newFlashPopupStack()
 
 
+	/*
 	//const [isContactUsDialogOpen, setContactUsDialogOpen] = useState(false);
 	const openContactUsDialog = () => {
 		//setContactUsDialogOpen(true);
-		showBubblePopup(popup, 'Contact us by email', 1500);
+		//showBubblePopup(popup, 'Contact us by email', 1500);
 		//flashPopupStackAppend(flashPopupStack, "Contact us by email");
 	}
 	const onContactUsDialogClose = () => {
 		//setContactUsDialogOpen(false);
-		hideBubblePopup(popup);
+		//hideBubblePopup(popup);
 	}
+	*/
 
 	return (
 		<>
 		<footer>
 			<ul>
-				<li onClick={openContactUsDialog}>Contact us</li>
-				<li>Mentions légales</li>
-				<li>Politique de confidentialité</li>
-				<li>Conditions générales</li>
+				<li> <Link to="/contact-us">Contact us</Link>         </li> {/* TODO translation "Contactez-nous" */}
+				<li> <Link to="/privacy-policy">Privacy Policy</Link> </li> {/* TODO translation "Politique de confidentialité" */}
+				<li> <Link to="/terms-of-use">Terms of use</Link>     </li> {/* TODO translation "Conditions d’utilisation" */}
 			</ul>
 			<p className="copyright">All right reserved Comaint 2023-2024</p>
 			<p className="concept">Conception Powimod</p>
 		</footer>
 		{/* <MessageDialog isOpen={isContactUsDialogOpen} onClose={onContactUsDialogClose}>Contact us by email</MessageDialog> */}
-		<BubblePopup popup={popup}/>
+		{/* <BubblePopup popup={popup}/> */}
 		{/* <FlashPopupStack flashPopupStack={flashPopupStack}/> */}
 		</>
 	)
