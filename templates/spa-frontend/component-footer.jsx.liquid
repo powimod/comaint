@@ -3,31 +3,38 @@
   		description : project.attributes.spa_frontend_project_description,
 		authors     : project.attributes.authors,
 		copyright   : project.attributes.copyright,
-		filename    : 'components/footer.jsx'
+		filename    : 'components/Footer.jsx'
 		%}
+
 import {useState} from 'react';
-import MessageDialog from './dialog/MessageDialog';
+//import MessageDialog from './dialog/MessageDialog';
+import FlashPopup, {showFlashPopup, newFlashPopup, hideFlashPopup} from './dialog/FlashPopup';
+
 
 const Footer = (props) => {
+	const popup = newFlashPopup()
 
-	const [isContactUsDialogOpen, setContactUsDialogOpen] = useState(false);
+	//const [isContactUsDialogOpen, setContactUsDialogOpen] = useState(false);
 	const openContactUsDialog = () => {
-		setContactUsDialogOpen(true);
+		//setContactUsDialogOpen(true);
+		showFlashPopup(popup, 'Contact us by email', 1500);
 	}
 	const onContactUsDialogClose = () => {
-		setContactUsDialogOpen(false);
+		//setContactUsDialogOpen(false);
+		hideFlashPopup(popup);
 	}
 
 	return (
 		<footer>
 			<ul>
 				<li onClick={openContactUsDialog}>Contact us</li>
-				<MessageDialog isOpen={isContactUsDialogOpen} onClose={onContactUsDialogClose}>Contact us by email</MessageDialog>
+		{/* <MessageDialog isOpen={isContactUsDialogOpen} onClose={onContactUsDialogClose}>Contact us by email</MessageDialog> */}
+				<FlashPopup popup={popup}/>
 				<li>Mentions légales</li>
 				<li>Politique de confidentialité</li>
 				<li>Conditions générales</li>
 			</ul>
-			<p className="copyright">All right reserved {{project.attributes.compagny}} {{project.attributes.copyright}}</p>
+			<p className="copyright">All right reserved Comaint 2023-2024</p>
 			<p className="concept">Conception Powimod</p>
 		</footer>
 	)

@@ -1,0 +1,48 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'FlashPopup.jsx'
+		%}
+import {useState, useRef} from 'react'
+
+const FlashPopup = ({popup}) => {
+	return (<>
+		{ popup.message !== null && ( <div className='popup'>{popup.message}</div> ) }
+		<div>{popup.timeoutId}</div>
+	</>);
+}
+
+const newFlashPopup = () => {
+	const [ _message, _setMessage] = useState(null);
+	const _timeoutIdRef = useRef(null);
+	return {
+		message: _message,
+		setMessage: _setMessage,
+		timeoutIdRef: _timeoutIdRef
+	}
+}
+
+const showFlashPopup = (popup, message, tempo = null) => {
+	let timeoutId = popup.timeoutIdRef.current;
+	if (timeoutId !== null) {
+		clearTimeout(timeoutId);
+		popup.timeoutIdRef.current = null;
+	}
+	popup.setMessage(message);	 
+	if (tempo != null){
+		timeoutId = setTimeout( () => {
+			popup.setMessage(null); 
+			popup.timeoutIdRef.current = null;
+		}, tempo);
+		popup.timeoutIdRef.current = timeoutId;
+	}
+}
+
+const hideFlashPopup = (popup) => {
+	showFlashPopup(popup, null);
+}
+
+export { newFlashPopup, showFlashPopup, hideFlashPopup };
+export default FlashPopup;

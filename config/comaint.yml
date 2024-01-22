@@ -554,3 +554,8 @@ files:
   - scope:  "project"
     input:  "templates/spa-frontend/message-dialog.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/dialog/MessageDialog.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/flash-popup.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/dialog/FlashPopup.jsx"
+
