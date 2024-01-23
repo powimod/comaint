@@ -12,6 +12,7 @@
         margin: 0;
 	padding: 0;
 	font-size: 1.5rem;
+
 }
 :root {
 	--global-color-1: #104992; /* dark blue */
@@ -21,9 +22,31 @@
 }
 html {
         font-size: 62.5%;
+	height:100%; /* move footer at the bottom of the window */
 }
-body{
+body > div#root  {
 	background-color: var(--global-color-2);
+	min-height: 100vh;
+	display:grid;
+	grid-template-columns: 1cm minmax(1fr, 800px) 1cm ;
+	grid-template-rows: auto 1fr auto; /* header / content / footer */
+	grid-template-areas: ". header ."
+	                     ". main   ."
+	                     ". footer .";
+	background-color: #323232;
+}
+
+
+body > div#root > header {
+	grid-area: header;
+}
+body > div#root > main {
+	grid-area: main;
+	background-color: white;
+	overflow:scroll;
+}
+body > div#root > footer {
+	grid-area: footer;
 }
 
 
