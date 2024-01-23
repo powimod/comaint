@@ -5,11 +5,13 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'containers/Home.jsx'
 		%}
+import { useTranslation } from 'react-i18next';
 
 const Home = (props) => {
+	const { t } = useTranslation();
 	return (
 		<main>
-			<h1>Welcome to {{project.name | pascalCase}}</h1>
+			<h1>{t('public_welcome_text')}</h1>
 			<p>This is the public home page</p>
 		</main>
 	)
