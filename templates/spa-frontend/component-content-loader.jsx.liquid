@@ -1,3 +1,11 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'components/ContenttLoader.jsx'
+		%}
+
 import { useTranslation } from 'react-i18next';
 import {useState} from 'react';
 import {Link} from 'react-router-dom'
@@ -7,25 +15,39 @@ import Async, { useAsync } from "react-async"
 const render = (data) => {
 	return new Promise( (resolve, reject) => {
 		const components = []
+		let list = []
 		let paragraph = []
+		let n = 0;
 		for (let line of data.split('\n')) {
 			line = line.trim()
-			if (line.length > 0 && paragraph.length > 0) {
-				components.push(<p>{paragraph.join('\n')}</p>)
+
+			if ( paragraph.length > 0  && line.length > 0 ) {
+				components.push(<p key={n++}>{paragraph.join('\n')}</p>)
 				paragraph = []
 			}
+			if ( list.length > 0  && ! line.startsWith('-') ) {
+				components.push( <ul key={n++}> { list.map( (line,i) => <li key={i}>{line}</li> ) } </ul>)
+				list = []
+			}
+
 			if (line.startsWith('###')) {
-				components.push(<h3>{line.substr(3).trim()}</h3>)
+				components.push(<h3 key={n++}>{line.substr(3).trim()}</h3>)
 				continue
 			}
 			if (line.startsWith('##')) {
-				components.push(<h2>{line.substr(2).trim()}</h2>)
+				components.push(<h2 key={n++}>{line.substr(2).trim()}</h2>)
 				continue
 			}
 			if (line.startsWith('#')) {
-				components.push(<h1>{line.substr(1).trim()}</h1>)
+				components.push(<h1 key={n++}>{line.substr(1).trim()}</h1>)
 				continue
 			}
+
+			if (line.startsWith('-')) {
+				list.push(line.substr(1).trim())
+				continue
+			}
+
 			paragraph.push(line)
 
 		}

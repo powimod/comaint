@@ -562,6 +562,10 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/ContactUs.jsx"
 
   - scope:  "project"
+    input:  "templates/spa-frontend/component-content-loader.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/ContentLoader.jsx"
+
+  - scope:  "project"
     input:  "templates/spa-frontend/component-header.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/Header.jsx"
 
