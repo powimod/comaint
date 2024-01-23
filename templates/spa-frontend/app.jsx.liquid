@@ -12,6 +12,9 @@ import {Routes, Route, Navigate} from "react-router-dom"
 import Header from "./components/Header"
 import Footer from "./components/Footer"
 import Home from "./containers/Home"
+import ContactUs from "./containers/ContactUs"
+import PrivacyPolicy from "./containers/PrivacyPolicy"
+import TermsOfUse from "./containers/TermsOfUse"
 
 function App() {
 	return (
@@ -19,7 +22,9 @@ function App() {
 			<Header/>
 			<Routes>
 				<Route path='/' element={<Home/>}/>
-				<Route path='*' element={<Navigate to="/" />}/>
+				<Route path='/contact-us'     element={<ContactUs/>}/>
+				<Route path='/privacy-policy' element={<PrivacyPolicy/>}/>
+				<Route path='/terms-of-use'   element={<TermsOfUse/>}/>
 			</Routes>
 			<Footer/>
 		</>

@@ -3,16 +3,17 @@
   		description : project.attributes.spa_frontend_project_description,
 		authors     : project.attributes.authors,
 		copyright   : project.attributes.copyright,
-		filename    : 'containers/Home.jsx'
+		filename    : 'containers/ContactUs.jsx'
 		%}
 
-const Home = (props) => {
+
+const ContactUs = (props) => {
 	return (
 		<main>
-			<h1>Welcome to {{project.name | pascalCase}}</h1>
-			<p>This is the public home page</p>
+			<h1>Contact Us</h1>
+			<p>Contact us by email</p>
 		</main>
 	)
 }
 
-export default Home
+export default ContactUs

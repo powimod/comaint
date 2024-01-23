@@ -528,8 +528,28 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/logo.svg"
 
   - scope:  "project"
+    input:  "templates/assets/terms-of-use-en.txt"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/terms-of-use-en.txt"
+
+  - scope:  "project"
     input:  "templates/spa-frontend/app.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/App.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/container-home.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/Home.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/container-privacy-policy.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/PrivacyPolicy.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/container-terms-of-use.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/TermsOfUse.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/container-contact-us.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/ContactUs.jsx"
 
   - scope:  "project"
     input:  "templates/spa-frontend/component-header.jsx.liquid"
@@ -538,10 +558,6 @@ files:
   - scope:  "project"
     input:  "templates/spa-frontend/component-footer.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/Footer.jsx"
-
-  - scope:  "project"
-    input:  "templates/spa-frontend/container-home.jsx.liquid"
-    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/Home.jsx"
 
   - scope:  "project"
     input:  "templates/spa-frontend/dialog.jsx.liquid"
