@@ -5,8 +5,6 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'global.scss'
 		%}
-
-
 *{
         box-sizing: border-box;
         margin: 0;
@@ -24,7 +22,7 @@ html {
         font-size: 62.5%;
 	height:100%; /* move footer at the bottom of the window */
 }
-body > div#root  {
+body {
 	background-color: var(--global-color-2);
 	min-height: 100vh;
 	display:grid;
@@ -37,16 +35,14 @@ body > div#root  {
 }
 
 
-body > div#root > header {
+body header {
 	grid-area: header;
 }
-body > div#root > main {
+body main {
 	grid-area: main;
 	background-color: white;
 	overflow:scroll;
 }
-body > div#root > footer {
+body footer {
 	grid-area: footer;
 }
-
-
