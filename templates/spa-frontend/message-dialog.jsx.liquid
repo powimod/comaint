@@ -5,10 +5,12 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'MessageDialog.js'
 		%}
+import { useTranslation } from 'react-i18next';
 import { useState, useRef, useEffect } from 'react'
 import Dialog from './Dialog';
 
 const MessageDialog = ({isOpen, onClose, children}) => {
+	const { t } = useTranslation();
 	const onMessage = () => {
 		onClose(true);
 	}
@@ -18,7 +20,7 @@ const MessageDialog = ({isOpen, onClose, children}) => {
 	return (<Dialog isOpen={isOpen} onClose={onClose}>
 		<div>{children}</div>
 		<div>
-			<button onClick={onMessage}>OK</button> {/* TODO translation */}
+			<button onClick={onMessage}>{t('OK')}</button>
 		</div>
 	</Dialog>);
 }

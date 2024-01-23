@@ -5,10 +5,13 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'ConfirmDialog.js'
 		%}
+import { useTranslation } from 'react-i18next';
 import { useState, useRef, useEffect } from 'react'
 import Dialog from './Dialog';
 
 const ConfirmDialog = ({isOpen, onResponse, children}) => {
+	const { t } = useTranslation();
+
 	const onConfirm = () => {
 		onResponse(true);
 	}
@@ -18,8 +21,8 @@ const ConfirmDialog = ({isOpen, onResponse, children}) => {
 	return (<Dialog isOpen={isOpen} onResponse={onResponse}>
 		<div>{children}</div>
 		<div>
-			<button onClick={onConfirm}>Yes</button> {/* TODO translation */}
-			<button onClick={onCancel}>No</button> {/* TODO translation */}
+			<button onClick={onConfirm}>{t('yes')}</button>
+			<button onClick={onCancel}>{t('no')}</button>
 		</div>
 	</Dialog>);
 }

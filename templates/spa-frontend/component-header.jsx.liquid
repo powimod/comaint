@@ -5,13 +5,15 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'components/Header.jsx'
 		%}
+import { useTranslation } from 'react-i18next';
 
 const Header = (props) => {
+	const { t } = useTranslation();
 	return (
 		<header>
 			<div className="logo">&nbsp;</div>
-			<span className="title">{{project.attributes.public_home_page_title}}</span>
-			<span className="subtitle">{{project.attributes.public_home_page_subtitle}}</span>
+			<span className="title">{t('header_title')}</span>
+			<span className="subtitle">{t('header_subtitle')}</span>
 		</header>
 	)
 }
