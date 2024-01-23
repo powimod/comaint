@@ -50,9 +50,6 @@ attributes:
   license: "GPL V3 or later"
   lang: "fr"
 
-  public_home_page_title: "GMAO Comaint"
-  public_home_page_subtitle: "Gestion de maintenance assistée par ordinateur"
-
   auth_object: "User"
   auth_table_name: "users"
   auth_ident_property: "email"
@@ -518,6 +515,19 @@ files:
   - scope:  "project"
     input:  "templates/spa-frontend/main.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/main.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/i18n.js.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/i18n.js"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/locales/translation-en.json.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/locales/en/translation.json"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/locales/translation-fr.json.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/locales/fr/translation.json"
+
 
   - scope:  "project"
     input:  "templates/assets/icon.svg"
