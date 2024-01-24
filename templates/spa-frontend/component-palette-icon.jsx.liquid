@@ -1,0 +1,26 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'components/PaletteIcon.jsx'
+		%}
+const iconList = [ 
+	'user', 'company', 'unit', 'section', 'equipment', 'article', 'intervention', 'workorder', 'supply' , 'order', 'supplier',
+	'category', 'subcategory', 'create', 'delete', 'add', 'remove', 'validate', 'cancel', 'display', 'edit', 'erase'
+];
+
+const PaletteIcon = ({element, className = null, border = null, button = null, onClick = null}) => {
+	const classNameTab = [ 'palette-icon' ];
+	classNameTab.push( 'palette-icon-' + ( iconList.includes(element) ? element : 'unknown' ) );
+	if (className != null)
+		classNameTab.push( className );
+	if (border && border.trim().toLowerCase() === 'true')
+		classNameTab.push( 'palette-icon-border' );
+	if (button && button.trim().toLowerCase() === 'true')
+		classNameTab.push( 'palette-icon-button' );
+	className = classNameTab.join(' ');
+	return ( <img className={className} src="./icons.png" onClick={onClick}/> )
+}
+
+export default PaletteIcon;
