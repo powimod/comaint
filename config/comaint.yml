@@ -501,6 +501,10 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/global.scss"
 
   - scope:  "project"
+    input:  "templates/spa-frontend/palette-icon.scss.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/palette-icon.scss"
+
+  - scope:  "project"
     input:  "templates/spa-frontend/dialog.scss.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/dialog.scss"
 
@@ -537,9 +541,10 @@ files:
     input:  "templates/assets/logo.svg"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/logo.svg"
 
-  - scope:  "project"
-    input:  "templates/assets/icons.png"
-    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/icons.png"
+      # TODO raw copy of file
+      #  - scope:  "project"
+      #    input:  "templates/assets/icons.png"
+      #    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/icons.png"
 
   - scope:  "project"
     input:  "templates/assets/terms-of-use-en.txt"
@@ -568,6 +573,10 @@ files:
   - scope:  "project"
     input:  "templates/spa-frontend/component-content-loader.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/ContentLoader.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/component-palette-icon.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/PaletteIcon.jsx"
 
   - scope:  "project"
     input:  "templates/spa-frontend/component-header.jsx.liquid"
