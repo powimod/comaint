@@ -538,6 +538,10 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/logo.svg"
 
   - scope:  "project"
+    input:  "templates/assets/icons.png"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/icons.png"
+
+  - scope:  "project"
     input:  "templates/assets/terms-of-use-en.txt"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/terms-of-use-en.txt"
 
