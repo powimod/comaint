@@ -12,8 +12,8 @@ body > header {
 	padding:0.5rem;
 	display: grid;
 	grid-template-areas: 
-		"logo title    account"
-		"logo subtitle account";
+		"logo title    accessibility account"
+		"logo subtitle accessibility account";
 	grid-template-columns: auto 1fr;
 	background-color: var(--header-background-color);
 
@@ -43,6 +43,21 @@ body > header {
 		color:lightBlue;
 		@media (min-width: $screen-width-limit-small)  {
 			display: block;
+		}
+	}
+
+	.accessibility-button {
+		grid-area: accessibility;
+		border: 1rem;
+		border: solid white 1px;
+		width: 64px; /* TODO hard coded button size */
+		height: 64px;
+		padding: 10px;
+		margin-right: 1rem;
+		border-radius: 5px;
+		cursor: pointer;
+		&:hover {
+			border: solid lightblue 1px;
 		}
 	}
 
