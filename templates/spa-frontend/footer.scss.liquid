@@ -5,8 +5,8 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'Footer.scss'
 		%}
-
-$screen-width-limit-medium: 600px !default;
+$screen-width-limit-small: 0px !default;
+$screen-width-limit-medium: 0px !default;
 
 footer {
 	display: grid;
@@ -23,7 +23,8 @@ footer {
 		flex-direction: column;
 		padding: 0.2rem;
 		li {
-			list-style: none;
+			margin-left: 3rem;
+			list-style: circle;
 			padding: 1rem;
 			a {
 				color: var(--banner-link-color);
@@ -34,20 +35,25 @@ footer {
 			}
 		}
 	}
+	p {
+		margin:0.5rem;
+	}
 	p.copyright {
 		grid-area: copyright;
 	}
 	p.concept {
 		grid-area: concept;
 	}
-}
-@media (min-width: $screen-width-limit-medium)  {
-	footer {
+	@media (min-width: $screen-width-limit-small)  {
 		grid-template-areas: 
 			"links links"
 			"copyright concept";
 		ul {
 			flex-direction: row;
+		}
+		
+		p.concept {
+			justify-self: end;
 		}
 	}
 }
