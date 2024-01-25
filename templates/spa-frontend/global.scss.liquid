@@ -5,6 +5,7 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'global.scss'
 		%}
+
 *{
         box-sizing: border-box;
         margin: 0;
@@ -26,7 +27,7 @@ body {
 	background-color: var(--global-color-2);
 	min-height: 100vh;
 	display:grid;
-	grid-template-columns: 1cm minmax(1fr, 800px) 1cm ;
+	/* grid-template-columns: 1cm minmax(1fr, 800px) 1cm ; FIXME generate an error */
 	grid-template-rows: auto 1fr auto; /* header / content / footer */
 	grid-template-areas: ". header ."
 	                     ". main   ."
@@ -45,4 +46,20 @@ body main {
 }
 body footer {
 	grid-area: footer;
+}
+
+label {
+	padding: 0.3rem;
+}
+input {
+	padding: 0.3rem;
+}
+button {
+	padding: 0.3rem 1rem;
+}
+
+.error-message {
+	font-weight: bolder;
+	color: red;
+	padding: 0.2rem;
 }

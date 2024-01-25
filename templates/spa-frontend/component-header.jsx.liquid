@@ -5,19 +5,45 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'components/Header.jsx'
 		%}
+
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import PaletteIcon from './PaletteIcon';
+import LoginDialog from './LoginDialog';
+import CreateAccountDialog from './CreateAccountDialog';
 
 const Header = (props) => {
 	const { t } = useTranslation();
-	return (
+	const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
+	const [isCreateAccountDialogOpen, setIsCreateAccountDialogOpen] = useState(false);
+
+	const onAccountButtonClick = () => {
+		setIsLoginDialogOpen(true)
+	}
+
+	const onLoginDialogClose = () => {
+		setIsLoginDialogOpen(false)
+	}
+
+	const onCreateAccount = () => {
+		setIsLoginDialogOpen(false)
+		setIsCreateAccountDialogOpen(true);
+	}
+
+	const onCreateAccountDialogClose = () => {
+		setIsCreateAccountDialogOpen(false);
+	}
+
+	return (<>
 		<header>
 			<div className="logo">&nbsp;</div>
 			<span className="title">{t('header_title')}</span>
 			<span className="subtitle">{t('header_subtitle')}</span>
-			<PaletteIcon className="account-button" element="user"/>
+			<PaletteIcon className="account-button" element="user" button="true" onClick={onAccountButtonClick} />
 		</header>
-	)
+		<LoginDialog isOpen={isLoginDialogOpen} onClose={onLoginDialogClose} onCreateAccount={onCreateAccount} /> 
+		<CreateAccountDialog isOpen={isCreateAccountDialogOpen} onClose={onCreateAccountDialogClose} /> 
+	</>)
 }
 
 export default Header;

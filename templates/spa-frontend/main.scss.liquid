@@ -5,14 +5,17 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'main.scss'
 		%}
-
 @use 'global';
 @use 'palette-icon';
 @use 'dialog';
-@use 'header';
+@use 'header' with (
+	$screen-width-limit-medium: 400px
+);
 @use 'footer' with (
 	$screen-width-limit-medium: 400px
 );
+@use 'login-dialog';
+@use 'create-account-dialog';
 
 main {
 	padding : 1rem;

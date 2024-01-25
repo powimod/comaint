@@ -6,16 +6,19 @@
 		filename    : 'palette-icon.scss'
 		%}
 .palette-icon {
-	width: 64px;
-	height: 64px;
+	width: 84px;
+	height: 84px;
 	object-fit: none;
+	padding: 10px;
 }
 
+.palette-icon-unknown {
+	object-position: 64px 0px;
+}
 .palette-icon-border {
 	border: solid black 1px;
 	border-radius: 5px;
 }
-
 .palette-icon-button {
 	border: solid black 1px;
 	border-radius: 5px;
@@ -23,10 +26,6 @@
 }
 .palette-icon-button:hover {
 	border: solid black 2px;
-}
-
-.palette-icon-unknown {
-	object-position: 64px 0px;
 }
 
 /* first line */
@@ -100,5 +99,3 @@
 .palette-icon-erase{
 	object-position: -640px -64px;
 }
-
-

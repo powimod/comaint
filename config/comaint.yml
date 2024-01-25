@@ -517,6 +517,14 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/footer.scss"
 
   - scope:  "project"
+    input:  "templates/spa-frontend/login-dialog.scss.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/login-dialog.scss"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/create-account-dialog.scss.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/create-account-dialog.scss"
+
+  - scope:  "project"
     input:  "templates/spa-frontend/main.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/main.jsx"
 
@@ -585,6 +593,14 @@ files:
   - scope:  "project"
     input:  "templates/spa-frontend/component-footer.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/Footer.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/component-login-dialog.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/LoginDialog.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/component-create-account-dialog.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/CreateAccountDialog.jsx"
 
   - scope:  "project"
     input:  "templates/spa-frontend/dialog.jsx.liquid"

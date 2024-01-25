@@ -5,18 +5,19 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'Header.scss'
 		%}
+$screen-width-limit-medium: 600px !default;
 
 body > header {
 	padding:0.5rem;
 	display: grid;
 	grid-template-areas: 
-		"logo title"
-		"logo subtitle";
+		"logo title    account"
+		"logo subtitle account";
 	grid-template-columns: auto 1fr;
 	background-color: var(--header-background-color);
 	color: var(--header-text-color);
 
-	div.logo {
+	.logo {
 		grid-area: logo;
 		width: 150px;
 		margin-right:1rem;
@@ -33,16 +34,22 @@ body > header {
 		-webkit-mask-image: url("logo.svg");
 	}
 
-	span.title {
+	.title {
 		grid-area: title;
 		font-size: 1.8rem;
 		font-style: italic;
 	}
 
-	span.subtitle {
+	.subtitle {
 		grid-area: subtitle;
 		font-size: 1.3rem;
 		font-style: italic;
 		color:lightBlue;
 	}
+
+	.account-button {
+		grid-area: account;
+		filter: invert(1);
+	}
+
 }
