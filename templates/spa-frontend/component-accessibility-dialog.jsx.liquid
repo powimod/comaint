@@ -17,24 +17,28 @@ const AccessibilityDialog = ({isOpen, onClose}) => {
  
 	const [theme, setTheme] = useState(() => {
 		let value = localStorage.getItem('theme');
-		console.log(`dOm initialize theme=${value}.`)
 		return (value === 'dark' ? 'dark' : 'light'); 
 	});
-	console.log(`Theme:${theme}`);
-	if (theme === 'dark')
-		document.body.classList.add('dark-theme');
-	else
-		document.body.classList.remove('dark-theme');
+
+	const activateTheme = () => {
+		if (theme === 'dark')
+			document.body.classList.add('dark-theme');
+		else
+			document.body.classList.remove('dark-theme');
+	}
+
+	useEffect( () => {
+		activateTheme();
+	}, []);
 
 	const [lineSpacing, setLineSpacing] = useState(() => {
 		let value = localStorage.getItem('line-spacing');
-		console.log(`dOm initialize line-spacing=${value}.`)
 		return (value === 'simple' ? 'simple' : 'double'); 
 	});
 
-
 	useEffect( () => {
 		localStorage.setItem('theme', theme);
+		activateTheme();
 	}, [ theme ]);
 
 	useEffect( () => {
