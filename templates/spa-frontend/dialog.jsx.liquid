@@ -7,7 +7,7 @@
 		%}
 import { useState, useRef, useEffect } from 'react'
 
-const Dialog = ({isOpen, onResponse, children}) => {
+const Dialog = ({isOpen, onResponse, className = '',  children}) => {
 	const [ isDialogOpen, setDialogOpen ] = useState(isOpen);
 	const dialogRef = useRef(null);
 
@@ -23,7 +23,7 @@ const Dialog = ({isOpen, onResponse, children}) => {
 		setDialogOpen(isOpen);
 	}, [isOpen]);
 
-	return (<dialog ref={dialogRef}>
+	return (<dialog ref={dialogRef} className={className}>
 		{children}
 	</dialog>);
 }

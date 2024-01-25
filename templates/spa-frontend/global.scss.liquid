@@ -12,37 +12,106 @@
 	font-size: 1.5rem;
 
 }
-:root {
-	--global-color-1: #104992; /* dark blue */
-	--global-color-2: white; /* white */
-	--header-background-color: var(--global-color-1);
-	--header-text-color: var(--global-color-2);
-}
+
 html {
         font-size: 62.5%;
 	height:100%; /* move footer at the bottom of the window */
 }
+
+/* color managment */
+:root {
+	--global-color-1: #104992; /* dark blue */
+	--global-color-2: #ffffff; /* white */
+	--global-color-3: #72b6fe; /* light blue */
+	--global-color-4: #000000; /* black */
+	--global-color-5: #323232; /* dark gray*/
+	--global-color-6: #102a4c; /* very dark blue*/
+	--global-color-7: #b4b3c6; /* light gray */
+	--global-color-8: #0d0e0f; /* very dark gray */
+}
+
 body {
-	background-color: var(--global-color-2);
+	--banner-first-text-color: var(--global-color-2);
+	--banner-second-text-color: var(--global-color-3);
+	--banner-background-color: var(--global-color-1);
+	--banner-link-color: var(--global-color-3);
+	--banner-link-hover-color: var(--global-color-2);
+
+	--main-first-text-color: var(--global-color-4);
+	--main-second-text-color: var(--global-color-5);
+	--main-first-title-color: var(--global-color-1);
+	--main-second-title-color: var(--global-color-1);
+	--main-background-color: var(--global-color-2);
+	--main-link-color: var(--global-color-6);
+	--main-link-hover-color: var(--global-color-5);
+
+	--footer-first-text-color: var(--global-color-2);
+	--footer-second-text-color: var(--global-color-3);
+	--footer-background-color: var(--global-color-1);
+
+	--bottom-color: var(--global-color-5); /* fond en arrière de la page */
+}
+
+body.dark-theme {
+	--banner-background-color: var(--global-color-6);
+
+	--main-first-text-color: var(--global-color-2);
+	--main-second-text-color: var(--global-color-7);
+	--main-first-title-color: var(--global-color-3);
+	--main-second-title-color: var(--global-color-3);
+	--main-background-color: var(--global-color-5);
+	--main-link-color: var(--global-color-3);
+	--main-link-hover-color: var(--global-color-6);
+
+	--bottom-color: var(--global-color-8);
+}
+
+body.line-spacing-theme {
+	line-height: 2;
+}
+
+body > div#root {
+	font-family: 'Roboto';
 	min-height: 100vh;
 	display:grid;
-	grid-template-columns: 1cm minmax(1fr, 800px) 1cm ;
+	/* grid-template-columns: 1cm minmax(1fr, 800px) 1cm ; FIXME generate an error */
 	grid-template-rows: auto 1fr auto; /* header / content / footer */
 	grid-template-areas: ". header ."
 	                     ". main   ."
 	                     ". footer .";
-	background-color: #323232;
+	background-color: var(--bottom-color); 
+	font-family: 'Roboto';
 }
 
 
-body header {
+header {
 	grid-area: header;
 }
-body main {
+main {
 	grid-area: main;
-	background-color: white;
 	overflow:scroll;
 }
-body footer {
+footer {
 	grid-area: footer;
 }
+
+label {
+	padding: 0.3rem;
+}
+input {
+	padding: 0.3rem;
+}
+button {
+	padding: 0.3rem 1rem;
+}
+
+option {
+	border:solid red 1px;
+}
+
+.error-message {
+	font-weight: bolder;
+	color: red;
+	padding: 0.2rem;
+}
+

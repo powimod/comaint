@@ -1,0 +1,29 @@
+{% render "../../templates/license_header_scss.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'accessibility-dialog.scss'
+		%}
+.accessibility-dialog {
+	min-width: 30rem;
+	line-height: normal;
+	fieldset {
+		margin: 1rem;
+		border: solid black 1px;
+		padding-left: 1rem;
+		legend {
+			font-weight: bold;
+			font-size: 1.9rem;
+		}
+		div {
+			margin: 2rem 1rem 2rem 3rem;
+			label {
+				font-size: 1.8rem;
+			}
+		}
+
+	}
+}
+
+

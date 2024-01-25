@@ -5,17 +5,60 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'components/Header.jsx'
 		%}
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faWheelchair } from '@fortawesome/free-solid-svg-icons'
+
+import PaletteIcon from './PaletteIcon';
+import LoginDialog from './LoginDialog';
+import CreateAccountDialog from './CreateAccountDialog';
+import AccessibilityDialog from './AccessibilityDialog';
 
 const Header = (props) => {
 	const { t } = useTranslation();
-	return (
+	const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
+	const [isCreateAccountDialogOpen, setIsCreateAccountDialogOpen] = useState(false);
+	const [isAccessibilityDialogOpen, setIsAccessibilityDialogOpen] = useState(false);
+
+	const onAccountButtonClick = () => {
+		setIsLoginDialogOpen(true)
+	}
+
+	const onLoginDialogClose = () => {
+		setIsLoginDialogOpen(false)
+	}
+
+	const onCreateAccount = () => {
+		setIsLoginDialogOpen(false)
+		setIsCreateAccountDialogOpen(true);
+	}
+
+	const onCreateAccountDialogClose = () => {
+		setIsCreateAccountDialogOpen(false);
+	}
+
+	const onAccessibilityDialogClose = () => {
+		setIsAccessibilityDialogOpen(false);
+	}
+
+	const onAccessibilityButtonClick = () => {
+		setIsAccessibilityDialogOpen(true);
+	}
+
+	return (<>
 		<header>
-			<div className="logo">&nbsp;</div>
+			<Link className="logo" to="/"> <img src="logo.svg"/> </Link>
 			<span className="title">{t('header_title')}</span>
 			<span className="subtitle">{t('header_subtitle')}</span>
+			<FontAwesomeIcon className="accessibility-button" icon={faWheelchair} onClick={onAccessibilityButtonClick} size="2x" inverse/>
+			<PaletteIcon className="account-button" element="user" button="true" onClick={onAccountButtonClick} />
 		</header>
-	)
+		<LoginDialog isOpen={isLoginDialogOpen} onClose={onLoginDialogClose} onCreateAccount={onCreateAccount} /> 
+		<CreateAccountDialog isOpen={isCreateAccountDialogOpen} onClose={onCreateAccountDialogClose} /> 
+		<AccessibilityDialog isOpen={isAccessibilityDialogOpen} onClose={onAccessibilityDialogClose} /> 
+	</>)
 }
 
 export default Header;

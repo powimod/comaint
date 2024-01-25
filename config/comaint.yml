@@ -501,6 +501,10 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/global.scss"
 
   - scope:  "project"
+    input:  "templates/spa-frontend/palette-icon.scss.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/palette-icon.scss"
+
+  - scope:  "project"
     input:  "templates/spa-frontend/dialog.scss.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/dialog.scss"
 
@@ -511,6 +515,18 @@ files:
   - scope:  "project"
     input:  "templates/spa-frontend/footer.scss.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/footer.scss"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/login-dialog.scss.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/login-dialog.scss"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/create-account-dialog.scss.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/create-account-dialog.scss"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/accessibility-dialog.scss.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/accessibility-dialog.scss"
 
   - scope:  "project"
     input:  "templates/spa-frontend/main.jsx.liquid"
@@ -536,6 +552,11 @@ files:
   - scope:  "project"
     input:  "templates/assets/logo.svg"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/logo.svg"
+
+      # TODO raw copy of file
+      #  - scope:  "project"
+      #    input:  "templates/assets/icons.png"
+      #    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/icons.png"
 
   - scope:  "project"
     input:  "templates/assets/terms-of-use-en.txt"
@@ -566,12 +587,28 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/ContentLoader.jsx"
 
   - scope:  "project"
+    input:  "templates/spa-frontend/component-palette-icon.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/PaletteIcon.jsx"
+
+  - scope:  "project"
     input:  "templates/spa-frontend/component-header.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/Header.jsx"
 
   - scope:  "project"
     input:  "templates/spa-frontend/component-footer.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/Footer.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/component-login-dialog.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/LoginDialog.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/component-create-account-dialog.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/CreateAccountDialog.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/component-accessibility-dialog.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/AccessibilityDialog.jsx"
 
   - scope:  "project"
     input:  "templates/spa-frontend/dialog.jsx.liquid"

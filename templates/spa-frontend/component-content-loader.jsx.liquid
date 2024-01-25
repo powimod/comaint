@@ -5,12 +5,11 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'components/ContenttLoader.jsx'
 		%}
-
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import {useState} from 'react';
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import Async, { useAsync } from "react-async"
-
+import i18n from "i18next";
 
 const render = (data) => {
 	return new Promise( (resolve, reject) => {
@@ -63,14 +62,27 @@ const loadUrl = async ({ url }, {signal}) => {
 }
 
 const ContentLoader = ({source}) => {
+
+	const onLanguageChanged = (lang) => {
+		console.log("ContentLoader Language changed : ", lang);
+	}
+	useEffect( () => {
+		i18n.on('languageChanged', onLanguageChanged);
+		return () => {
+			i18n.off('languageChanged', onLanguageChanged);
+		}
+		
+	}, [onLanguageChanged]);
+
+
 	const { t } = useTranslation()
 	return (
 		<Async promiseFn={loadUrl} url={source}>
 			{({ data, error, isPending }) => {
 				if (isPending)
-					return "Loading..."
+					return "Loading..." // TODO translation
 				if (error)
-					return "Something went wrong: " + error.message
+					return "Something went wrong: " + error.message // TODO translation
 				if (data) 
 					return data
 				return null

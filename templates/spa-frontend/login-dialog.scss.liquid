@@ -1,0 +1,25 @@
+{% render "../../templates/license_header_scss.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'login-dialog.scss'
+		%}
+.login-dialog {
+	& > div:first-child {
+		text-align: center;
+		font-weight: bolder;
+		font-size: 1.8rem;
+		font-variant-caps: all-small-caps;
+	}
+	& > section > div:first-child {
+		font-size: 1.6rem;
+		font-weight: bold;
+	}
+	& > section {
+		border: solid black 1px;
+		padding: 0.8rem;
+		margin: 0.8rem;
+	}
+}
+
