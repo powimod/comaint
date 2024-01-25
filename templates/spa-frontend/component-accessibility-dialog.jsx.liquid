@@ -5,10 +5,10 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'components/AccessibilityDialog.jsx'
 		%}
-
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom'
+import i18n from "i18next";
 
 import PaletteIcon from './PaletteIcon';
 import Dialog from './dialog/Dialog';
@@ -26,6 +26,11 @@ const AccessibilityDialog = ({isOpen, onClose}) => {
 		return (value === 'simple' ? 'simple' : 'double'); 
 	});
 
+	const [lang, setLang] = useState(() => {
+		let value = localStorage.getItem('i18nextLng');
+		return (value === 'en' ? 'en' : 'fr'); 
+	});
+
 	useEffect( () => {
 		activateTheme();
 		activateLineSpacing();
@@ -41,6 +46,10 @@ const AccessibilityDialog = ({isOpen, onClose}) => {
 		activateLineSpacing();
 	}, [ lineSpacing ]);
 
+	useEffect( () => {
+		localStorage.setItem('i18nextLng', lang);
+		activateLang();
+	}, [ lang]);
 
 	const activateTheme = () => {
 		if (theme === 'dark')
@@ -55,6 +64,12 @@ const AccessibilityDialog = ({isOpen, onClose}) => {
 		else 
 			document.body.classList.add('line-spacing-theme');
 	}
+	
+	const activateLang = () => {
+		console.log(`Switch lang : ${lang}`);
+		// TODO reload main page content loaded with ContentLoader
+		i18n.changeLanguage(lang);
+	}
 
 	const onThemeChange = (ev) => {
 		setTheme(ev.target.value);
@@ -62,6 +77,10 @@ const AccessibilityDialog = ({isOpen, onClose}) => {
 
 	const onLineSpacingChange = (ev) => {
 		setLineSpacing(ev.target.value);
+	}
+
+	const onLangChange = (ev) => {
+		setLang(ev.target.value);
 	}
 
 	return (<>
@@ -78,7 +97,7 @@ const AccessibilityDialog = ({isOpen, onClose}) => {
 				</div>
 			</fieldset>
 			<fieldset>
-				<legend>{t('accessibility-line-spacing')}</legend> {/* CSS line-height */}
+				<legend>{t('accessibility-line-spacing')}</legend>
 				<div>
 					<input id='line_spacing_simple' type='radio' value='simple' checked={lineSpacing==='simple'} onChange={onLineSpacingChange}/>
 					<label htmlFor='line_spacing_simple'>{t('accessibility-line-spacing-simple')}</label>
@@ -89,6 +108,18 @@ const AccessibilityDialog = ({isOpen, onClose}) => {
 				</div>
 
 			</fieldset>
+			<fieldset>
+				<legend>{t('accessibility-lang')}</legend>
+				<div>
+					<input id='lang_fr' type='radio' value='fr' checked={lang==='fr'} onChange={onLangChange}/>
+					<label htmlFor='lang_fr'>{t('accessibility-lang-fr')}</label>
+				</div>
+				<div>
+					<input id='lang_en' type='radio' value='en' checked={lang==='en'} onChange={onLangChange}/>
+					<label htmlFor='lang_en'>{t('accessibility-lang-en')}</label>
+				</div>
+			</fieldset>
+
 			<div className='button-bar'>
 				<button onClick={onClose}>{t('close')}</button>
 			</div>
