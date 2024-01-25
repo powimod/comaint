@@ -3,23 +3,24 @@
   		description : project.attributes.spa_frontend_project_description,
 		authors     : project.attributes.authors,
 		copyright   : project.attributes.copyright,
-		filename    : 'login-dialog.scss'
+		filename    : 'accessibility-dialog.scss'
 		%}
-.login-dialog {
-	& > div:first-child {
-		text-align: center;
-		font-weight: bolder;
-		font-size: 1.8rem;
-		font-variant-caps: all-small-caps;
-	}
-	& > section > div:first-child {
-		font-size: 1.6rem;
-		font-weight: bold;
-	}
-	& > section {
+.accessibility-dialog {
+	min-width: 40rem;
+	fieldset {
+		margin: 1rem;
 		border: solid black 1px;
-		padding: 0.8rem;
-		margin: 0.8rem;
+		padding-left: 1rem;
+		legend {
+			font-weight: bold;
+			font-size: 1.9rem;
+		}
+		div {
+			margin: 2rem 1rem 2rem 3rem;
+			label {
+				font-size: 1.8rem;
+			}
+		}
+
 	}
 }
-

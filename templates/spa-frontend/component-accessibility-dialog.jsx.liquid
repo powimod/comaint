@@ -1,0 +1,62 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'components/AccessibilityDialog.jsx'
+		%}
+
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom'
+
+import PaletteIcon from './PaletteIcon';
+import Dialog from './dialog/Dialog';
+
+const AccessibilityDialog = ({isOpen, onClose}) => {
+	const { t } = useTranslation();
+ 
+	const [theme, setTheme] = useState('light'); // TODO hard coded value
+	const [lineSpacing, setLineSpacing] = useState('simple'); // TODO hard coded value
+
+	const onThemeChange = (ev) => {
+		setTheme(ev.target.value);
+	}
+
+	const onLineSpacingChange = (ev) => {
+		setLineSpacing(ev.target.value);
+	}
+
+	return (<>
+		<Dialog isOpen={isOpen} onClose={onClose} className='accessibility-dialog'>
+			<fieldset>
+				<legend>{t('accessibility-theme')}</legend>
+				<div>
+					<input id='light_theme' type='radio' value='light' checked={theme=='light'} onChange={onThemeChange}/>
+					<label htmlFor='light_theme'>{t('accessibility-light-theme')}</label>
+				</div>
+				<div>
+					<input id='dark_theme' type='radio' value='dark' checked={theme=='dark'} onChange={onThemeChange}/>
+					<label htmlFor='dark_theme'>{t('accessibility-dark-theme')}</label>
+				</div>
+			</fieldset>
+			<fieldset>
+				<legend>{t('accessibility-line-spacing')}</legend> {/* CSS line-height */}
+				<div>
+					<input id='line_spacing_simple' type='radio' value='simple' checked={lineSpacing==='simple'} onChange={onLineSpacingChange}/>
+					<label htmlFor='line_spacing_simple'>{t('accessibility-line-spacing-simple')}</label>
+				</div>
+				<div>
+					<input id='line_spacing_double' type='radio' value='double' checked={lineSpacing==='double'} onChange={onLineSpacingChange}/>
+					<label htmlFor='line_spacing_double'>{t('accessibility-line-spacing-double')}</label>
+				</div>
+
+			</fieldset>
+			<div className='button-bar'>
+				<button onClick={onClose}>{t('close')}</button>
+			</div>
+		</Dialog>
+	</>)
+}
+
+export default AccessibilityDialog;

@@ -1,3 +1,10 @@
+{% render "../../templates/license_header_scss.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'create-account-dialog.scss'
+		%}
 .create-account-dialog {
 	max-width: 40rem;
 	& > div:first-child {
