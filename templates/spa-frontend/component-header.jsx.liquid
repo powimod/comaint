@@ -5,7 +5,6 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'components/Header.jsx'
 		%}
-
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import PaletteIcon from './PaletteIcon';
@@ -36,7 +35,7 @@ const Header = (props) => {
 
 	return (<>
 		<header>
-			<div className="logo">&nbsp;</div>
+			<img className="logo" src="logo.svg"/>
 			<span className="title">{t('header_title')}</span>
 			<span className="subtitle">{t('header_subtitle')}</span>
 			<PaletteIcon className="account-button" element="user" button="true" onClick={onAccountButtonClick} />

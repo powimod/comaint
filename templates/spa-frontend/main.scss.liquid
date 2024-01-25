@@ -5,14 +5,20 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'main.scss'
 		%}
+$screen-size-tiny: 480px;
+$screen-size-small: 640px;
+$screen-size-medium: 800px;
+$screen-size-large : 1024px;
+
 @use 'global';
 @use 'palette-icon';
 @use 'dialog';
 @use 'header' with (
-	$screen-width-limit-medium: 400px
+	$screen-width-limit-tiny: $screen-size-tiny,
+	$screen-width-limit-small: $screen-size-small
 );
 @use 'footer' with (
-	$screen-width-limit-medium: 400px
+	$screen-width-limit-medium: $screen-size-medium
 );
 @use 'login-dialog';
 @use 'create-account-dialog';

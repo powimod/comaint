@@ -5,7 +5,8 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'Header.scss'
 		%}
-$screen-width-limit-medium: 600px !default;
+$screen-width-limit-tiny: 480px !default;
+$screen-width-limit-small: 640px !default;
 
 body > header {
 	padding:0.5rem;
@@ -15,27 +16,34 @@ body > header {
 		"logo subtitle account";
 	grid-template-columns: auto 1fr;
 	background-color: var(--header-background-color);
-	color: var(--header-text-color);
 
 	.logo {
 		grid-area: logo;
 		width: 150px;
 		margin-right:1rem;
-		background-color: var(--header-text-color); /* logo color */
 		filter: invert(1);
 	}
 
 	.title {
+		display: none;
 		grid-area: title;
 		font-size: 1.8rem;
 		font-style: italic;
+		color: var(--header-text-color);
+		@media (min-width: $screen-width-limit-tiny)  {
+			display: block;
+		}
 	}
 
 	.subtitle {
+		display: none;
 		grid-area: subtitle;
 		font-size: 1.3rem;
 		font-style: italic;
 		color:lightBlue;
+		@media (min-width: $screen-width-limit-small)  {
+			display: block;
+		}
 	}
 
 	.account-button {
