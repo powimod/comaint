@@ -14,8 +14,8 @@ body > footer {
 		"links links"
 		"copyright copyright"
 		"concept   concept";
-	background-color: var(--header-background-color);
-	color: var(--header-text-color);
+	background-color: var(--banner-background-color);
+	color: var(--banner-first-text-color);
 	padding: 0.5rem;
 	ul {
 		grid-area: links;
@@ -26,16 +26,13 @@ body > footer {
 			list-style: none;
 			padding: 1rem;
 			a {
-				color: lightGray;
+				color: var(--banner-link-color);
 				text-decoration: none;
 			}
 			a:hover {
-				color: white;
+				color: var(--banner-link-hover-color);
 			}
 		}
-	}
-	p {
-		color: lightBlue;
 	}
 	p.copyright {
 		grid-area: copyright;
@@ -51,7 +48,6 @@ body > footer {
 			"copyright concept";
 		ul {
 			flex-direction: row;
-			color:red;
 		}
 	}
 }

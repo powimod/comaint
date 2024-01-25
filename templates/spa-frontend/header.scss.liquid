@@ -15,7 +15,8 @@ body > header {
 		"logo title    accessibility account"
 		"logo subtitle accessibility account";
 	grid-template-columns: auto 1fr;
-	background-color: var(--header-background-color);
+	background-color: var(--banner-background-color);
+	color: var(--banner-first-text-color);
 
 	.logo {
 		grid-area: logo;
@@ -29,7 +30,6 @@ body > header {
 		grid-area: title;
 		font-size: 1.8rem;
 		font-style: italic;
-		color: var(--header-text-color);
 		@media (min-width: $screen-width-limit-tiny)  {
 			display: block;
 		}
@@ -40,7 +40,7 @@ body > header {
 		grid-area: subtitle;
 		font-size: 1.3rem;
 		font-style: italic;
-		color:lightBlue;
+		color: var(--banner-second-text-color);
 		@media (min-width: $screen-width-limit-small)  {
 			display: block;
 		}

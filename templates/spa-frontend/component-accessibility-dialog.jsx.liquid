@@ -5,8 +5,7 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'components/AccessibilityDialog.jsx'
 		%}
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom'
 
@@ -16,8 +15,31 @@ import Dialog from './dialog/Dialog';
 const AccessibilityDialog = ({isOpen, onClose}) => {
 	const { t } = useTranslation();
  
-	const [theme, setTheme] = useState('light'); // TODO hard coded value
-	const [lineSpacing, setLineSpacing] = useState('simple'); // TODO hard coded value
+	const [theme, setTheme] = useState(() => {
+		let value = localStorage.getItem('theme');
+		console.log(`dOm initialize theme=${value}.`)
+		return (value === 'dark' ? 'dark' : 'light'); 
+	});
+	console.log(`Theme:${theme}`);
+	if (theme === 'dark')
+		document.body.classList.add('dark-theme');
+	else
+		document.body.classList.remove('dark-theme');
+
+	const [lineSpacing, setLineSpacing] = useState(() => {
+		let value = localStorage.getItem('line-spacing');
+		console.log(`dOm initialize line-spacing=${value}.`)
+		return (value === 'simple' ? 'simple' : 'double'); 
+	});
+
+
+	useEffect( () => {
+		localStorage.setItem('theme', theme);
+	}, [ theme ]);
+
+	useEffect( () => {
+		localStorage.setItem('line-spacing', lineSpacing);
+	}, [ lineSpacing ]);
 
 	const onThemeChange = (ev) => {
 		setTheme(ev.target.value);
