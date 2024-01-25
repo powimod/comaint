@@ -5,6 +5,7 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'components/AccessibilityDialog.jsx'
 		%}
+
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom'
@@ -20,21 +21,15 @@ const AccessibilityDialog = ({isOpen, onClose}) => {
 		return (value === 'dark' ? 'dark' : 'light'); 
 	});
 
-	const activateTheme = () => {
-		if (theme === 'dark')
-			document.body.classList.add('dark-theme');
-		else
-			document.body.classList.remove('dark-theme');
-	}
-
-	useEffect( () => {
-		activateTheme();
-	}, []);
-
 	const [lineSpacing, setLineSpacing] = useState(() => {
 		let value = localStorage.getItem('line-spacing');
 		return (value === 'simple' ? 'simple' : 'double'); 
 	});
+
+	useEffect( () => {
+		activateTheme();
+		activateLineSpacing();
+	}, []);
 
 	useEffect( () => {
 		localStorage.setItem('theme', theme);
@@ -43,7 +38,23 @@ const AccessibilityDialog = ({isOpen, onClose}) => {
 
 	useEffect( () => {
 		localStorage.setItem('line-spacing', lineSpacing);
+		activateLineSpacing();
 	}, [ lineSpacing ]);
+
+
+	const activateTheme = () => {
+		if (theme === 'dark')
+			document.body.classList.add('dark-theme');
+		else
+			document.body.classList.remove('dark-theme');
+	}
+
+	const activateLineSpacing= () => {
+		if (lineSpacing === 'simple') 
+			document.body.classList.remove('line-spacing-theme');
+		else 
+			document.body.classList.add('line-spacing-theme');
+	}
 
 	const onThemeChange = (ev) => {
 		setTheme(ev.target.value);
