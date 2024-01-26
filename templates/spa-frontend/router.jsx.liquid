@@ -16,31 +16,17 @@ import TermsOfUse from "./containers/TermsOfUse"
 
 const createRouter = () => {
 	return createBrowserRouter([
-	{
-		path: "/",
-		element: <App/>,
-		errorElement: <ErrorPage />,
-		children: [
-			{ index:true,              element:<Home/> },
-			{ path: '/contact-us',     element:<ContactUs/> },
-			{ path: '/privacy-policy', element:<PrivacyPolicy/> },
-			{ path: '/terms-of-use',   element:<TermsOfUse/> },
-		]
-	}
-	/* TODO cleanup
-	{
-		path: '/content/:ressource',
-		element: <Content/>,
-		errorElement: <ErrorPage />,
-		loader: contentLoader,
-		children: [
-			{
-				path: 'fr/:ressource',
-				element: <Content2/>,
-			}
-		]
-	}
-	*/
+		{
+			path: "/",
+			element: <App/>,
+			errorElement: <ErrorPage />,
+			children: [
+				{ index:true,              element:<Home/> },
+				{ path: '/contact-us',     element:<ContactUs/> },
+				{ path: '/privacy-policy', element:<PrivacyPolicy/> },
+				{ path: '/terms-of-use',   element:<TermsOfUse/> },
+			]
+		}
 	]);
 }
 

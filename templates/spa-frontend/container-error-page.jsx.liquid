@@ -5,19 +5,29 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'containers/ErrorPage.jsx'
 		%}
-import { useRouteError } from "react-router-dom"
+import { useRouteError, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next';
+
+import Header from '../components/Header'
+import Footer from '../components/Footer'
 
 export default function ErrorPage() {
+
+	const { t } = useTranslation();
 	const error = useRouteError()
-	console.error(error)
-	// TODO set CSS styles for this page
-	return (
-		<div id="error-page">
-			<h1>Oops!</h1>
-			<p>Sorry, an unexpected error has occurred.</p>
+
+	return (<>
+		<Header/>
+		<main>
+			<h1>{t('error-page-title')}</h1>
+			<p>{t('error-page-message')}</p>
 			<p>
 				<i>{error.statusText || error.message}</i>
 			</p>
-		</div>
-	);
+			<div>
+				<Link to="/">{t('error-page-home-link')}</Link>
+			</div>
+		</main>
+		<Footer/>
+	</>);
 }
