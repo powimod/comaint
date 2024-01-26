@@ -42,7 +42,7 @@ const ContentLoader = ({source}) => {
 			let orderedList = []
 			let paragraph = []
 			let n = 0;
-			const bulletListRegExp =  new RegExp('^\\d+\. +(.*)')
+			const bulletListRegExp =  new RegExp('^\\d+[.] +(.*)')
 			for (let line of data.split('\n')) {
 				line = line.trim()
 
