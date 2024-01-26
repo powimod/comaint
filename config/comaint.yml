@@ -529,12 +529,16 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/accessibility-dialog.scss"
 
   - scope:  "project"
+    input:  "templates/spa-frontend/i18n.js.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/i18n.js"
+
+  - scope:  "project"
     input:  "templates/spa-frontend/main.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/main.jsx"
 
   - scope:  "project"
-    input:  "templates/spa-frontend/i18n.js.liquid"
-    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/i18n.js"
+    input:  "templates/spa-frontend/router.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/router.jsx"
 
   - scope:  "project"
     input:  "templates/spa-frontend/locales/translation-en.json.liquid"
@@ -544,6 +548,21 @@ files:
     input:  "templates/spa-frontend/locales/translation-fr.json.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/locales/fr/translation.json"
 
+  - scope:  "project"
+    input:  "templates/spa-frontend/content/home-fr.txt"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/content/fr/home.txt"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/content/home-en.txt"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/content/en/home.txt"
+
+  - scope:  "project"
+    input:  "templates/assets/terms-of-use-fr.txt"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/content/fr/terms-of-use.txt"
+
+  - scope:  "project"
+    input:  "templates/assets/terms-of-use-en.txt"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/content/en/terms-of-use.txt"
 
   - scope:  "project"
     input:  "templates/assets/icon.svg"
@@ -559,12 +578,12 @@ files:
       #    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/icons.png"
 
   - scope:  "project"
-    input:  "templates/assets/terms-of-use-en.txt"
-    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/terms-of-use-en.txt"
-
-  - scope:  "project"
     input:  "templates/spa-frontend/app.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/App.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/container-error-page.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/ErrorPage.jsx"
 
   - scope:  "project"
     input:  "templates/spa-frontend/container-home.jsx.liquid"

@@ -5,27 +5,18 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'App.js'
 		%}
-
-import { useState } from 'react'
-import {Routes, Route, Navigate} from "react-router-dom"
+import { useState, useEffect } from 'react'
+import {Outlet} from 'react-router-dom'
 
 import Header from "./components/Header"
 import Footer from "./components/Footer"
-import Home from "./containers/Home"
-import ContactUs from "./containers/ContactUs"
-import PrivacyPolicy from "./containers/PrivacyPolicy"
-import TermsOfUse from "./containers/TermsOfUse"
 
-function App() {
+function App({children}) {
+
 	return (
 		<>
 			<Header/>
-			<Routes>
-				<Route path='/' element={<Home/>}/>
-				<Route path='/contact-us'     element={<ContactUs/>}/>
-				<Route path='/privacy-policy' element={<PrivacyPolicy/>}/>
-				<Route path='/terms-of-use'   element={<TermsOfUse/>}/>
-			</Routes>
+			<Outlet/>
 			<Footer/>
 		</>
 	)

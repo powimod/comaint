@@ -1,17 +1,30 @@
-# Comaint’s Terms Of Use
+# Conditions d'utilisation de Comaint 
 
-Last updated January 26, 2024
-## AGREEMENT TO TERMS
+Dernière mise à jour le 26 janvier 2024 
 
-We are Comaint Inc., doing business as Comaint (“Comaint,” “we,” “us,” or “our”), a company registered in the State of France. We operate the website https://comaint.com (the “Website”) through which we provide you our services, (collectively, the “Services” which include the provision and use of the Website).
+## ACCEPTATION DES CONDITIONS
 
-You can contact us by email at info@comaint.com, or by post to Comaint, 5 rue du Fays, 54840 Villec-le-Sec
+Nous, Comaint Inc., exerçant nos activités sous le nom de Comaint (« Comaint », « nous », « notre » ou « nos »), une société enregistrée dans l'État de France. 
+Nous exploitons le site Web https://comaint.com (le « site Web ») par l'intermédiaire duquel nous vous fournissons nos services (collectivement, les « services » 
+qui comprennent la fourniture et l'utilisation du site Web). 
 
-These Terms of Use constitute a legally binding agreement made between you, whether personally or on behalf of an entity (“you”) and concerning your access to and use of the Website and the Services. You agree that by accessing the Services, you have read, understood, and agree to be bound by all of these Terms of Use. IF YOU DO NOT AGREE WITH ALL OF THESE TERMS OF USE, THEN YOU ARE EXPRESSLY PROHIBITED FROM USING THE SERVICES AND YOU MUST DISCONTINUE USE IMMEDIATELY.
+Vous pouvez nous contacter par mail à l'adresse info@comaint.com, ou par courrier à Comaint, 5 rue du Fays, 54840 Villec-le-Sec
 
-Supplemental terms and conditions or documents that may be posted on the Website from time to time are hereby expressly incorporated herein by reference. We reserve the right, in Comaint’s sole discretion, to make changes or modifications to these Terms of Use from time to time. We will alert you about any changes by updating the “Last updated” date of these Terms of Use, and you waive any right to receive specific notice of each such change. It is your responsibility to periodically review these Terms of Use to stay informed as each time you access the Services, you will be subject to, and will be deemed to have been made aware of and to have accepted, the then applicable Terms of Use.
+Les présentes conditions d'utilisation constituent un accord juridiquement contraignant conclu entre vous, que ce soit personnellement ou au nom d'une entité (« vous ») 
+et concernant votre accès et votre utilisation du site Web et des services. Vous convenez qu'en accédant aux Services, vous avez lu, compris et accepté d'être lié par 
+l'ensemble des présentes Conditions d'utilisation. SI VOUS N'ÊTES PAS D'ACCORD AVEC L'ENSEMBLE DE CES CONDITIONS D'UTILISATION, IL VOUS EST EXPRESSÉMENT INTERDIT 
+D'UTILISER LES SERVICES ET VOUS DEVEZ CESSER IMMÉDIATEMENT DE LES UTILISER.
 
-The Services are intended for business users who are at least 18 years old. Persons under the age of 18 are not permitted to use or register for the Services.
+
+Les conditions générales supplémentaires ou les documents qui peuvent être affichés sur le site Web de temps à autre sont expressément incorporés aux présentes 
+par référence. Nous nous réservons le droit, à la seule discrétion de Comaint, d'apporter des changements ou des modifications aux présentes Conditions 
+d'utilisation de temps à autre. Nous vous informerons de tout changement en mettant à jour la date de « Dernière mise à jour » des présentes Conditions 
+d'utilisation, et vous renoncez à tout droit de recevoir un avis spécifique de chacun de ces changements. Il est de votre responsabilité de consulter
+périodiquement les présentes Conditions d'utilisation pour rester informé, car chaque fois que vous accédez aux Services, vous serez soumis aux 
+Conditions d'utilisation alors applicables, et vous serez réputé en avoir pris connaissance et les avoir acceptées.
+
+Les Services sont destinés aux utilisateurs professionnels âgés d'au moins 18 ans. Les personnes de moins de 18 ans ne sont pas autorisées à 
+utiliser les Services ou à s'y inscrire. 
 
 ## TABLE OF CONTENTS
 
@@ -135,30 +148,30 @@ You may not access or use the Services for any purpose other than that for which
 
 As a user of the Services, you agree not to:
 
--  Systematically retrieve data, Forms, or other Content from the Services to create or compile, directly or indirectly, a collection, compilation, database, or directory without written permission from us.
--  Make any unauthorized use of the Services, including collecting usernames and/or email addresses of users by electronic or other means for the purpose of sending unsolicited email, or creating user accounts by automated means or under false pretenses.
--  Use a buying agent or purchasing agent to make purchases on the Services.
--  Use the Services to advertise or offer to sell goods and services.
--  Circumvent, disable, or otherwise interfere with security-related features of the Services, including features that prevent or restrict the use or copying of any Content or enforce limitations on the use of the Services and/or the Content contained therein.
--  Engage in unauthorized framing of or linking to the Services.
--  Trick, defraud, or mislead us and other users, especially in any attempt to learn sensitive account information such as user passwords.
--  Make improper use of our support services or submit false reports of abuse or misconduct.
--  Engage in any automated use of the Website or Services, such as using scripts to send comments or messages, or using any data mining, robots, or similar data gathering and extraction tools.
--  Interfere with, disrupt, or create an undue burden on the Services or the networks or services connected to the Services.
--  Attempt to impersonate another user or person or use the username of another user.
--  Sell or otherwise transfer your Comaint profile or account.
--  Use any information obtained from the Services in order to harass, abuse, or harm another person.
--  Use the Services as part of any effort to compete with us or otherwise use the Services and/or the Content for any revenue-generating endeavor or commercial enterprise beyond the license granted to you under these Terms of Use.
--  Decipher, decompile, disassemble, or reverse engineer any of the Software comprising or in any way making up a part of the Services.
--  Attempt to bypass any measures of the Website or Software designed to prevent or restrict access to the Services, or any portion of the Services.
--  Harass, annoy, intimidate, or threaten any of our employees or agents engaged in providing any portion of the Services to you.
--  Delete the copyright or other proprietary rights notice from any Content.
--  Copy or adapt the Software, including but not limited to Flash, PHP, HTML, JavaScript, or other code.
--  Upload or transmit (or attempt to upload or to transmit) viruses, Trojan horses, or other material, including excessive use of capital letters and spamming (continuous posting of repetitive text), that interferes with any party’s uninterrupted use and enjoyment of the Software or the Services or modifies, impairs, disrupts, alters, or interferes with the use, features, functions, operation, or maintenance of the Software or the Services.
--  Upload or transmit (or attempt to upload or to transmit) any material that acts as a passive or active information collection or transmission mechanism, including without limitation, clear graphics interchange formats (“gifs”), 1×1 pixels, web bugs, cookies, or other similar devices (sometimes referred to as “spyware” or “passive collection mechanisms” or “pcms”).
--  Except as may be the result of standard search engine or Internet browser usage, use, launch, develop, or distribute any automated system, including without limitation, any spider, robot, cheat utility, scraper, or offline reader that accesses the Software or the Services, or using or launching any unauthorized script or other software.
--  Disparage, tarnish, or otherwise harm, in our opinion, Comaint, the Software, Website, and/or the Services.
--  Use the Services in a manner inconsistent with any applicable laws or regulations.
+- Systematically retrieve data, Forms, or other Content from the Services to create or compile, directly or indirectly, a collection, compilation, database, or directory without written permission from us.
+- Make any unauthorized use of the Services, including collecting usernames and/or email addresses of users by electronic or other means for the purpose of sending unsolicited email, or creating user accounts by automated means or under false pretenses.
+- Use a buying agent or purchasing agent to make purchases on the Services.
+- Use the Services to advertise or offer to sell goods and services.
+- Circumvent, disable, or otherwise interfere with security-related features of the Services, including features that prevent or restrict the use or copying of any Content or enforce limitations on the use of the Services and/or the Content contained therein.
+- Engage in unauthorized framing of or linking to the Services.
+- Trick, defraud, or mislead us and other users, especially in any attempt to learn sensitive account information such as user passwords.
+- Make improper use of our support services or submit false reports of abuse or misconduct.
+- Engage in any automated use of the Website or Services, such as using scripts to send comments or messages, or using any data mining, robots, or similar data gathering and extraction tools.
+- Interfere with, disrupt, or create an undue burden on the Services or the networks or services connected to the Services.
+- Attempt to impersonate another user or person or use the username of another user.
+- Sell or otherwise transfer your Comaint profile or account.
+- Use any information obtained from the Services in order to harass, abuse, or harm another person.
+- Use the Services as part of any effort to compete with us or otherwise use the Services and/or the Content for any revenue-generating endeavor or commercial enterprise beyond the license granted to you under these Terms of Use.
+- Decipher, decompile, disassemble, or reverse engineer any of the Software comprising or in any way making up a part of the Services.
+- Attempt to bypass any measures of the Website or Software designed to prevent or restrict access to the Services, or any portion of the Services.
+- Harass, annoy, intimidate, or threaten any of our employees or agents engaged in providing any portion of the Services to you.
+- Delete the copyright or other proprietary rights notice from any Content.
+- Copy or adapt the Software, including but not limited to Flash, PHP, HTML, JavaScript, or other code.
+- Upload or transmit (or attempt to upload or to transmit) viruses, Trojan horses, or other material, including excessive use of capital letters and spamming (continuous posting of repetitive text), that interferes with any party’s uninterrupted use and enjoyment of the Software or the Services or modifies, impairs, disrupts, alters, or interferes with the use, features, functions, operation, or maintenance of the Software or the Services.
+- Upload or transmit (or attempt to upload or to transmit) any material that acts as a passive or active information collection or transmission mechanism, including without limitation, clear graphics interchange formats (“gifs”), 1×1 pixels, web bugs, cookies, or other similar devices (sometimes referred to as “spyware” or “passive collection mechanisms” or “pcms”).
+- Except as may be the result of standard search engine or Internet browser usage, use, launch, develop, or distribute any automated system, including without limitation, any spider, robot, cheat utility, scraper, or offline reader that accesses the Software or the Services, or using or launching any unauthorized script or other software.
+- Disparage, tarnish, or otherwise harm, in our opinion, Comaint, the Software, Website, and/or the Services.
+- Use the Services in a manner inconsistent with any applicable laws or regulations.
 
 ## 7. THIRD-PARTY WEBSITES AND CONTENT
 
@@ -276,8 +289,6 @@ You agree to defend, indemnify, and hold us harmless, including our subsidiaries
 We will maintain certain data that you transmit to the Services for the purpose of managing the performance of the Services, as well as data relating to your use of the Services. Although we perform regular routine backups of data, you are solely responsible for all data that you transmit or that relates to any activity you have undertaken using the Services.
 
 You agree that we shall have no liability to you for any loss or corruption of any such data, and you hereby agree that you shall independently back up all your data and waive any right of action against us arising from any such loss or corruption of such data.
-
-
 ## 20. ELECTRONIC COMMUNICATIONS, TRANSACTIONS, AND SIGNATURES
 
 Visiting the Website or using the Services, sending us emails, and completing online forms constitute electronic communications. You consent to receive electronic communications, and you agree that all agreements, notices, disclosures, and other communications we provide to you electronically, via email and on the Services, satisfy any legal requirement that such communication be in writing.
