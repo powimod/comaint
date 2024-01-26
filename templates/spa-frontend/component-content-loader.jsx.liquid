@@ -11,61 +11,21 @@ import { Link } from 'react-router-dom'
 import Async, { useAsync } from "react-async"
 import i18n from "i18next";
 
-const render = (data) => {
-	return new Promise( (resolve, reject) => {
-		const components = []
-		let list = []
-		let paragraph = []
-		let n = 0;
-		for (let line of data.split('\n')) {
-			line = line.trim()
-
-			if ( paragraph.length > 0  && line.length > 0 ) {
-				components.push(<p key={n++}>{paragraph.join('\n')}</p>)
-				paragraph = []
-			}
-			if ( list.length > 0  && ! line.startsWith('-') ) {
-				components.push( <ul key={n++}> { list.map( (line,i) => <li key={i}>{line}</li> ) } </ul>)
-				list = []
-			}
-
-			if (line.startsWith('###')) {
-				components.push(<h3 key={n++}>{line.substr(3).trim()}</h3>)
-				continue
-			}
-			if (line.startsWith('##')) {
-				components.push(<h2 key={n++}>{line.substr(2).trim()}</h2>)
-				continue
-			}
-			if (line.startsWith('#')) {
-				components.push(<h1 key={n++}>{line.substr(1).trim()}</h1>)
-				continue
-			}
-
-			if (line.startsWith('-')) {
-				list.push(line.substr(1).trim())
-				continue
-			}
-
-			paragraph.push(line)
-
-		}
-		resolve(<>{components}</>)
-	});
-}
-
-const loadUrl = async ({ url }, {signal}) => {
-	let response = await fetch(url, { signal })
-	// FIXME invalid URL generates status=200 (and not 404 not found !)
-	let data  = await response.text()
-	return render(data);
-}
-
 const ContentLoader = ({source}) => {
+	const { t } = useTranslation()
+
+	const [ lang, setLang ] = useState(null)
+
+	useEffect(() => {
+		setLang(i18n.language)
+	}, []);
+
 
 	const onLanguageChanged = (lang) => {
 		console.log("ContentLoader Language changed : ", lang);
+		setLang(lang);
 	}
+
 	useEffect( () => {
 		i18n.on('languageChanged', onLanguageChanged);
 		return () => {
@@ -75,19 +35,74 @@ const ContentLoader = ({source}) => {
 	}, [onLanguageChanged]);
 
 
-	const { t } = useTranslation()
+	const render = (data) => {
+		return new Promise( (resolve, reject) => {
+			const components = []
+			let list = []
+			let paragraph = []
+			let n = 0;
+			for (let line of data.split('\n')) {
+				line = line.trim()
+
+				if ( paragraph.length > 0  && line.length > 0 ) {
+					components.push(<p key={n++}>{paragraph.join('\n')}</p>)
+					paragraph = []
+				}
+				if ( list.length > 0  && ! line.startsWith('-') ) {
+					components.push( <ul key={n++}> { list.map( (line,i) => <li key={i}>{line}</li> ) } </ul>)
+					list = []
+				}
+
+				if (line.startsWith('###')) {
+					components.push(<h3 key={n++}>{line.substr(3).trim()}</h3>)
+					continue
+				}
+				if (line.startsWith('##')) {
+					components.push(<h2 key={n++}>{line.substr(2).trim()}</h2>)
+					continue
+				}
+				if (line.startsWith('#')) {
+					components.push(<h1 key={n++}>{line.substr(1).trim()}</h1>)
+					continue
+				}
+
+				if (line.startsWith('-')) {
+					list.push(line.substr(1).trim())
+					continue
+				}
+
+				paragraph.push(line)
+
+			}
+			resolve(<>{components}</>)
+		});
+	}
+
+	const loadUrl = async ({ url }, {signal}) => {
+		let response = await fetch(url, { signal })
+		// TODO invalid URL generates status=200 (and not 404 not found !)
+		let data  = await response.text()
+		return render(data);
+	}
+
+
+	const sourceUrl = lang + '/' + source
+
 	return (
-		<Async promiseFn={loadUrl} url={source}>
-			{({ data, error, isPending }) => {
-				if (isPending)
-					return "Loading..." // TODO translation
-				if (error)
-					return "Something went wrong: " + error.message // TODO translation
-				if (data) 
-					return data
-				return null
-			}}
-		</Async>
+		lang == null ?
+			<div>Language not set</div>
+		: 
+			<Async promiseFn={loadUrl} url={sourceUrl}>
+				{({ data, error, isPending }) => {
+					if (isPending)
+						return "Loading..." // TODO translation
+					if (error)
+						return "Something went wrong: " + error.message // TODO translation
+					if (data) 
+						return data
+					return null
+				}}
+			</Async>
 	)
 }
 
