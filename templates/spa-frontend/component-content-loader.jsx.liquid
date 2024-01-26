@@ -38,9 +38,11 @@ const ContentLoader = ({source}) => {
 	const render = (data) => {
 		return new Promise( (resolve, reject) => {
 			const components = []
-			let list = []
+			let bulletList = []
+			let orderedList = []
 			let paragraph = []
 			let n = 0;
+			const bulletListRegExp =  new RegExp('^\\d+\. +(.*)')
 			for (let line of data.split('\n')) {
 				line = line.trim()
 
@@ -48,9 +50,16 @@ const ContentLoader = ({source}) => {
 					components.push(<p key={n++}>{paragraph.join('\n')}</p>)
 					paragraph = []
 				}
-				if ( list.length > 0  && ! line.startsWith('-') ) {
-					components.push( <ul key={n++}> { list.map( (line,i) => <li key={i}>{line}</li> ) } </ul>)
-					list = []
+
+				if ( bulletList.length > 0  && ! line.startsWith('-') ) {
+					components.push( <ul key={n++}> { bulletList.map( (line,i) => <li key={i}>{line}</li> ) } </ul>)
+					bulletList = []
+				}
+
+				const extractOrderedItem =  bulletListRegExp.exec(line)
+				if ( orderedList.length > 0  && extractOrderedItem === null) {
+					components.push( <ol key={n++}> { orderedList.map( (line,i) => <li key={i}>{line}</li> ) } </ol>)
+					orderedList = []
 				}
 
 				if (line.startsWith('###')) {
@@ -67,7 +76,12 @@ const ContentLoader = ({source}) => {
 				}
 
 				if (line.startsWith('-')) {
-					list.push(line.substr(1).trim())
+					bulletList.push(line.substr(1).trim())
+					continue
+				}
+
+				if (extractOrderedItem !== null) {
+					orderedList.push(extractOrderedItem[1])
 					continue
 				}
 
