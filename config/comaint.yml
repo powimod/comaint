@@ -529,12 +529,16 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/accessibility-dialog.scss"
 
   - scope:  "project"
+    input:  "templates/spa-frontend/i18n.js.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/i18n.js"
+
+  - scope:  "project"
     input:  "templates/spa-frontend/main.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/main.jsx"
 
   - scope:  "project"
-    input:  "templates/spa-frontend/i18n.js.liquid"
-    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/i18n.js"
+    input:  "templates/spa-frontend/router.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/router.jsx"
 
   - scope:  "project"
     input:  "templates/spa-frontend/locales/translation-en.json.liquid"

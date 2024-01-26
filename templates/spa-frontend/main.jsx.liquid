@@ -5,40 +5,19 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'main.jsx'
 		%}
-
 import React, { Suspense } from "react"
 import ReactDOM from 'react-dom/client'
-import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider, useLoaderData, useParams } from "react-router-dom";
 
-import App from './App.jsx'
-import ErrorPage from './containers/ErrorPage.jsx'
+import createRouter from './router'
 
 import './i18n'
 import './scss/main.scss'
 
-import Home from "./containers/Home"
-import ContactUs from "./containers/ContactUs"
-import PrivacyPolicy from "./containers/PrivacyPolicy"
-import TermsOfUse from "./containers/TermsOfUse"
-
-const router = createBrowserRouter([
-	{
-		path: "/",
-		element: <App/>,
-		errorElement: <ErrorPage />,
-		children: [
-			{ index:true,              element:<Home/> },
-			{ path: '/contact-us',     element:<ContactUs/> },
-			{ path: '/privacy-policy', element:<PrivacyPolicy/> },
-			{ path: '/terms-of-use',   element:<TermsOfUse/> },
-		]
-	}
-]);
-
 ReactDOM.createRoot(document.getElementById('root')).render(
 	<React.StrictMode>
 		<Suspense fallback={<div>Loading...</div>}>
-			<RouterProvider router={router} />
+			<RouterProvider router={createRouter()} />
 		</Suspense>
 	</React.StrictMode>
 )
