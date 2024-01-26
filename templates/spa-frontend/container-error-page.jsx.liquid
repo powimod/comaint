@@ -1,0 +1,23 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'containers/ErrorPage.jsx'
+		%}
+import { useRouteError } from "react-router-dom"
+
+export default function ErrorPage() {
+	const error = useRouteError()
+	console.error(error)
+	// TODO set CSS styles for this page
+	return (
+		<div id="error-page">
+			<h1>Oops!</h1>
+			<p>Sorry, an unexpected error has occurred.</p>
+			<p>
+				<i>{error.statusText || error.message}</i>
+			</p>
+		</div>
+	);
+}

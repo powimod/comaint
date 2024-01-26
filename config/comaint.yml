@@ -574,6 +574,10 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/App.jsx"
 
   - scope:  "project"
+    input:  "templates/spa-frontend/container-error-page.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/ErrorPage.jsx"
+
+  - scope:  "project"
     input:  "templates/spa-frontend/container-home.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/Home.jsx"
 
