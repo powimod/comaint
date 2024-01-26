@@ -80,7 +80,10 @@ const ContentLoader = ({source}) => {
 
 	const loadUrl = async ({ url }, {signal}) => {
 		let response = await fetch(url, { signal })
-		// TODO invalid URL generates status=200 (and not 404 not found !)
+		// When the resource does not exist, Vite always returns status=200 and response content is index.html !
+		// This does not happen when running on a real HTTP server
+		if (! response.ok)
+			throw new Error(`Ressource "${url}" not found`) // TODO translation
 		let data  = await response.text()
 		return render(data);
 	}
