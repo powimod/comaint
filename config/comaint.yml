@@ -557,6 +557,14 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/content/en/home.txt"
 
   - scope:  "project"
+    input:  "templates/assets/terms-of-use-fr.txt"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/content/fr/terms-of-use.txt"
+
+  - scope:  "project"
+    input:  "templates/assets/terms-of-use-en.txt"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/content/en/terms-of-use.txt"
+
+  - scope:  "project"
     input:  "templates/assets/icon.svg"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/icon.svg"
 
@@ -568,10 +576,6 @@ files:
       #  - scope:  "project"
       #    input:  "templates/assets/icons.png"
       #    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/icons.png"
-
-  - scope:  "project"
-    input:  "templates/assets/terms-of-use-en.txt"
-    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/terms-of-use-en.txt"
 
   - scope:  "project"
     input:  "templates/spa-frontend/app.jsx.liquid"

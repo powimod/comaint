@@ -1,17 +1,31 @@
-Comaint’s Terms Of Use
+Conditions d'utilisation de Comaint 
 
-Last updated January 26, 2024
-AGREEMENT TO TERMS
+Dernière mise à jour le 26 janvier 2024 
 
-We are Comaint Inc., doing business as Comaint (“Comaint,” “we,” “us,” or “our”), a company registered in the State of France. We operate the website https://comaint.com (the “Website”) through which we provide you our services, (collectively, the “Services” which include the provision and use of the Website).
+ACCEPTATION DES CONDITIONS
 
-You can contact us by email at info@comaint.com, or by post to Comaint, 5 rue du Fays, 54840 Villec-le-Sec
+Nous, Comaint Inc., exerçant nos activités sous le nom de Comaint (« Comaint », « nous », « notre » ou « nos »), une société enregistrée dans l'État de France. 
+Nous exploitons le site Web https://comaint.com (le « site Web ») par l'intermédiaire duquel nous vous fournissons nos services (collectivement, les « services » 
+qui comprennent la fourniture et l'utilisation du site Web). 
 
-These Terms of Use constitute a legally binding agreement made between you, whether personally or on behalf of an entity (“you”) and concerning your access to and use of the Website and the Services. You agree that by accessing the Services, you have read, understood, and agree to be bound by all of these Terms of Use. IF YOU DO NOT AGREE WITH ALL OF THESE TERMS OF USE, THEN YOU ARE EXPRESSLY PROHIBITED FROM USING THE SERVICES AND YOU MUST DISCONTINUE USE IMMEDIATELY.
+Vous pouvez nous contacter par mail à l'adresse info@comaint.com, ou par courrier à Comaint, 5 rue du Fays, 54840 Villec-le-Sec
 
-Supplemental terms and conditions or documents that may be posted on the Website from time to time are hereby expressly incorporated herein by reference. We reserve the right, in Comaint’s sole discretion, to make changes or modifications to these Terms of Use from time to time. We will alert you about any changes by updating the “Last updated” date of these Terms of Use, and you waive any right to receive specific notice of each such change. It is your responsibility to periodically review these Terms of Use to stay informed as each time you access the Services, you will be subject to, and will be deemed to have been made aware of and to have accepted, the then applicable Terms of Use.
+Les présentes conditions d'utilisation constituent un accord juridiquement contraignant conclu entre vous, que ce soit personnellement ou au nom d'une entité (« vous ») 
+et concernant votre accès et votre utilisation du site Web et des services. Vous convenez qu'en accédant aux Services, vous avez lu, compris et accepté d'être lié par 
+l'ensemble des présentes Conditions d'utilisation. SI VOUS N'ÊTES PAS D'ACCORD AVEC L'ENSEMBLE DE CES CONDITIONS D'UTILISATION, IL VOUS EST EXPRESSÉMENT INTERDIT 
+D'UTILISER LES SERVICES ET VOUS DEVEZ CESSER IMMÉDIATEMENT DE LES UTILISER.
 
-The Services are intended for business users who are at least 18 years old. Persons under the age of 18 are not permitted to use or register for the Services.
+
+Les conditions générales supplémentaires ou les documents qui peuvent être affichés sur le site Web de temps à autre sont expressément incorporés aux présentes 
+par référence. Nous nous réservons le droit, à la seule discrétion de Comaint, d'apporter des changements ou des modifications aux présentes Conditions 
+d'utilisation de temps à autre. Nous vous informerons de tout changement en mettant à jour la date de « Dernière mise à jour » des présentes Conditions 
+d'utilisation, et vous renoncez à tout droit de recevoir un avis spécifique de chacun de ces changements. Il est de votre responsabilité de consulter
+périodiquement les présentes Conditions d'utilisation pour rester informé, car chaque fois que vous accédez aux Services, vous serez soumis aux 
+Conditions d'utilisation alors applicables, et vous serez réputé en avoir pris connaissance et les avoir acceptées.
+
+Les Services sont destinés aux utilisateurs professionnels âgés d'au moins 18 ans. Les personnes de moins de 18 ans ne sont pas autorisées à 
+utiliser les Services ou à s'y inscrire. 
+
 TABLE OF CONTENTS
 
     OUR WEBSITE AND SERVICES
