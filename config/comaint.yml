@@ -551,6 +551,14 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/locales/fr/translation.json"
 
   - scope:  "project"
+    input:  "templates/spa-frontend/content/gpl-v3-en.txt"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/content/en/gpl-v3.txt"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/content/gpl-v3-fr.txt"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/content/fr/gpl-v3.txt"
+
+  - scope:  "project"
     input:  "templates/spa-frontend/content/home-fr.txt"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/content/fr/home.txt"
 
