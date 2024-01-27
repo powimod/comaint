@@ -1,0 +1,3 @@
+[submodule "tools/pwm-code-gen"]
+	path = tools/pwm-code-gen
+	url = git@github.com:powimod/pwm-code-gen.git
