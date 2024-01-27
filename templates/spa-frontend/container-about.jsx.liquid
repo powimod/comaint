@@ -24,14 +24,16 @@ const About = (props) => {
 	}
 
 	return (
-		<main>
+		<main className="about">
 			<h1>About</h1>
 			<img src="logo.svg"/>
-			<div>{t('header_title')}</div>
-			<div>{t('header_subtitle')}</div>
-			<div>{t('website')} : <a href="#" onClick={navigateWebsite}>{Config.website}</a></div>
-			<div>{t('contact')} : <a href="#" onClick={sendMail}>{Config.contact}</a></div>
-			<div>{t('frontend_version', {'version': Config.version}) }</div>
+			<h2>{t('header_title')}</h2>
+			<h3>{t('header_subtitle')}</h3>
+			<ul>
+			<li>{t('website')} : <a href="#" onClick={navigateWebsite}>{Config.website}</a></li>
+			<li>{t('contact')} : <a href="#" onClick={sendMail}>{Config.contact}</a></li>
+			<li>{t('frontend_version', {'version': Config.version}) }</li>
+			</ul>
 			<div> <Link to="/">{t('home')}</Link> </div>
 		</main>
 	)

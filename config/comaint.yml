@@ -515,6 +515,10 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/header.scss"
 
   - scope:  "project"
+    input:  "templates/spa-frontend/about.scss.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/about.scss"
+
+  - scope:  "project"
     input:  "templates/spa-frontend/footer.scss.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/footer.scss"
 
