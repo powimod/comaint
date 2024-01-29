@@ -10,14 +10,31 @@ import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider, useLoaderData, useParams } from "react-router-dom";
 
 import createRouter from './router'
+import ApiToolsSingleton from './api/api-tools'
 
 import './i18n'
 import './scss/main.scss'
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-	<React.StrictMode>
-		<Suspense fallback={<div>Loading...</div>}>
-			<RouterProvider router={createRouter()} />
-		</Suspense>
-	</React.StrictMode>
-)
+import config from '../config.json'
+
+function main() {
+
+	// initialize API backend url from config
+	try {
+		ApiToolsSingleton.getInstance().initialize(config);
+	}
+	catch (error) {
+		console.error("Error while loading config.js :", error);
+		return false;
+	}
+
+	ReactDOM.createRoot(document.getElementById('root')).render(
+		<React.StrictMode>
+			<Suspense fallback={<div>Loading...</div>}>
+				<RouterProvider router={createRouter()} />
+			</Suspense>
+		</React.StrictMode>
+	)
+}
+
+main();

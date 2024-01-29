@@ -7,19 +7,22 @@
 		%}
 'use script';
 
-const assert = require('assert');
-
 class ApiTool {
-
-	#apiBaseUrl = null;
+	#apiBaseUrl = null; 
 	#accessToken = null;
 	#refreshToken = null;
 
-	async initialize(config) {
-		assert(config !== undefined);
-		assert(this.#apiBaseUrl === null);
-		assert(config.backend.url !== undefined);
-		this.#apiBaseUrl = config.backend.url; // FIXME remove this : http://127.0.0.1:9001/api/v1
+	initialize (config) {
+		if ( this.#apiBaseUrl !== null)
+			return;
+		if (config === undefined)
+			throw new Error('[config] argument is missing');
+		if (config.backend === undefined)
+			throw new Error('Section [backend] is not defined in config"');
+		if (config.backend.url === undefined)
+			throw new Error('Parameter [url] is not defined [backend] section');
+		this.#apiBaseUrl = config.backend.url
+		console.log('API backend url', this.#apiBaseUrl )
 	}
 
 	setCookies(accessToken, refreshToken) {
@@ -28,7 +31,9 @@ class ApiTool {
 	}
 
 	async request(route, httpMethod, requestBody = null, params = null){
-		assert(this.#apiBaseUrl !== null);
+		console.log("dom request", this.#apiBaseUrl);
+		if ( this.#apiBaseUrl === null)
+			throw new Error('Apitools is not initialized');
 		const apiUrl = new URL(`${this.#apiBaseUrl}/${route}`);
 		console.log(`API call ${apiUrl}`);
 		if (params !== null) {
@@ -66,7 +71,6 @@ class ApiTool {
 
 		if (json.ok === false && json.error === 'Expired token' ) {
 			console.log('Refreshing access token...');
-			assert(this.#refreshToken !== null);
 			const refreshApiUrl = new URL(`${this.#apiBaseUrl}/auth/refresh`);
 			const refreshHttpHeaders = {
 				'Accept': 'application/json',
@@ -90,11 +94,6 @@ class ApiTool {
 				throw new Error('OK status not found in JSON response');
 			if (typeof(json.ok) !== 'boolean')
 				throw new Error('OK status is not a boolean in JSON response');
-
-			assert(json.data.userId !== undefined);
-			//assert(json.data.companyId !== undefined);
-			assert(json.data['access-token'] !== undefined);
-			assert(json.data['refresh-token'] !== undefined);
 
 			this.#accessToken = json.data['access-token'];
 			this.#refreshToken = json.data['refresh-token'];
@@ -124,20 +123,20 @@ class ApiTool {
 			throw new Error('data not found in JSON response');
 		return json.data;
 	}
-
 }
 
-class ApiToolSingleton {
+class ApiToolsSingleton {
 	static instance = null;
 
 	constructor() {
 		throw new Error('Can not instanciate singleton object!');
 	}
+
 	static getInstance() {
-		if (! ApiToolSingleton.instance)
-			ApiToolSingleton.instance = new ApiTool();
-		return ApiToolSingleton.instance;
+		if (! ApiToolsSingleton.instance)
+			ApiToolsSingleton.instance = new ApiTool();
+		return ApiToolsSingleton.instance;
 	}
 }
 
-module.exports = ApiToolSingleton;
+export default ApiToolsSingleton

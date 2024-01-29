@@ -6,11 +6,24 @@
 		filename    : 'containers/About.jsx'
 		%}
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom'
+import { Link, useLoaderData } from 'react-router-dom'
 import Config from '../components/Config';
+
+import { getApiVersion } from '../api/global-api.js'
+
+const loader = async () => {
+	try {
+		const result = await getApiVersion()
+		return {backendVersion: result.version}
+	}
+	catch (error) {
+		return {backendVersion: '?'}
+	}
+}
 
 const About = (props) => {
 	const { t } = useTranslation();
+	const { backendVersion } = useLoaderData();
 
 	const sendMail = (ev) => {
 		ev.preventDefault();
@@ -33,6 +46,7 @@ const About = (props) => {
 			<li>{t('website')} : <a href="#" onClick={navigateWebsite}>{Config.website}</a></li>
 			<li>{t('contact')} : <a href="#" onClick={sendMail}>{Config.contact}</a></li>
 			<li>{t('frontend_version', {'version': Config.version}) }</li>
+			<li>{t('backend_version', {'version': backendVersion ? backendVersion : '...'}) }</li>
 			</ul>
 			<div> <Link to="/">{t('home')}</Link> </div>
 		</main>
@@ -40,3 +54,4 @@ const About = (props) => {
 }
 
 export default About
+export { loader }
