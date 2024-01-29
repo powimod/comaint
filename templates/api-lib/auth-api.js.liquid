@@ -12,19 +12,19 @@
 	assign authCodeProp = authObject.properties | where: 'name', project.attributes.auth_code_property | first
 %}
 'use script';
-const assert = require('assert');
-const ApiToolSingleton = require('./api-tools.js');
-const apiTool = ApiToolSingleton.getInstance();
-const ModelSingleton = require('./model.js');
-const model  = ModelSingleton.getInstance();
+import ApiToolsSingleton from './api-tools';
+const apiTool = ApiToolsSingleton.getInstance();
+const apiVersion= 'v1';
 
+const login = async function(email, password) {
+	if (email === undefined)
+		throw new Error("[email] argument is missing");
+	if (password === undefined)
+		throw new Error("[password] argument is missing");
+	const url = `${apiVersion}/auth/login`;
 
-exports.login = async function({{authIdentProp.name|camelCase}}, {{authPasswordProp.name|camelCase}}, params) {
-	assert({{authIdentProp.name|camelCase}} !== undefined);
-	assert({{authPasswordProp.name|camelCase}} !== undefined);
-	const url = 'auth/login';
 	try {
-		// TODO control {{authIdentProp.name|camelCase}} and {{authPasswordProp.name|camelCase}} values are not empty
+		// TODO control {{authIdentProp.name|camelCase}} and {{authPasswordProp.name|camelCase}} values
 
 		const requestBody = {
 			{{authIdentProp.name|camelCase}}: {{authIdentProp.name|camelCase}}, 
@@ -43,7 +43,8 @@ exports.login = async function({{authIdentProp.name|camelCase}}, {{authPasswordP
 		return {
 			ok: true, 
 			{{authObject.name|camelCase}}Id: {{authObject.name|camelCase}}Id, 
-			refreshToken: refreshToken, accessToken: accessToken
+			refreshToken: refreshToken,
+			accessToken: accessToken
 		};
 	}
 	catch (error) {
@@ -54,9 +55,10 @@ exports.login = async function({{authIdentProp.name|camelCase}}, {{authPasswordP
 	}
 }
 
-exports.logout = async function(refreshToken, params) {
-	assert(refreshToken !== undefined);
-	const url = 'auth/logout';
+const logout = async function(refreshToken) {
+	if (refreshToken === undefined)
+		throw new Error('[refreshToken] argument is missing')
+	const url = `${apiVersion}/auth/logout`;
 	try {
 		const requestBody = {
 			refreshToken: refreshToken
@@ -73,10 +75,12 @@ exports.logout = async function(refreshToken, params) {
 	}
 }
 
-exports.register = async function({{authIdentProp.name|camelCase}}, {{authPasswordProp.name|camelCase}}, params) {
-	assert({{authIdentProp.name|camelCase}} !== undefined);
-	assert ({{authPasswordProp.name|camelCase}} !== undefined);
-	const url = 'auth/register';
+const register = async function(email, password) {
+	if (email === undefined)
+		throw new Error("[email] argument is missing");
+	if (password === undefined)
+		throw new Error("[password] argument is missing");
+	const url = `${apiVersion}/auth/register`;
 	try {
 		// TODO control {{authIdentProp.name|camelCase}} and {{authPasswordProp.name|camelCase}} values are not empty
 		const requestBody = { 
@@ -108,11 +112,10 @@ exports.register = async function({{authIdentProp.name|camelCase}}, {{authPasswo
 	}
 }
 
-exports.validateRegistration = async function({{authCodeProp.name|camelCase}}, params) {
-	assert({{authCodeProp.name|camelCase}} !== undefined);
-	assert(params !== undefined);
-	assert(params.accessToken !== null);
-	const url = 'auth/validateRegistration';
+const validateRegistration = async function(validationCode) {
+	if (validationCode === undefined)
+		throw new Error("[validationCode] argument is missing");
+	const url = `${apiVersion}/auth/validateRegistration`;
 	try {
 		// TODO control {{authCodeProp.name|camelCase}} value is not empty
 
@@ -130,4 +133,10 @@ exports.validateRegistration = async function({{authCodeProp.name|camelCase}}, p
 	}
 }
 
-
+const authApi = {
+	login: login,
+	logout: logout,
+	register: register,
+	validateRegistration : validateRegistration
+}
+export default authApi;
