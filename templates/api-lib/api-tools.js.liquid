@@ -12,9 +12,16 @@ class ApiTool {
 	#accessToken = null;
 	#refreshToken = null;
 
-	initialize (config) {
+	initialize (config, tokensSerializeFunction) {
 		if ( this.#apiBaseUrl !== null)
-			return;
+			return; // FIXME do not generate exception since it is called twice with React
+
+		if (tokensSerializeFunction === undefined)
+			throw new Error('[tokensSerializeFunction] argument is not defined');
+		if (typeof(tokensSerializeFunction) !== 'function')
+			throw new Error('[tokensSerializeFunction] argument is not a function');
+		this.#tokensSerializeFunction  = tokensSerializeFunction;
+
 		if (config === undefined)
 			throw new Error('[config] argument is missing');
 		if (config.backend === undefined)
@@ -25,7 +32,7 @@ class ApiTool {
 		console.log('API backend url', this.#apiBaseUrl )
 	}
 
-	setCookies(accessToken, refreshToken) {
+	setTokens(accessToken, refreshToken) {
 		this.#accessToken = accessToken;
 		this.#refreshToken = refreshToken;
 	}

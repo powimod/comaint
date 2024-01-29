@@ -13,7 +13,7 @@
 %}
 'use script';
 import ApiToolsSingleton from './api-tools';
-const apiTool = ApiToolsSingleton.getInstance();
+const apiTools = ApiToolsSingleton.getInstance();
 const apiVersion= 'v1';
 
 const login = async function(email, password) {
@@ -30,7 +30,7 @@ const login = async function(email, password) {
 			{{authIdentProp.name|camelCase}}: {{authIdentProp.name|camelCase}}, 
 			{{authPasswordProp.name|camelCase}}: {{authPasswordProp.name|camelCase}}
 		};
-		const result = await apiTool.request(url, 'POST',  requestBody, null);
+		const result = await apiTools.request(url, 'POST',  requestBody, null);
 		const {{authObject.name|camelCase}}Id = result['{{authObject.name|camelCase}}Id'];;
 		if ({{authObject.name|camelCase}}Id === undefined)
 			throw new Error('{{authObject.name|camelCase}}Id not found in HTTP response');
@@ -42,9 +42,7 @@ const login = async function(email, password) {
 			throw new Error('access-token not found in HTTP response');
 		return {
 			ok: true, 
-			{{authObject.name|camelCase}}Id: {{authObject.name|camelCase}}Id, 
-			refreshToken: refreshToken,
-			accessToken: accessToken
+			{{authObject.name|camelCase}}Id: {{authObject.name|camelCase}}Id
 		};
 	}
 	catch (error) {
@@ -63,8 +61,8 @@ const logout = async function(refreshToken) {
 		const requestBody = {
 			refreshToken: refreshToken
 		};
-		const result = await apiTool.request(url, 'POST',  requestBody, null);
-
+		const result = await apiTools.request(url, 'POST',  requestBody, null);
+		apiTools.setToken(null, null)
 		return {ok: true};
 	}
 	catch (error) {
@@ -87,7 +85,7 @@ const register = async function(email, password) {
 			{{authIdentProp.name|camelCase}}: {{authIdentProp.name|camelCase}}, 
 			{{authPasswordProp.name|camelCase}}: {{authPasswordProp.name|camelCase}}
 		};
-		const result = await apiTool.request(url, 'POST',  requestBody, null);
+		const result = await apiTools.request(url, 'POST',  requestBody, null);
 		const {{authObject.name|camelCase}}Id = result['{{authObject.name|camelCase}}Id'];;
 		if ({{authObject.name|camelCase}}Id === undefined)
 			throw new Error('{{authObject.name|camelCase}}Id not found in HTTP response');
@@ -99,9 +97,7 @@ const register = async function(email, password) {
 			throw new Error('access-token not found in HTTP response');
 		return {
 			ok: true, 
-			{{authObject.name|camelCase}}Id: {{authObject.name|camelCase}}Id, 
-			refreshToken: refreshToken,
-			accessToken: accessToken
+			{{authObject.name|camelCase}}Id: {{authObject.name|camelCase}}Id
 		};
 	}
 	catch (error) {
@@ -122,7 +118,7 @@ const validateRegistration = async function(validationCode) {
 		const requestBody = {
 			{{authCodeProp.name|camelCase}}: {{authCodeProp.name|camelCase}}
 		};
-		const result = await apiTool.request(url, 'POST',  requestBody, null);
+		const result = await apiTools.request(url, 'POST',  requestBody, null);
 		return {ok: true};
 	}
 	catch (error) {

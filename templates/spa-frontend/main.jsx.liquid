@@ -17,11 +17,16 @@ import './scss/main.scss'
 
 import config from '../config.json'
 
+function tokensSerializeFunction(refreshToken, accessToken) {
+	console.log("tokensSerializeFunction refresh token :", refreshToken);
+	console.log("tokensSerializeFunction access token :", accessToken);
+}
+
 function main() {
 
 	// initialize API backend url from config
 	try {
-		ApiToolsSingleton.getInstance().initialize(config);
+		ApiToolsSingleton.getInstance().initialize(config, tokensSerializeFunction);
 	}
 	catch (error) {
 		console.error("Error while loading config.js :", error);
