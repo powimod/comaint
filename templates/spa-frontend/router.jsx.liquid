@@ -13,6 +13,7 @@ import Home from "./containers/Home"
 import ContactUs from "./containers/ContactUs"
 import PrivacyPolicy from "./containers/PrivacyPolicy"
 import TermsOfUse from "./containers/TermsOfUse"
+import About, {loader as aboutLoader} from "./containers/About"
 
 const createRouter = () => {
 	return createBrowserRouter([
@@ -25,6 +26,11 @@ const createRouter = () => {
 				{ path: '/contact-us',     element:<ContactUs/> },
 				{ path: '/privacy-policy', element:<PrivacyPolicy/> },
 				{ path: '/terms-of-use',   element:<TermsOfUse/> },
+				{
+					path: '/about',
+					element:<About/>,
+					loader: aboutLoader
+				},
 			]
 		}
 	]);
