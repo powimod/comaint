@@ -17,11 +17,32 @@ import './scss/main.scss'
 
 import config from '../config.json'
 
-function tokensSerializeFunction(refreshToken, accessToken) {
-	console.log("tokensSerializeFunction refresh token :", refreshToken);
-	console.log("tokensSerializeFunction access token :", accessToken);
-}
+function tokensSerializeFunction(mode, refreshToken, accessToken) {
+	const refreshTokenKey = 'refresh-token';
+	const accessTokenKey = 'access-token';
+	switch (mode) {
+		case 'save':
+			if (refreshToken)
+				localStorage.setItem(refreshTokenKey, refreshToken);
+			else
+				localStorage.removeItem(refreshTokenKey, refreshToken);
+			if (accessToken)
+				localStorage.setItem(accessTokenKey, accessToken);
+			else
+				localStorage.removeItem(accessTokenKey, accessToken);
+			break;
+		case 'load':
+			refreshToken = localStorage.getItem(refreshTokenKey);
+			accessToken = localStorage.getItem(accessTokenKey);
+			break;
 
+		case 'clear':
+			localStorage.removeItem(refreshTokenKey, refreshToken);
+			localStorage.removeItem(accessTokenKey, accessToken);
+			break;
+	}
+	return [refreshToken, accessToken];
+}
 function main() {
 
 	// initialize API backend url from config
