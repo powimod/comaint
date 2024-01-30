@@ -5,21 +5,26 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'components/LoginDialog.jsx'
 		%}
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom'
 
+import authApi from '../api/auth-api.js'
+
 import PaletteIcon from './PaletteIcon';
 import Dialog from './dialog/Dialog';
+import Config from '../components/Config';
+import { AccountContext } from '../AccountContext'
 
 const LoginDialog = ({isOpen, onClose, onCreateAccount}) => {
 	const { t } = useTranslation();
 
+	const { account, changeAccount } = useContext(AccountContext);
 	const [ error, setError ] = useState(null);
 	const [ email, setEmail] = useState('');
 	const [ password, setPassword] = useState('');
 
-	const onLoginButtonClick = () => {
+	const onLoginButtonClick = async () => {
 		if (email.length === 0) {
 			setError(t('invalid-email-error'));
 			return
@@ -30,6 +35,14 @@ const LoginDialog = ({isOpen, onClose, onCreateAccount}) => {
 		}
 		try {
 			// TODO login with API
+			const result = await authApi.login(email, password);
+			if (! result.ok) {
+				setError(result.error);
+				return;
+			}
+			changeAccount({
+				userId: result.userId
+			});
 			onClose(); // close dialog
 		} catch (error) {
 			setError(error);

@@ -11,17 +11,45 @@ import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider, u
 
 import createRouter from './router'
 import ApiToolsSingleton from './api/api-tools'
+import AccountContext from './AccountContext'
 
 import './i18n'
 import './scss/main.scss'
 
 import config from '../config.json'
 
+function tokensSerializeFunction(mode, refreshToken, accessToken) {
+	const refreshTokenKey = 'refresh-token';
+	const accessTokenKey = 'access-token';
+	switch (mode) {
+		case 'save':
+			if (refreshToken)
+				localStorage.setItem(refreshTokenKey, refreshToken);
+			else
+				localStorage.removeItem(refreshTokenKey, refreshToken);
+			if (accessToken)
+				localStorage.setItem(accessTokenKey, accessToken);
+			else
+				localStorage.removeItem(accessTokenKey, accessToken);
+			break;
+		case 'load':
+			refreshToken = localStorage.getItem(refreshTokenKey);
+			accessToken = localStorage.getItem(accessTokenKey);
+			break;
+
+		case 'clear':
+			localStorage.removeItem(refreshTokenKey, refreshToken);
+			localStorage.removeItem(accessTokenKey, accessToken);
+			break;
+	}
+	return [refreshToken, accessToken];
+}
+
 function main() {
 
 	// initialize API backend url from config
 	try {
-		ApiToolsSingleton.getInstance().initialize(config);
+		ApiToolsSingleton.getInstance().initialize(config, tokensSerializeFunction);
 	}
 	catch (error) {
 		console.error("Error while loading config.js :", error);
@@ -31,7 +59,9 @@ function main() {
 	ReactDOM.createRoot(document.getElementById('root')).render(
 		<React.StrictMode>
 			<Suspense fallback={<div>Loading...</div>}>
-				<RouterProvider router={createRouter()} />
+				<AccountContext>
+					<RouterProvider router={createRouter()} />
+				</AccountContext>
 			</Suspense>
 		</React.StrictMode>
 	)

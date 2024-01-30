@@ -11,10 +11,45 @@ class ApiTool {
 	#apiBaseUrl = null; 
 	#accessToken = null;
 	#refreshToken = null;
+	#tokensSerializeFunction = null;
 
-	initialize (config) {
+	_loadTokens() {
+		const tokens = this.#tokensSerializeFunction('load');
+		if (tokens === undefined) 
+			throw new Error('[tokensSerializeFunction] did not return a result');
+		if (tokens === null || typeof(tokens) !== 'object')
+			throw new Error('[tokensSerializeFunction] did not return an array');
+		if (tokens.constructor.name != 'Array')
+			throw new Error('[tokensSerializeFunction] did not return an array');
+
+		const refreshToken = tokens[0];
+		if (refreshToken === undefined)
+			throw new Error('[tokensSerializeFunction] did not return a refresh token');
+		if (refreshToken !== null && typeof(refreshToken) !== 'string')
+			throw new Error('[tokensSerializeFunction] did not return a valid refresh token');
+		this.#accessToken = refreshToken;
+
+		const accessToken = tokens[1];
+		if (accessToken === undefined)
+			throw new Error('[tokensSerializeFunction] did not return a access token');
+		if (accessToken !== null && typeof(accessToken) !== 'string')
+			throw new Error('[tokensSerializeFunction] did not return a valid access token');
+		this.#accessToken = accessToken;
+
+	}
+
+	initialize (config, tokensSerializeFunction) {
 		if ( this.#apiBaseUrl !== null)
-			return;
+			return; // FIXME do not generate exception since it is called twice with React
+
+
+		if (tokensSerializeFunction === undefined)
+			throw new Error('[tokensSerializeFunction] argument is not defined');
+		if (typeof(tokensSerializeFunction) !== 'function')
+			throw new Error('[tokensSerializeFunction] argument is not a function');
+		this.#tokensSerializeFunction  = tokensSerializeFunction;
+		this._loadTokens();
+
 		if (config === undefined)
 			throw new Error('[config] argument is missing');
 		if (config.backend === undefined)
@@ -23,15 +58,17 @@ class ApiTool {
 			throw new Error('Parameter [url] is not defined [backend] section');
 		this.#apiBaseUrl = config.backend.url
 		console.log('API backend url', this.#apiBaseUrl )
+		if (config.backend.url === undefined)
+			throw new Error('Parameter [url] is not defined [backend] section');
 	}
 
-	setCookies(accessToken, refreshToken) {
+	setTokens(accessToken, refreshToken) {
 		this.#accessToken = accessToken;
 		this.#refreshToken = refreshToken;
+		this.#tokensSerializeFunction('save', refreshToken, accessToken);
 	}
 
-	async request(route, httpMethod, requestBody = null, params = null){
-		console.log("dom request", this.#apiBaseUrl);
+	async request(route, httpMethod, requestBody = null, params = null, sendToken = true){
 		if ( this.#apiBaseUrl === null)
 			throw new Error('Apitools is not initialized');
 		const apiUrl = new URL(`${this.#apiBaseUrl}/${route}`);
@@ -48,7 +85,7 @@ class ApiTool {
 			'Accept': 'application/json',
 			'Content-Type': 'application/json'
 		}
-		if (this.#accessToken !== null)
+		if (sendToken && this.#accessToken !== null)
 			httpHeaders['x-access-token'] = this.#accessToken;
 		const requestParams = {
 			method : httpMethod,
@@ -71,7 +108,7 @@ class ApiTool {
 
 		if (json.ok === false && json.error === 'Expired token' ) {
 			console.log('Refreshing access token...');
-			const refreshApiUrl = new URL(`${this.#apiBaseUrl}/auth/refresh`);
+			const refreshApiUrl = new URL(`${this.#apiBaseUrl}/v1/auth/refresh`);
 			const refreshHttpHeaders = {
 				'Accept': 'application/json',
 				'Content-Type': 'application/json'

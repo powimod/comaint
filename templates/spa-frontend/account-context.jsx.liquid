@@ -1,0 +1,38 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'AccountContext.jsx'
+		%}
+import React, {createContext, useState, useEffect} from 'react';
+
+const accountInitialValue = {
+	userId: null
+}
+
+const AccountContext = createContext(accountInitialValue);
+
+const AccountProvider = ( ({children}) => {
+        const [account, setAccount] = useState(null);
+
+        const changeAccount = (account) => {
+		if (account === null) 
+			account = {
+				userId: null
+			}
+		if (account.userId === undefined)
+			throw new Error('Property "userId" is not defined');
+                setAccount({
+			userId: account.userId
+		});
+        }
+        return(
+                <AccountContext.Provider value={ { account, changeAccount } }>
+                        {children}
+                </AccountContext.Provider>
+        );
+});
+
+export {AccountContext};
+export default AccountProvider;
