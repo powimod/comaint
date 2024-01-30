@@ -1,0 +1,38 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'components/PopupMenu.jsx'
+		%}
+
+import { useState, useEffect } from 'react'
+
+const PopupMenu = ({isVisible, setVisible, children}) => {
+
+	useEffect( () => {
+		if (! isVisible)
+			return;
+		const popupMenuBox = document.getElementById('popup-menu');
+		setTimeout(()=> {
+			popupMenuBox.classList.add('menu-box-shown');
+		}, 0);
+	}, [isVisible]);
+
+	const hidePopupMenu = () => {
+		const popupMenuBox = document.getElementById('popup-menu');
+		popupMenuBox.addEventListener('transitionend', () => {
+			setVisible(false)
+		});
+		popupMenuBox.classList.remove('menu-box-shown');
+	}
+	return <>
+		{isVisible && <div className="menu-background" onClick={hidePopupMenu}>
+			<div className="menu-box" id="popup-menu">
+				<div onClick={hidePopupMenu}>X</div>
+				{children}
+			</div>
+		</div>}
+	</>
+}
+export default PopupMenu

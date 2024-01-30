@@ -68,7 +68,7 @@ class ApiTool {
 		this.#tokensSerializeFunction('save', refreshToken, accessToken);
 	}
 
-	async request(route, httpMethod, requestBody = null, params = null){
+	async request(route, httpMethod, requestBody = null, params = null, sendToken = true){
 		if ( this.#apiBaseUrl === null)
 			throw new Error('Apitools is not initialized');
 		const apiUrl = new URL(`${this.#apiBaseUrl}/${route}`);
@@ -85,7 +85,7 @@ class ApiTool {
 			'Accept': 'application/json',
 			'Content-Type': 'application/json'
 		}
-		if (this.#accessToken !== null)
+		if (sendToken && this.#accessToken !== null)
 			httpHeaders['x-access-token'] = this.#accessToken;
 		const requestParams = {
 			method : httpMethod,
@@ -108,7 +108,7 @@ class ApiTool {
 
 		if (json.ok === false && json.error === 'Expired token' ) {
 			console.log('Refreshing access token...');
-			const refreshApiUrl = new URL(`${this.#apiBaseUrl}/auth/refresh`);
+			const refreshApiUrl = new URL(`${this.#apiBaseUrl}/v1/auth/refresh`);
 			const refreshHttpHeaders = {
 				'Accept': 'application/json',
 				'Content-Type': 'application/json'

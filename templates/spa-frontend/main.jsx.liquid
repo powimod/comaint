@@ -11,6 +11,7 @@ import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider, u
 
 import createRouter from './router'
 import ApiToolsSingleton from './api/api-tools'
+import AccountContext from './AccountContext'
 
 import './i18n'
 import './scss/main.scss'
@@ -43,6 +44,7 @@ function tokensSerializeFunction(mode, refreshToken, accessToken) {
 	}
 	return [refreshToken, accessToken];
 }
+
 function main() {
 
 	// initialize API backend url from config
@@ -57,7 +59,9 @@ function main() {
 	ReactDOM.createRoot(document.getElementById('root')).render(
 		<React.StrictMode>
 			<Suspense fallback={<div>Loading...</div>}>
-				<RouterProvider router={createRouter()} />
+				<AccountContext>
+					<RouterProvider router={createRouter()} />
+				</AccountContext>
 			</Suspense>
 		</React.StrictMode>
 	)

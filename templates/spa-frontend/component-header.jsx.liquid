@@ -5,7 +5,7 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'components/Header.jsx'
 		%}
-import { useState } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -15,15 +15,27 @@ import PaletteIcon from './PaletteIcon';
 import LoginDialog from './LoginDialog';
 import CreateAccountDialog from './CreateAccountDialog';
 import AccessibilityDialog from './AccessibilityDialog';
+import PopupMenu from './PopupMenu';
+import { AccountContext } from '../AccountContext'
 
 const Header = (props) => {
 	const { t } = useTranslation();
+
+	const { account, changeAccount } = useContext(AccountContext);
+	const [isAccountMenuVisible, setAccountMenuVisible] = useState(false);
 	const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
 	const [isCreateAccountDialogOpen, setIsCreateAccountDialogOpen] = useState(false);
 	const [isAccessibilityDialogOpen, setIsAccessibilityDialogOpen] = useState(false);
 
+	useEffect( ()=> {
+		console.log("Header - account :", account);
+	}, [account]);
+
 	const onAccountButtonClick = () => {
-		setIsLoginDialogOpen(true)
+		if (account === null)
+			setIsLoginDialogOpen(true)
+		else
+			setAccountMenuVisible(true)
 	}
 
 	const onLoginDialogClose = () => {
@@ -55,6 +67,9 @@ const Header = (props) => {
 			<FontAwesomeIcon className="accessibility-button" icon={faWheelchair} onClick={onAccessibilityButtonClick} size="2x" inverse/>
 			<PaletteIcon className="account-button" element="user" button="true" onClick={onAccountButtonClick} />
 		</header>
+		<PopupMenu isVisible={isAccountMenuVisible} setVisible={setAccountMenuVisible}>
+			<div>Logout</div>
+		</PopupMenu>
 		<LoginDialog isOpen={isLoginDialogOpen} onClose={onLoginDialogClose} onCreateAccount={onCreateAccount} /> 
 		<CreateAccountDialog isOpen={isCreateAccountDialogOpen} onClose={onCreateAccountDialogClose} /> 
 		<AccessibilityDialog isOpen={isAccessibilityDialogOpen} onClose={onAccessibilityDialogClose} /> 

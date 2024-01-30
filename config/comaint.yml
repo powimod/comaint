@@ -518,6 +518,10 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/dialog.scss"
 
   - scope:  "project"
+    input:  "templates/spa-frontend/popup-menu.scss.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/popup-menu.scss"
+
+  - scope:  "project"
     input:  "templates/spa-frontend/header.scss.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/scss/header.scss"
 
@@ -603,6 +607,10 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/App.jsx"
 
   - scope:  "project"
+    input:  "templates/spa-frontend/account-context.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/AccountContext.jsx"
+
+  - scope:  "project"
     input:  "templates/spa-frontend/container-error-page.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/ErrorPage.jsx"
 
@@ -625,6 +633,10 @@ files:
   - scope:  "project"
     input:  "templates/spa-frontend/container-contact-us.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/containers/ContactUs.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/component-popup-menu.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/PopupMenu.jsx"
 
   - scope:  "project"
     input:  "templates/spa-frontend/component-config.jsx.liquid"

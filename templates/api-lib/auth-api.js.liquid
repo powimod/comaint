@@ -30,7 +30,7 @@ const login = async function(email, password) {
 			{{authIdentProp.name|camelCase}}: {{authIdentProp.name|camelCase}}, 
 			{{authPasswordProp.name|camelCase}}: {{authPasswordProp.name|camelCase}}
 		};
-		const result = await apiTools.request(url, 'POST',  requestBody, null);
+		const result = await apiTools.request(url, 'POST',  requestBody, null, false);
 		const {{authObject.name|camelCase}}Id = result['{{authObject.name|camelCase}}Id'];;
 		if ({{authObject.name|camelCase}}Id === undefined)
 			throw new Error('{{authObject.name|camelCase}}Id not found in HTTP response');
@@ -61,7 +61,7 @@ const logout = async function(refreshToken) {
 		const requestBody = {
 			refreshToken: refreshToken
 		};
-		const result = await apiTools.request(url, 'POST',  requestBody, null);
+		const result = await apiTools.request(url, 'POST',  requestBody, null, true);
 		apiTools.setToken(null, null)
 		return {ok: true};
 	}
@@ -85,7 +85,7 @@ const register = async function(email, password) {
 			{{authIdentProp.name|camelCase}}: {{authIdentProp.name|camelCase}}, 
 			{{authPasswordProp.name|camelCase}}: {{authPasswordProp.name|camelCase}}
 		};
-		const result = await apiTools.request(url, 'POST',  requestBody, null);
+		const result = await apiTools.request(url, 'POST',  requestBody, null, false);
 		const {{authObject.name|camelCase}}Id = result['{{authObject.name|camelCase}}Id'];;
 		if ({{authObject.name|camelCase}}Id === undefined)
 			throw new Error('{{authObject.name|camelCase}}Id not found in HTTP response');
@@ -118,7 +118,7 @@ const validateRegistration = async function(validationCode) {
 		const requestBody = {
 			{{authCodeProp.name|camelCase}}: {{authCodeProp.name|camelCase}}
 		};
-		const result = await apiTools.request(url, 'POST',  requestBody, null);
+		const result = await apiTools.request(url, 'POST',  requestBody, null, false);
 		return {ok: true};
 	}
 	catch (error) {
