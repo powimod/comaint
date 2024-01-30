@@ -1,0 +1,12 @@
+import { useContext } from 'react';
+import { AccountContext } from '../AccountContext'
+
+const PrivateHomePageContent = () => {
+	const { account, changeAccount } = useContext(AccountContext);
+
+	return (
+		<div>User connected ID:{account.userId}</div>
+	)
+}
+
+export default PrivateHomePageContent
