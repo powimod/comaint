@@ -1,0 +1,47 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'components/LogoutDialog.jsx'
+		%}
+import { useState, useContext, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom'
+
+import authApi from '../api/auth-api.js'
+import { AccountContext } from '../AccountContext'
+import ConfirmDialog from './dialog/ConfirmDialog';
+
+const LogoutDialog = ({isOpen, onResponse}) => {
+	const { t } = useTranslation();
+
+	const [ error, setError ] = useState(null);
+	const { account, changeAccount } = useContext(AccountContext);
+
+	const onDialogResponse = async (confirmation) => {
+		if (confirmation)  {
+			try {
+				const result = await authApi.logout();
+				if (! result.ok) 
+					throw new Error(result.error);
+				changeAccount(null);
+			}
+			catch (error) {
+				console.error(error);
+				setError(error.message !== undefined ? error.message : error);
+				return;
+			}
+		}
+		onResponse(confirmation);
+	}
+
+	return (<>
+		<ConfirmDialog isOpen={isOpen} onResponse={onDialogResponse}>
+			{error !== null && <div className='error-message'>{error}</div>}
+			<div>{t('logout-question')}</div>
+		</ConfirmDialog>
+	</>)
+}
+
+export default LogoutDialog;

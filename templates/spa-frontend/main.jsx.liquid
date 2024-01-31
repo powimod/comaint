@@ -23,6 +23,7 @@ function tokensSerializeFunction(mode, refreshToken, accessToken) {
 	const accessTokenKey = 'access-token';
 	switch (mode) {
 		case 'save':
+			console.log("Save tokens", refreshToken, accessToken);
 			if (refreshToken)
 				localStorage.setItem(refreshTokenKey, refreshToken);
 			else

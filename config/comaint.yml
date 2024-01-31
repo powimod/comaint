@@ -663,6 +663,10 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/LoginDialog.jsx"
 
   - scope:  "project"
+    input:  "templates/spa-frontend/component-logout-dialog.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/LogoutDialog.jsx"
+
+  - scope:  "project"
     input:  "templates/spa-frontend/component-create-account-dialog.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/CreateAccountDialog.jsx"
 
