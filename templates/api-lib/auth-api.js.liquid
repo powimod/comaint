@@ -40,6 +40,7 @@ const login = async function(email, password) {
 		const accessToken = result['access-token'];;
 		if (accessToken === undefined)
 			throw new Error('access-token not found in HTTP response');
+		apiTools.setTokens(accessToken, refreshToken)
 		return {
 			ok: true, 
 			{{authObject.name|camelCase}}Id: {{authObject.name|camelCase}}Id

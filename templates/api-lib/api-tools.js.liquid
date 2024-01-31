@@ -25,7 +25,7 @@ class ApiTool {
 			throw new Error('[tokensSerializeFunction] did not return a refresh token');
 		if (refreshToken !== null && typeof(refreshToken) !== 'string')
 			throw new Error('[tokensSerializeFunction] did not return a valid refresh token');
-		this.#accessToken = refreshToken;
+		this.#refreshToken = refreshToken;
 
 		const accessToken = tokens[1];
 		if (accessToken === undefined)
@@ -33,7 +33,6 @@ class ApiTool {
 		if (accessToken !== null && typeof(accessToken) !== 'string')
 			throw new Error('[tokensSerializeFunction] did not return a valid access token');
 		this.#accessToken = accessToken;
-
 	}
 
 	initialize (config, tokensSerializeFunction) {
@@ -63,7 +62,7 @@ class ApiTool {
 	setTokens(accessToken, refreshToken) {
 		this.#accessToken = accessToken;
 		this.#refreshToken = refreshToken;
-		this.#tokensSerializeFunction('save', refreshToken, accessToken);
+		this.#tokensSerializeFunction('save', this.#refreshToken, this.#accessToken);
 	}
 
 	async request(route, httpMethod, requestBody = null, params = null, sendAccessToken = true, sendRefreshToken = false){
