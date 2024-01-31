@@ -25,10 +25,10 @@ const LogoutDialog = ({isOpen, onResponse}) => {
 				const result = await authApi.logout();
 				if (! result.ok) 
 					throw new Error(result.error);
-				console.log("LogoutDialog : reset account");
 				changeAccount(null);
 			}
 			catch (error) {
+				console.error(error);
 				setError(error.message !== undefined ? error.message : error);
 				return;
 			}

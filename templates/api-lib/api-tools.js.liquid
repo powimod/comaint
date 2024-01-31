@@ -91,7 +91,7 @@ class ApiTool {
 			}
 			if (requestBody === null)
 				requestBody = {}
-			requestBody.refreshToken = refreshToken
+			requestBody.refreshToken = this.#refreshToken
 		}
 
 		const requestParams = {
