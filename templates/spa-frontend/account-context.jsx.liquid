@@ -14,7 +14,31 @@ const accountInitialValue = {
 const AccountContext = createContext(accountInitialValue);
 
 const AccountProvider = ( ({children}) => {
+	const userIdStorageKey = 'userId';
         const [account, setAccount] = useState(null);
+
+	useEffect( () => {
+		loadAccountContext()
+	}, []);
+
+	useEffect( () => {
+		saveAccountContext()
+	}, [account]);
+
+	const loadAccountContext = () => {
+		const userId = localStorage.getItem(userIdStorageKey);
+		if (userId !== null)
+			setAccount({
+				userId: userId
+			});
+	}
+
+	const saveAccountContext = () => {
+		if (account === null)
+			localStorage.removeItem(userIdStorageKey);
+		else
+			localStorage.setItem(userIdStorageKey, account.userId);
+	}
 
         const changeAccount = (account) => {
 		if (account === null) 

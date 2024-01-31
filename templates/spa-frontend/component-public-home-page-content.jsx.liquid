@@ -1,0 +1,17 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'components/PublicHomePageContent.jsx'
+		%}
+import ContentLoader from '../components/ContentLoader';
+
+const PublicHomePageContent = () => {
+
+	return (
+		<ContentLoader source="home.txt"/> 
+	)
+}
+
+export default PublicHomePageContent

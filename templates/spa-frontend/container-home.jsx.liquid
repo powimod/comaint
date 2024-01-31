@@ -5,14 +5,25 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'containers/Home.jsx'
 		%}
+import { useState, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import ContentLoader from '../components/ContentLoader';
+import { AccountContext } from '../AccountContext'
+import PrivateHomePageContent from '../components/PrivateHomePageContent'
+import PublicHomePageContent from '../components/PublicHomePageContent'
 
 const Home = (props) => {
 	const { t } = useTranslation();
+
+	const { account, changeAccount } = useContext(AccountContext);
+
 	return (
 		<main>
-		 	<ContentLoader source="home.txt"/> 
+		{
+			(account === null) ?
+				<PublicHomePageContent/>
+			:
+				<PrivateHomePageContent/>
+		}
 		</main>
 	)
 }

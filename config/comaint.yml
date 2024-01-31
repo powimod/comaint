@@ -689,3 +689,11 @@ files:
   - scope:  "project"
     input:  "templates/spa-frontend/flash-popup-stack.jsx.liquid"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/dialog/FlashPopupStack.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/component-private-home-page-content.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/PrivateHomePageContent.jsx"
+
+  - scope:  "project"
+    input:  "templates/spa-frontend/component-public-home-page-content.jsx.liquid"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/src/components/PublicHomePageContent.jsx"
