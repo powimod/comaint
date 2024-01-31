@@ -11,16 +11,11 @@ import Dialog from './Dialog';
 
 const MessageDialog = ({isOpen, onClose, children}) => {
 	const { t } = useTranslation();
-	const onMessage = () => {
-		onClose(true);
-	}
-	const onCancel = () => {
-		onClose(false);
-	}
+
 	return (<Dialog isOpen={isOpen} onClose={onClose}>
 		<div>{children}</div>
 		<div>
-			<button onClick={onMessage}>{t('OK')}</button>
+			<button onClick={onClose}>{t('OK')}</button>
 		</div>
 	</Dialog>);
 }
