@@ -5,8 +5,6 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'api-tools.js'
 		%}
-'use script';
-
 class ApiTool {
 	#apiBaseUrl = null; 
 	#accessToken = null;
@@ -68,7 +66,7 @@ class ApiTool {
 		this.#tokensSerializeFunction('save', refreshToken, accessToken);
 	}
 
-	async request(route, httpMethod, requestBody = null, params = null, sendToken = true){
+	async request(route, httpMethod, requestBody = null, params = null, sendAccessToken = true, sendRefreshToken = false){
 		if ( this.#apiBaseUrl === null)
 			throw new Error('Apitools is not initialized');
 		const apiUrl = new URL(`${this.#apiBaseUrl}/${route}`);
@@ -85,8 +83,18 @@ class ApiTool {
 			'Accept': 'application/json',
 			'Content-Type': 'application/json'
 		}
-		if (sendToken && this.#accessToken !== null)
+		if (sendAccessToken && this.#accessToken !== null)
 			httpHeaders['x-access-token'] = this.#accessToken;
+		if (sendRefreshToken) {
+			if (this.#refreshToken === null) {
+				console.error("Refresh token not found");
+				return; // success
+			}
+			if (requestBody === null)
+				requestBody = {}
+			requestBody.refreshToken = refreshToken
+		}
+
 		const requestParams = {
 			method : httpMethod,
 			headers: httpHeaders

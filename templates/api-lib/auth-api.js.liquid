@@ -53,16 +53,15 @@ const login = async function(email, password) {
 	}
 }
 
-const logout = async function(refreshToken) {
-	if (refreshToken === undefined)
-		throw new Error('[refreshToken] argument is missing')
+const logout = async function() {
 	const url = `${apiVersion}/auth/logout`;
 	try {
-		const requestBody = {
-			refreshToken: refreshToken
-		};
-		const result = await apiTools.request(url, 'POST',  requestBody, null, true);
-		apiTools.setToken(null, null)
+		const result = await apiTools.request(url, 'POST',  
+			null,  // requestBody
+			null,  // params
+			false, // do not send accessToken
+			true); // send refresh token in request body
+		apiTools.setTokens(null, null)
 		return {ok: true};
 	}
 	catch (error) {

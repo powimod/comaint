@@ -5,58 +5,52 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'AccountContext.jsx'
 		%}
-import React, {createContext, useState, useEffect} from 'react';
+import React, {createContext, useState, useEffect} from 'react'
 
+const userIdStorageKey = 'userId';
 const accountInitialValue = {
 	userId: null
 }
 
 const AccountContext = createContext(accountInitialValue);
 
-const AccountProvider = ( ({children}) => {
-	const userIdStorageKey = 'userId';
-        const [account, setAccount] = useState(null);
+const loadInitialAccountContext = () => {
+	let userId = localStorage.getItem(userIdStorageKey);
+	if (userId === null)
+		return null
+	userId = parseInt(userId)
+	if (isNaN(userId))
+		return null
+	return { userId }
+}
 
-	useEffect( () => {
-		loadAccountContext()
-	}, []);
+const AccountProvider = ( ({children}) => {
+        const [account, setAccount] = useState(loadInitialAccountContext)
 
 	useEffect( () => {
 		saveAccountContext()
 	}, [account]);
 
-	const loadAccountContext = () => {
-		const userId = localStorage.getItem(userIdStorageKey);
-		if (userId !== null)
-			setAccount({
-				userId: userId
-			});
-	}
-
 	const saveAccountContext = () => {
-		if (account === null)
-			localStorage.removeItem(userIdStorageKey);
-		else
+		if (account)
 			localStorage.setItem(userIdStorageKey, account.userId);
+		else
+			localStorage.removeItem(userIdStorageKey);
 	}
 
         const changeAccount = (account) => {
-		if (account === null) 
-			account = {
-				userId: null
-			}
-		if (account.userId === undefined)
+		if (account === undefined)
+			throw new Error('Argument [account] is missing');
+		if (account !== null && account.userId === undefined)
 			throw new Error('Property "userId" is not defined');
-                setAccount({
-			userId: account.userId
-		});
+                setAccount(account)
         }
         return(
-                <AccountContext.Provider value={ { account, changeAccount } }>
+		<AccountContext.Provider value={ { account, changeAccount } }>
                         {children}
                 </AccountContext.Provider>
         );
 });
 
-export {AccountContext};
-export default AccountProvider;
+export {AccountContext}
+export default AccountProvider

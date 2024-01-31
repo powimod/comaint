@@ -5,7 +5,7 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'components/LoginDialog.jsx'
 		%}
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom'
 
@@ -23,6 +23,7 @@ const LoginDialog = ({isOpen, onClose, onCreateAccount}) => {
 	const [ error, setError ] = useState(null);
 	const [ email, setEmail] = useState('');
 	const [ password, setPassword] = useState('');
+
 
 	const onLoginButtonClick = async () => {
 		if (email.length === 0) {
