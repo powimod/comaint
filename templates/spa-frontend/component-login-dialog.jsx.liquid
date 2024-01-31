@@ -63,8 +63,12 @@ const LoginDialog = ({isOpen, onClose, onCreateAccount}) => {
 		setPassword(ev.target.value.trim());
 	}
 
+	const onDialogClosed = () => {
+		onClose();
+	}
+
 	return (<>
-		<Dialog isOpen={isOpen} onClose={onClose} className='login-dialog'>
+		<Dialog isOpen={isOpen} onClose={onDialogClosed} className='login-dialog'>
 			
 			<div>{t('login-message')}</div>
 			<section>

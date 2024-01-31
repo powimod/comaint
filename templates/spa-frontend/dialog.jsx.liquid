@@ -7,16 +7,22 @@
 		%}
 import { useState, useRef, useEffect } from 'react'
 
-const Dialog = ({isOpen, onResponse, className = '',  children}) => {
+const Dialog = ({isOpen, onClose, className = '',  children}) => {
 	const [ isDialogOpen, setDialogOpen ] = useState(isOpen);
 	const dialogRef = useRef(null);
 
 	useEffect(() => {
 		console.assert(dialogRef !== null);
 		if (isDialogOpen)
+		{
+			dialogRef.current.addEventListener('close', () => {
+				onClose()
+			});
 			dialogRef.current.showModal();
-		else
+		}
+		else {
 			dialogRef.current.close();
+		}
 	}, [isDialogOpen]);
 
 	useEffect(() => {
