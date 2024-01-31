@@ -20,26 +20,21 @@ const LogoutDialog = ({isOpen, onResponse}) => {
 
 	const onDialogResponse = async (confirmation) => {
 		if (confirmation)  {
-			console.log("Disconnect");
+			try {
+				console.log("Disconnect");
+				throw new Error("not yet implemented");
+			}
+			catch (error) {
+				setError(error.message !== undefined ? error.message : error);
+				return;
+			}
 		}
 		onResponse(confirmation);
 	}
 
-	const onForgetPasswordButtonClick = (ev) => {
-		ev.preventDefault()
-		console.log('Forget password')
-	}
-
-	const onEmailChanged = (ev) => {
-		setEmail(ev.target.value.trim())
-	}
-
-	const onPasswordChanged = (ev) => {
-		setPassword(ev.target.value.trim());
-	}
-
 	return (<>
 		<ConfirmDialog isOpen={isOpen} onResponse={onDialogResponse}>
+			{error !== null && <div className='error-message'>{error}</div>}
 			<div>{t('logout-question')}</div>
 		</ConfirmDialog>
 	</>)
