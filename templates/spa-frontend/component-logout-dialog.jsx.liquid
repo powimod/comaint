@@ -1,0 +1,48 @@
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'components/LogoutDialog.jsx'
+		%}
+import { useState, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom'
+
+import authApi from '../api/auth-api.js'
+
+import ConfirmDialog from './dialog/ConfirmDialog';
+
+const LogoutDialog = ({isOpen, onResponse}) => {
+	const { t } = useTranslation();
+
+	const [ error, setError ] = useState(null); // FIXME used ?
+
+	const onDialogResponse = async (confirmation) => {
+		if (confirmation)  {
+			console.log("Disconnect");
+		}
+		onResponse(confirmation);
+	}
+
+	const onForgetPasswordButtonClick = (ev) => {
+		ev.preventDefault()
+		console.log('Forget password')
+	}
+
+	const onEmailChanged = (ev) => {
+		setEmail(ev.target.value.trim())
+	}
+
+	const onPasswordChanged = (ev) => {
+		setPassword(ev.target.value.trim());
+	}
+
+	return (<>
+		<ConfirmDialog isOpen={isOpen} onResponse={onDialogResponse}>
+			<div>{t('logout-question')}</div>
+		</ConfirmDialog>
+	</>)
+}
+
+export default LogoutDialog;

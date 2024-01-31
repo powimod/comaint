@@ -13,8 +13,10 @@ import { faWheelchair } from '@fortawesome/free-solid-svg-icons'
 
 import PaletteIcon from './PaletteIcon';
 import LoginDialog from './LoginDialog';
+import LogoutDialog from './LogoutDialog';
 import CreateAccountDialog from './CreateAccountDialog';
 import AccessibilityDialog from './AccessibilityDialog';
+import ConfirmDialog from './dialog/ConfirmDialog';
 import PopupMenu from './PopupMenu';
 import { AccountContext } from '../AccountContext'
 
@@ -24,6 +26,7 @@ const Header = (props) => {
 	const { account, changeAccount } = useContext(AccountContext);
 	const [isAccountMenuVisible, setAccountMenuVisible] = useState(false);
 	const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
+	const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 	const [isCreateAccountDialogOpen, setIsCreateAccountDialogOpen] = useState(false);
 	const [isAccessibilityDialogOpen, setIsAccessibilityDialogOpen] = useState(false);
 
@@ -59,6 +62,19 @@ const Header = (props) => {
 		setIsAccessibilityDialogOpen(true);
 	}
 
+	const onLogoutClick = () => {
+		console.log("dOm logout click");
+		setIsLogoutDialogOpen(true)
+
+	}
+
+	const onLogoutDialogResponse = (confirmation) => {
+		if (confirmation) {
+
+		}
+		setIsLogoutDialogOpen(false)
+	}
+
 	return (<>
 		<header>
 			<Link className="logo" to="/"> <img src="logo.svg"/> </Link>
@@ -68,11 +84,12 @@ const Header = (props) => {
 			<PaletteIcon className="account-button" element="user" button="true" onClick={onAccountButtonClick} />
 		</header>
 		<PopupMenu isVisible={isAccountMenuVisible} setVisible={setAccountMenuVisible}>
-			<div>Logout</div>
+			<div onClick={onLogoutClick}>{t('logout-button')}</div>
 		</PopupMenu>
-		<LoginDialog isOpen={isLoginDialogOpen} onClose={onLoginDialogClose} onCreateAccount={onCreateAccount} /> 
 		<CreateAccountDialog isOpen={isCreateAccountDialogOpen} onClose={onCreateAccountDialogClose} /> 
 		<AccessibilityDialog isOpen={isAccessibilityDialogOpen} onClose={onAccessibilityDialogClose} /> 
+		<LoginDialog isOpen={isLoginDialogOpen} onClose={onLoginDialogClose} onCreateAccount={onCreateAccount} /> 
+		<LogoutDialog isOpen={isLogoutDialogOpen} onResponse={onLogoutDialogResponse}/>
 	</>)
 }
 
