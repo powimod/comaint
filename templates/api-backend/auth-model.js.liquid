@@ -163,8 +163,11 @@ class AuthModel {
 	static async logout(token) {
 		// FIXME function decodeToken is duplicated 
 		const decodeToken = new Promise( (resolve, reject) => {
-			jwt.verify(token, this.#secret, (err, decoded) => {
-				if (err !== null && err.constructor.name !== 'TokenExpiredError') {
+			const options = {
+				ignoreExpiration: true // accept expired tokens
+			}
+			jwt.verify(token, this.#secret, options, (err, decoded) => {
+				if (err !== null) {
 					reject('Invalid token');
 					return;
 				}
