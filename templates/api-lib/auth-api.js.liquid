@@ -34,13 +34,16 @@ const login = async function(email, password) {
 		const {{authObject.name|camelCase}}Id = result['{{authObject.name|camelCase}}Id'];;
 		if ({{authObject.name|camelCase}}Id === undefined)
 			throw new Error('{{authObject.name|camelCase}}Id not found in HTTP response');
+		const account = { userId }
+
 		const refreshToken = result['refresh-token'];;
 		if (refreshToken === undefined)
 			throw new Error('refresh-token not found in HTTP response');
+
 		const accessToken = result['access-token'];;
 		if (accessToken === undefined)
 			throw new Error('access-token not found in HTTP response');
-		apiTools.setTokens(accessToken, refreshToken)
+		apiTools.setAccountAndTokens(account, accessToken, refreshToken)
 		return {
 			ok: true, 
 			{{authObject.name|camelCase}}Id: {{authObject.name|camelCase}}Id
@@ -62,7 +65,7 @@ const logout = async function() {
 			null,  // params
 			false, // do not send accessToken
 			true); // send refresh token in request body
-		apiTools.setTokens(null, null)
+		apiTools.setAccountAndTokens(null, null, null)
 		return {ok: true};
 	}
 	catch (error) {

@@ -18,39 +18,56 @@ import './scss/main.scss'
 
 import config from '../config.json'
 
-function tokensSerializeFunction(mode, refreshToken, accessToken) {
+function accountSerializeFunction(mode, account, refreshToken, accessToken) {
+	if (mode === undefined)
+		throw new Error('Missing mode parameter in accountSerializeFunction');
+	if (mode === 'save' && ( account === undefined || refreshToken === undefined || accessToken === undefined) )
+		throw new Error('Missing parameters in accountSerializeFunction');
+
 	const refreshTokenKey = 'refresh-token';
 	const accessTokenKey = 'access-token';
+	const accountKey = 'account';
+
 	switch (mode) {
 		case 'save':
-			console.log("Save tokens", refreshToken, accessToken);
 			if (refreshToken)
 				localStorage.setItem(refreshTokenKey, refreshToken);
 			else
-				localStorage.removeItem(refreshTokenKey, refreshToken);
+				localStorage.removeItem(refreshTokenKey);
 			if (accessToken)
 				localStorage.setItem(accessTokenKey, accessToken);
 			else
-				localStorage.removeItem(accessTokenKey, accessToken);
+				localStorage.removeItem(accessTokenKey);
+			if (account)
+				localStorage.setItem(accountKey, JSON.stringify(account));
+			else
+				localStorage.removeItem(accountKey);
 			break;
 		case 'load':
 			refreshToken = localStorage.getItem(refreshTokenKey);
 			accessToken = localStorage.getItem(accessTokenKey);
+			try {
+				account = JSON.parse(localStorage.getItem(accountKey));
+			}
+			catch (error) {
+				account = null;
+			}
 			break;
 
 		case 'clear':
-			localStorage.removeItem(refreshTokenKey, refreshToken);
-			localStorage.removeItem(accessTokenKey, accessToken);
+			localStorage.removeItem(refreshTokenKey);
+			localStorage.removeItem(accessTokenKey);
+			localStorage.removeItem(accountKey);
 			break;
 	}
-	return [refreshToken, accessToken];
+	return [account, refreshToken, accessToken];
 }
 
 function main() {
 
 	// initialize API backend url from config
 	try {
-		ApiToolsSingleton.getInstance().initialize(config, tokensSerializeFunction);
+		ApiToolsSingleton.getInstance().initialize(config, accountSerializeFunction);
 	}
 	catch (error) {
 		console.error("Error while loading config.js :", error);

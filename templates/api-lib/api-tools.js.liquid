@@ -9,42 +9,40 @@ class ApiTool {
 	#apiBaseUrl = null; 
 	#accessToken = null;
 	#refreshToken = null;
-	#tokensSerializeFunction = null;
+	#account = null;
+	#accountSerializeFunction = null;
 
 	_loadTokens() {
-		const tokens = this.#tokensSerializeFunction('load');
-		if (tokens === undefined) 
-			throw new Error('[tokensSerializeFunction] did not return a result');
-		if (tokens === null || typeof(tokens) !== 'object')
-			throw new Error('[tokensSerializeFunction] did not return an array');
-		if (tokens.constructor.name != 'Array')
-			throw new Error('[tokensSerializeFunction] did not return an array');
+		const [account, refreshToken, accessToken] = this.#accountSerializeFunction('load');
 
-		const refreshToken = tokens[0];
+		if (account === undefined)
+			throw new Error('[accountSerializeFunction] did not return an account object');
+		if (account !== null && typeof(account) !== 'object')
+			throw new Error('[accountSerializeFunction] did not return a valid account object');
+		this.#account = account;
+
 		if (refreshToken === undefined)
-			throw new Error('[tokensSerializeFunction] did not return a refresh token');
+			throw new Error('[accountSerializeFunction] did not return a refresh token');
 		if (refreshToken !== null && typeof(refreshToken) !== 'string')
-			throw new Error('[tokensSerializeFunction] did not return a valid refresh token');
+			throw new Error('[accountSerializeFunction] did not return a valid refresh token');
 		this.#refreshToken = refreshToken;
 
-		const accessToken = tokens[1];
 		if (accessToken === undefined)
-			throw new Error('[tokensSerializeFunction] did not return a access token');
+			throw new Error('[accountSerializeFunction] did not return a access token');
 		if (accessToken !== null && typeof(accessToken) !== 'string')
-			throw new Error('[tokensSerializeFunction] did not return a valid access token');
+			throw new Error('[accountSerializeFunction] did not return a valid access token');
 		this.#accessToken = accessToken;
 	}
 
-	initialize (config, tokensSerializeFunction) {
+	initialize (config, accountSerializeFunction) {
 		if ( this.#apiBaseUrl !== null)
 			return; // FIXME do not generate exception since it is called twice with React
 
-
-		if (tokensSerializeFunction === undefined)
-			throw new Error('[tokensSerializeFunction] argument is not defined');
-		if (typeof(tokensSerializeFunction) !== 'function')
-			throw new Error('[tokensSerializeFunction] argument is not a function');
-		this.#tokensSerializeFunction  = tokensSerializeFunction;
+		if (accountSerializeFunction === undefined)
+			throw new Error('[accountSerializeFunction] argument is not defined');
+		if (typeof(accountSerializeFunction) !== 'function')
+			throw new Error('[accountSerializeFunction] argument is not a function');
+		this.#accountSerializeFunction  = accountSerializeFunction;
 		this._loadTokens();
 
 		if (config === undefined)
@@ -59,10 +57,13 @@ class ApiTool {
 			throw new Error('Parameter [url] is not defined [backend] section');
 	}
 
-	setTokens(accessToken, refreshToken) {
+	setAccountAndTokens(account, accessToken, refreshToken) {
+		if (account === undefined || accessToken === undefined || refreshToken === undefined)
+			throw new Error('Missing parameters');
+		this.#account = account;
 		this.#accessToken = accessToken;
 		this.#refreshToken = refreshToken;
-		this.#tokensSerializeFunction('save', this.#refreshToken, this.#accessToken);
+		this.#accountSerializeFunction('save', this.#account, this.#refreshToken, this.#accessToken);
 	}
 
 	async request(route, httpMethod, requestBody = null, params = null, sendAccessToken = true, sendRefreshToken = false){
@@ -102,7 +103,9 @@ class ApiTool {
 			requestParams.body = JSON.stringify(requestBody);
 
 		// first attempt
+		console.log(requestParams);
 		let result = await fetch(apiUrl, requestParams);
+		console.log(result);
 		if (result.status !== 200) 
 			throw new Error(`HTTP response status is ${result.status} (${result.statusText})`);
 		let json = await result.json();
