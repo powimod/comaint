@@ -53,64 +53,61 @@ const AccountProvider = ( ({children}) => {
 			localStorage.removeItem(userIdStorageKey);
 	}
 
-        const changeAccount = (account) => {
-		if (account === undefined)
-			throw new Error('Argument [account] is missing');
-		if (account !== null && account.userId === undefined)
-			throw new Error('Property "userId" is not defined');
-                setAccount(account)
-        }
-
         return(
-		<AccountContext.Provider value={ { account, changeAccount } }>
+		// AccountContext does not export a function to change account value 
+		// because it's changed internaly
+		<AccountContext.Provider value={ { account } }>
                         { apiInitError ? <div>Loading error</div> : children}
                 </AccountContext.Provider>
         );
+
+	function accountSerializeFunction(mode, account, refreshToken, accessToken) {
+		if (mode === undefined)
+			throw new Error('Missing mode parameter in accountSerializeFunction');
+		if (mode === 'save' && ( account === undefined || refreshToken === undefined || accessToken === undefined) )
+			throw new Error('Missing parameters in accountSerializeFunction');
+
+		const refreshTokenKey = 'refresh-token';
+		const accessTokenKey = 'access-token';
+		const accountKey = 'account';
+
+		switch (mode) {
+			case 'save':
+				if (refreshToken)
+					localStorage.setItem(refreshTokenKey, refreshToken);
+				else
+					localStorage.removeItem(refreshTokenKey);
+				if (accessToken)
+					localStorage.setItem(accessTokenKey, accessToken);
+				else
+					localStorage.removeItem(accessTokenKey);
+				if (account)
+					localStorage.setItem(accountKey, JSON.stringify(account));
+				else
+					localStorage.removeItem(accountKey);
+				break;
+			case 'load':
+				refreshToken = localStorage.getItem(refreshTokenKey);
+				accessToken = localStorage.getItem(accessTokenKey);
+				try {
+					account = JSON.parse(localStorage.getItem(accountKey));
+				}
+				catch (error) {
+					account = null;
+				}
+				break;
+
+			case 'clear':
+				localStorage.removeItem(refreshTokenKey);
+				localStorage.removeItem(accessTokenKey);
+				localStorage.removeItem(accountKey);
+				break;
+		}
+		console.log('Account', account)
+                setAccount(account)
+		return [account, refreshToken, accessToken]
+	}
 });
 
-function accountSerializeFunction(mode, account, refreshToken, accessToken) {
-	if (mode === undefined)
-		throw new Error('Missing mode parameter in accountSerializeFunction');
-	if (mode === 'save' && ( account === undefined || refreshToken === undefined || accessToken === undefined) )
-		throw new Error('Missing parameters in accountSerializeFunction');
-
-	const refreshTokenKey = 'refresh-token';
-	const accessTokenKey = 'access-token';
-	const accountKey = 'account';
-
-	switch (mode) {
-		case 'save':
-			if (refreshToken)
-				localStorage.setItem(refreshTokenKey, refreshToken);
-			else
-				localStorage.removeItem(refreshTokenKey);
-			if (accessToken)
-				localStorage.setItem(accessTokenKey, accessToken);
-			else
-				localStorage.removeItem(accessTokenKey);
-			if (account)
-				localStorage.setItem(accountKey, JSON.stringify(account));
-			else
-				localStorage.removeItem(accountKey);
-			break;
-		case 'load':
-			refreshToken = localStorage.getItem(refreshTokenKey);
-			accessToken = localStorage.getItem(accessTokenKey);
-			try {
-				account = JSON.parse(localStorage.getItem(accountKey));
-			}
-			catch (error) {
-				account = null;
-			}
-			break;
-
-		case 'clear':
-			localStorage.removeItem(refreshTokenKey);
-			localStorage.removeItem(accessTokenKey);
-			localStorage.removeItem(accountKey);
-			break;
-	}
-	return [account, refreshToken, accessToken];
-}
 export {AccountContext}
 export default AccountProvider

@@ -17,6 +17,7 @@ const loader = async () => {
 		return {backendVersion: result.version}
 	}
 	catch (error) {
+		console.error(error);
 		return {backendVersion: '?'}
 	}
 }

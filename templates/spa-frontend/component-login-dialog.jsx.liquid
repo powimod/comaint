@@ -41,9 +41,6 @@ const LoginDialog = ({isOpen, onClose, onCreateAccount}) => {
 				setError(result.error);
 				return;
 			}
-			changeAccount({
-				userId: result.userId
-			});
 			onClose(); // close dialog
 		} catch (error) {
 			setError(error);
