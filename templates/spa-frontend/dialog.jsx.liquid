@@ -16,7 +16,6 @@ const Dialog = ({isOpen, onClose, className = '',  children}) => {
 		if (isDialogOpen)
 		{
 			dialogRef.current.addEventListener('close', () => {
-				console.log(onClose);
 				onClose()
 			});
 			dialogRef.current.showModal();

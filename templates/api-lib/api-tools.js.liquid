@@ -103,9 +103,7 @@ class ApiTool {
 			requestParams.body = JSON.stringify(requestBody);
 
 		// first attempt
-		console.log(requestParams);
 		let result = await fetch(apiUrl, requestParams);
-		console.log(result);
 		if (result.status !== 200) 
 			throw new Error(`HTTP response status is ${result.status} (${result.statusText})`);
 		let json = await result.json();
