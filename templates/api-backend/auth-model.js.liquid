@@ -156,7 +156,8 @@ class AuthModel {
 			echo project.attributes.auth_extra_field | snakeCase | prepend: ': result[0].id_' | append: ','
 		   endif
 		%}
-			{{authObject.name|camelCase}}Id: result[0].id
+			{{authObject.name|camelCase}}Id: result[0].id,
+			{{authIdentProp.name|camelCase}} : result[0].{{authIdentProp.name|snakeCase}}
 		}
 	}
 
