@@ -5,7 +5,7 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'components/LoginDialog.jsx'
 		%}
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom'
 
@@ -23,6 +23,34 @@ const LoginDialog = ({isOpen, onClose, onCreateAccount}) => {
 	const [ error, setError ] = useState(null);
 	const [ email, setEmail] = useState('');
 	const [ password, setPassword] = useState('');
+	const emailRef = useRef();
+	const passwordRef = useRef();
+
+	const EMAIL_STORAGE_KEY = 'login-email';
+
+	useEffect( () => {
+		const email = localStorage.getItem(EMAIL_STORAGE_KEY);
+		console.log("email:", email)
+		if (email !== null)
+			setEmail(email)
+	}, []);
+
+	useEffect( () => {
+		if (email.length === 0)
+			localStorage.removeItem(EMAIL_STORAGE_KEY);
+		else
+			localStorage.setItem(EMAIL_STORAGE_KEY, email);
+	}, [email]);
+
+	useEffect( () => {
+		if (! isOpen)
+			return
+		let focusedField = (emailRef.current.value.length > 0) ?  passwordRef : emailRef
+		setTimeout( () => {
+			console.log("set focus on ", focusedField.id)
+			focusedField.current.focus()
+		}, 0)
+	}, [isOpen]);
 
 	const onLoginButtonClick = async () => {
 		if (email.length === 0) {
@@ -73,11 +101,11 @@ const LoginDialog = ({isOpen, onClose, onCreateAccount}) => {
 				{error !== null && <div className='error-message'>{error}</div>}
 				<div className='input-container'>
 					<label htmlFor='email'>{t('email-field')}</label>
-					<input id='email' name='email' type='text' value={email} onChange={onEmailChanged}/>
+					<input id='email' name='email' type='text' ref={emailRef} value={email} onChange={onEmailChanged}/>
 				</div>
 				<div className='input-container'>
 					<label htmlFor='password'>{t('password-field')}</label>
-					<input id='password' name='password' type='password' value={password} onChange={onPasswordChanged}/>
+					<input id='password' name='password' type='password'  ref={passwordRef} value={password} onChange={onPasswordChanged}/>
 				</div>
 				<div>
 					<a href='' onClick={onForgetPasswordButtonClick}>{t('forget-password-button')}</a>
