@@ -25,7 +25,6 @@ const LogoutDialog = ({isOpen, onResponse}) => {
 				const result = await authApi.logout();
 				if (! result.ok) 
 					throw new Error(result.error);
-				changeAccount(null);
 			}
 			catch (error) {
 				console.error(error);

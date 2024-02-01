@@ -7,6 +7,9 @@
 		%}
 import React, {createContext, useState, useEffect} from 'react'
 
+import ApiToolsSingleton from './api/api-tools'
+import config from '../config.json'
+
 const userIdStorageKey = 'userId';
 const accountInitialValue = {
 	userId: null
@@ -26,10 +29,22 @@ const loadInitialAccountContext = () => {
 
 const AccountProvider = ( ({children}) => {
         const [account, setAccount] = useState(loadInitialAccountContext)
+	const [apiInitError, setApiInitError] = useState(false);
 
 	useEffect( () => {
 		saveAccountContext()
 	}, [account]);
+
+	useEffect( () => {
+		// initialize API backend url from config
+		try {
+			ApiToolsSingleton.getInstance().initialize(config, accountSerializeFunction);
+		}
+		catch (error) {
+			console.error("Error while loading config.js :", error.message);
+			setApiInitError(true);
+		}
+	}, []);
 
 	const saveAccountContext = () => {
 		if (account)
@@ -38,18 +53,60 @@ const AccountProvider = ( ({children}) => {
 			localStorage.removeItem(userIdStorageKey);
 	}
 
-        const changeAccount = (account) => {
-		if (account === undefined)
-			throw new Error('Argument [account] is missing');
-		if (account !== null && account.userId === undefined)
-			throw new Error('Property "userId" is not defined');
-                setAccount(account)
-        }
         return(
-		<AccountContext.Provider value={ { account, changeAccount } }>
-                        {children}
+		// AccountContext does not export a function to change account value 
+		// because it's changed internaly
+		<AccountContext.Provider value={ { account } }>
+                        { apiInitError ? <div>Loading error</div> : children}
                 </AccountContext.Provider>
         );
+
+	function accountSerializeFunction(mode, account, refreshToken, accessToken) {
+		if (mode === undefined)
+			throw new Error('Missing mode parameter in accountSerializeFunction');
+		if (mode === 'save' && ( account === undefined || refreshToken === undefined || accessToken === undefined) )
+			throw new Error('Missing parameters in accountSerializeFunction');
+
+		const refreshTokenKey = 'refresh-token';
+		const accessTokenKey = 'access-token';
+		const accountKey = 'account';
+
+		switch (mode) {
+			case 'save':
+				if (refreshToken)
+					localStorage.setItem(refreshTokenKey, refreshToken);
+				else
+					localStorage.removeItem(refreshTokenKey);
+				if (accessToken)
+					localStorage.setItem(accessTokenKey, accessToken);
+				else
+					localStorage.removeItem(accessTokenKey);
+				if (account)
+					localStorage.setItem(accountKey, JSON.stringify(account));
+				else
+					localStorage.removeItem(accountKey);
+				break;
+			case 'load':
+				refreshToken = localStorage.getItem(refreshTokenKey);
+				accessToken = localStorage.getItem(accessTokenKey);
+				try {
+					account = JSON.parse(localStorage.getItem(accountKey));
+				}
+				catch (error) {
+					account = null;
+				}
+				break;
+
+			case 'clear':
+				localStorage.removeItem(refreshTokenKey);
+				localStorage.removeItem(accessTokenKey);
+				localStorage.removeItem(accountKey);
+				break;
+		}
+		console.log('Account', account)
+                setAccount(account)
+		return [account, refreshToken, accessToken]
+	}
 });
 
 export {AccountContext}
