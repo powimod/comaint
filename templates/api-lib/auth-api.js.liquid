@@ -36,7 +36,7 @@ const login = async function(email, password) {
 			throw new Error('{{authObject.name|camelCase}}Id not found in HTTP response');
 		const account = {
 			{{authObject.name|camelCase}}Id: {{authObject.name|camelCase}}Id,
-			{{authIdentProp.name|camelCase}}Id: {{authIdentProp.name|camelCase}}Id
+			{{authIdentProp.name|camelCase}}: {{authIdentProp.name|camelCase}}
 		}
 
 		const refreshToken = result['refresh-token'];;
@@ -50,7 +50,7 @@ const login = async function(email, password) {
 		return {
 			ok: true, 
 			{{authObject.name|camelCase}}Id: {{authObject.name|camelCase}}Id,
-			{{authIdentProp.name|camelCase}}Id: {{authIdentProp.name|camelCase}}Id
+			{{authIdentProp.name|camelCase}}: {{authIdentProp.name|camelCase}}
 		};
 	}
 	catch (error) {
