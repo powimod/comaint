@@ -24,7 +24,6 @@ const LoginDialog = ({isOpen, onClose, onCreateAccount}) => {
 	const [ email, setEmail] = useState('');
 	const [ password, setPassword] = useState('');
 
-
 	const onLoginButtonClick = async () => {
 		if (email.length === 0) {
 			setError(t('invalid-email-error'));
@@ -41,8 +40,9 @@ const LoginDialog = ({isOpen, onClose, onCreateAccount}) => {
 				setError(result.error);
 				return;
 			}
-			onClose(); // close dialog
-		} catch (error) {
+			onClose() // close dialog
+		}
+		catch (error) {
 			setError(error);
 		}
 	}

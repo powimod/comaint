@@ -5,13 +5,21 @@
 		copyright   : project.attributes.copyright,
 		filename    : 'App.js'
 		%}
-import { useState, useEffect } from 'react'
-import {Outlet} from 'react-router-dom'
+import { useState, useEffect, useContext } from 'react'
+import { Outlet, Navigate, useNavigate } from 'react-router-dom'
 
 import Header from "./components/Header"
 import Footer from "./components/Footer"
+import { AccountContext } from './AccountContext'
 
 function App({children}) {
+
+	const { account, changeAccount } = useContext(AccountContext)
+	const navigate = useNavigate()
+
+	useEffect( () => {
+		navigate('/'); // force navigation to home page on login or logout 
+	}, [account]);
 
 	return (
 		<>
