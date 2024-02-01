@@ -10,70 +10,13 @@ import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider, useLoaderData, useParams } from "react-router-dom";
 
 import createRouter from './router'
-import ApiToolsSingleton from './api/api-tools'
 import AccountContext from './AccountContext'
 
 import './i18n'
 import './scss/main.scss'
 
-import config from '../config.json'
-
-function accountSerializeFunction(mode, account, refreshToken, accessToken) {
-	if (mode === undefined)
-		throw new Error('Missing mode parameter in accountSerializeFunction');
-	if (mode === 'save' && ( account === undefined || refreshToken === undefined || accessToken === undefined) )
-		throw new Error('Missing parameters in accountSerializeFunction');
-
-	const refreshTokenKey = 'refresh-token';
-	const accessTokenKey = 'access-token';
-	const accountKey = 'account';
-
-	switch (mode) {
-		case 'save':
-			if (refreshToken)
-				localStorage.setItem(refreshTokenKey, refreshToken);
-			else
-				localStorage.removeItem(refreshTokenKey);
-			if (accessToken)
-				localStorage.setItem(accessTokenKey, accessToken);
-			else
-				localStorage.removeItem(accessTokenKey);
-			if (account)
-				localStorage.setItem(accountKey, JSON.stringify(account));
-			else
-				localStorage.removeItem(accountKey);
-			break;
-		case 'load':
-			refreshToken = localStorage.getItem(refreshTokenKey);
-			accessToken = localStorage.getItem(accessTokenKey);
-			try {
-				account = JSON.parse(localStorage.getItem(accountKey));
-			}
-			catch (error) {
-				account = null;
-			}
-			break;
-
-		case 'clear':
-			localStorage.removeItem(refreshTokenKey);
-			localStorage.removeItem(accessTokenKey);
-			localStorage.removeItem(accountKey);
-			break;
-	}
-	return [account, refreshToken, accessToken];
-}
 
 function main() {
-
-	// initialize API backend url from config
-	try {
-		ApiToolsSingleton.getInstance().initialize(config, accountSerializeFunction);
-	}
-	catch (error) {
-		console.error("Error while loading config.js :", error);
-		return false;
-	}
-
 	ReactDOM.createRoot(document.getElementById('root')).render(
 		<React.StrictMode>
 			<Suspense fallback={<div>Loading...</div>}>
