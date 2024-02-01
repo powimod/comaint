@@ -15,11 +15,18 @@ import { AccountContext } from './AccountContext'
 function App({children}) {
 
 	const { account, changeAccount } = useContext(AccountContext)
+	const [ accountLoaded, setAccountLoaded] = useState(false);
 	const navigate = useNavigate()
 
 	useEffect( () => {
-		navigate('/'); // force navigation to home page on login or logout 
+		if (accountLoaded)
+			navigate('/'); // force navigation to home page on login or logout 
+		setAccountLoaded(true); // do not redirect on the first account changed which is due to page loading
 	}, [account]);
+
+	useEffect( () => {
+		setAccountLoaded(false);
+	}, []);
 
 	return (
 		<>
