@@ -20,7 +20,7 @@ name: "comaint"
 attributes:
   backend_project_name: "Comaint API backend"
   backend_project_dir: "comaint-backend"
-  backend_project_version: "0.0.1"
+  backend_project_version: "0.0.2"
   backend_project_description: "API server of Comaint project"
 
   api_lib_project_name: "Comaint API libary project"

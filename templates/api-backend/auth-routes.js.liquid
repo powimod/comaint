@@ -154,6 +154,7 @@ exports.initialize = (app, authModel, View, config) => {
 				{% if project.attributes.auth_extra_field -%}
 				'{{project.attributes.auth_extra_field | camelCase}}Id': login.{{project.attributes.auth_extra_field | camelCase}}Id,
 				{%- endif %}
+				'{{authIdentProp.name|camelCase}}': login.{{authIdentProp.name|camelCase}},
 				'access-token': newAccessToken,
 				'refresh-token': newRefreshToken
 			});

@@ -13,7 +13,8 @@ body > #root > header {
 	display: grid;
 	grid-template-areas: 
 		"logo title    accessibility account"
-		"logo subtitle accessibility account";
+		"logo subtitle accessibility account"
+		"logo userid   userid        userid";
 	grid-template-columns: auto 1fr;
 	background-color: var(--banner-background-color);
 	color: var(--banner-first-text-color);
@@ -30,7 +31,7 @@ body > #root > header {
 
 	.title {
 		align-self: end;
-		margin-bottom: 0.3rem;
+		margin-bottom: 0rem;
 		display: none;
 		grid-area: title;
 		font-size: 2.8rem;
@@ -41,8 +42,8 @@ body > #root > header {
 	}
 
 	.subtitle {
-		align-self: start;
-		margin-top: 0.3rem;
+		justify-self: start;
+		margin-top: 0.1rem;
 		display: none;
 		grid-area: subtitle;
 		font-size: 1.3rem;
@@ -71,6 +72,12 @@ body > #root > header {
 	.account-button {
 		grid-area: account;
 		filter: invert(1);
+	}
+
+	.userid {
+		justify-self: end; /* right */
+		grid-area: userid;
+		margin-right: 1rem;
 	}
 
 }
