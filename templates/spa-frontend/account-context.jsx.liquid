@@ -29,6 +29,7 @@ const loadInitialAccountContext = () => {
 
 const AccountProvider = ( ({children}) => {
         const [account, setAccount] = useState(loadInitialAccountContext)
+	const [apiInitError, setApiInitError] = useState(false);
 
 	useEffect( () => {
 		saveAccountContext()
@@ -40,8 +41,8 @@ const AccountProvider = ( ({children}) => {
 			ApiToolsSingleton.getInstance().initialize(config, accountSerializeFunction);
 		}
 		catch (error) {
-			console.error("Error while loading config.js :", error);
-			return false;
+			console.error("Error while loading config.js :", error.message);
+			setApiInitError(true);
 		}
 	}, []);
 
@@ -62,7 +63,7 @@ const AccountProvider = ( ({children}) => {
 
         return(
 		<AccountContext.Provider value={ { account, changeAccount } }>
-                        {children}
+                        { apiInitError ? <div>Loading error</div> : children}
                 </AccountContext.Provider>
         );
 });
