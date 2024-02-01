@@ -12,6 +12,8 @@
 	assign authPasswordProp = authObject.properties | where: 'name', project.attributes.auth_password_property | first
 	assign authCodeProp = authObject.properties | where: 'name', project.attributes.auth_code_property | first
 	assign authLockProp = authObject.properties | where: 'name', project.attributes.auth_lock_property | first
+	assign authExtraField = project.attributes.auth_extra_field
+	assign authAccountFields = project.attributes.auth_account_fields | split: ','
 %}
 'use strict';
 const assert = require('assert');
@@ -135,8 +137,11 @@ class AuthModel {
 		     assign extra = project.attributes.auth_extra_field | snakeCase | prepend: ', id_'
 		   endif
 		%}
-		let sql = `SELECT id, {{authIdentProp.name|snakeCase}}, {{authPasswordProp.name|snakeCase}}, {{authLockProp.name|snakeCase}}{{extra}} 
-			FROM {{authTableName}} WHERE {{authIdentProp.name}} = ?`;
+		let sql = `SELECT id, {{authIdentProp.name|snakeCase}}, {{authPasswordProp.name|snakeCase}}, {{authLockProp.name|snakeCase}}{{extra}}
+		{%- for accountField in authAccountFields -%} 
+			, {{accountField}}
+		{%- endfor %}
+			 FROM {{authTableName}} WHERE {{authIdentProp.name}} = ?`;
 		const result = await db.query(sql, [ {{authIdentProp.name}} ]);
 		if (result.code)
 			throw new Error(result.code);
@@ -157,7 +162,10 @@ class AuthModel {
 		   endif
 		%}
 			{{authObject.name|camelCase}}Id: result[0].id,
-			{{authIdentProp.name|camelCase}} : result[0].{{authIdentProp.name|snakeCase}}
+			{{authIdentProp.name|camelCase}} : result[0].{{authIdentProp.name|snakeCase}},
+		{%- for accountField in authAccountFields %}
+			{{accountField|camelCase}}: result[0].{{accountField|camelCase}},
+		{%- endfor %}
 		}
 	}
 

@@ -10,6 +10,8 @@
 	assign authIdentProp = authObject.properties | where: 'name', project.attributes.auth_ident_property | first
 	assign authPasswordProp = authObject.properties | where: 'name', project.attributes.auth_password_property | first
 	assign authCodeProp = authObject.properties | where: 'name', project.attributes.auth_code_property | first
+	assign authExtraField = project.attributes.auth_extra_field
+	assign authAccountFields = project.attributes.auth_account_fields | split: ','
 %}
 'use script';
 import ApiToolsSingleton from './api-tools';
@@ -31,13 +33,16 @@ const login = async function(email, password) {
 			{{authPasswordProp.name|camelCase}}: {{authPasswordProp.name|camelCase}}
 		};
 		const result = await apiTools.request(url, 'POST',  requestBody, null, false);
+
 		const {{authObject.name|camelCase}}Id = result['{{authObject.name|camelCase}}Id'];;
 		if ({{authObject.name|camelCase}}Id === undefined)
 			throw new Error('{{authObject.name|camelCase}}Id not found in HTTP response');
-		const account = {
-			{{authObject.name|camelCase}}Id: {{authObject.name|camelCase}}Id,
-			{{authIdentProp.name|camelCase}}: {{authIdentProp.name|camelCase}}
-		}
+
+		{% for accountField in authAccountFields %}
+		const {{accountField|camelCase}} = result['{{accountField|camelCase}}'];;
+		if ({{accountField|camelCase}} === undefined)
+			throw new Error('{{accountField}} not found in HTTP response');
+		{% endfor %}
 
 		const refreshToken = result['refresh-token'];;
 		if (refreshToken === undefined)
@@ -46,12 +51,15 @@ const login = async function(email, password) {
 		const accessToken = result['access-token'];;
 		if (accessToken === undefined)
 			throw new Error('access-token not found in HTTP response');
+
+		const account = { {{authObject.name|camelCase}}Id, {{authIdentProp.name|camelCase}},
+			{%- for accountField in authAccountFields -%}
+			{{accountField}},
+			{%- endfor -%}
+		}
 		apiTools.setAccountAndTokens(account, accessToken, refreshToken)
-		return {
-			ok: true, 
-			{{authObject.name|camelCase}}Id: {{authObject.name|camelCase}}Id,
-			{{authIdentProp.name|camelCase}}: {{authIdentProp.name|camelCase}}
-		};
+
+		return { ok: true, ...account };
 	}
 	catch (error) {
 		return {
@@ -85,6 +93,10 @@ const register = async function(email, password) {
 		throw new Error("[email] argument is missing");
 	if (password === undefined)
 		throw new Error("[password] argument is missing");
+	{%- for accountField in authAccountFields %}
+	if ({{accountField}} === undefined)
+		throw new Error("[{{accountField}}] argument is missing");
+	{% endfor %}
 	const url = `${apiVersion}/auth/register`;
 	try {
 		// TODO control {{authIdentProp.name|camelCase}} and {{authPasswordProp.name|camelCase}} values are not empty
