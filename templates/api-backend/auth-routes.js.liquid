@@ -68,30 +68,29 @@ exports.initialize = (app, authModel, View, config) => {
 			if ({{authPasswordProp.name|camelCase}}.length > {{authPasswordProp.maximum}})
 				throw new Error(`Value of <{{authPasswordProp.name|camelCase}}> in request body is too long`);
 
+			{% for accountField in authAccountFields %}
+			const {{accountField|camelCase}} = request.body.{{accountField|camelCase}}
+			if ({{accountField|camelCase}} === undefined)
+				throw new Error('{{accountField|camelCase}} not found in request body'); 
+			{% endfor %}
+
 			// make a random validation code which will be sent by email to unlock account
 			const {{authCodeProp.name|camelCase}} = _authModel.generateValidationCode();
 			console.log(`Validation code is ${ {{authCodeProp.name|camelCase}} }`); // TODO remove this
 
-			const result = await _authModel.register({{authIdentProp.name|camelCase}}, {{authPasswordProp.name|camelCase}}, {{authCodeProp.name|camelCase}});
+			const result = await _authModel.register({{authIdentProp.name|camelCase}},{{authPasswordProp.name|camelCase}}, 
+				{%- for accountField in authAccountFields -%}
+				{{accountField|camelCase}}, 
+				{%- endfor -%}
+				{{authCodeProp.name|camelCase}});
 
 			const {{authObject.name|camelCase}}Id = result.{{authObject.name|camelCase}}Id; 
 			if ({{authObject.name|camelCase}}Id === undefined)
 				throw new Error('{{authObject.name|camelCase}}Id not found in HTTP response'); 
 
-			if (result.{{authIdentProp.name|camelCase}} === undefined)
-				throw new Error('{{authIdentProp.name|camelCase}} not found in HTTP response'); 
-			if (result.{{authIdentProp.name|camelCase}} !== {{authIdentProp.name|camelCase}})
-				throw new Error('{{authIdentProp.name|camelCase}} is not valid'); 
-
 			{% if project.attributes.auth_extra_field -%}
 			const {{project.attributes.auth_extra_field | camelCase}}Id = null;
 			{%- endif %}
-
-			{% for accountField in authAccountFields %}
-			const {{accountField}} = result.{{accountField}}
-			if ({{accountField|camelCase}} === undefined) 
-				throw new Error('{{accountField}} not found in HTTP response'); 
-			{% endfor %}
 
 			await _authModel.sendValidationCode({{authCodeProp.name|camelCase}}, {{authIdentProp.name|camelCase}});
 

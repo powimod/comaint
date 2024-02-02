@@ -55,7 +55,11 @@ class AuthModel {
 		); 
 	}
 
-	static async register({{authIdentProp.name}}, {{authPasswordProp.name}}, {{authCodeProp.name}}) {
+	static async register({{authIdentProp.name}}, {{authPasswordProp.name}}, 
+		{%- for accountField in authAccountFields -%}
+		{{accountField|camelCase}}, 
+		{%- endfor -%}
+		{{authCodeProp.name}}) {
 		assert({{authIdentProp.name}} !== undefined);
 		assert({{authPasswordProp.name}} !== undefined);
 		assert({{authCodeProp.name}} !== undefined);
@@ -78,11 +82,20 @@ class AuthModel {
 
 		const sqlRequest = `
 			INSERT INTO {{authTableName}}
-			({{authIdentProp.name|snakeCase}}, {{authPasswordProp.name|snakeCase}}, {{authCodeProp.name|snakeCase}}, {{authLockProp.name|snakeCase}})
-			VALUES (?, ?, ?, ?);`;
+				({{authIdentProp.name|snakeCase}}, {{authPasswordProp.name|snakeCase}},{%echo ' '%}
+			{%- for accountField in authAccountFields -%}
+			{{accountField|camelCase}},{%echo ' '%} 
+			{%- endfor -%}
+			{{authCodeProp.name|snakeCase}}, {{authLockProp.name|snakeCase}})
+			VALUES (?, ?,
+			{%- for accountField in authAccountFields -%}{%echo ' '%}?, {%- endfor -%}
+			{%echo ' '%}?, ?);`;
 		const sqlParams = [
 			{{authIdentProp.name}},
 			{{authPasswordProp.name}}Hash,
+			{%- for accountField in authAccountFields %}
+			{{accountField|camelCase}},
+			{%- endfor %}
 			{{authCodeProp.name}},
 			true // account locked
 		];

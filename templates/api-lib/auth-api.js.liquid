@@ -88,22 +88,29 @@ const logout = async function() {
 	}
 }
 
-const register = async function(email, password) {
+const register = async function(email, password
+{%- for accountField in authAccountFields -%}
+, {{accountField}}
+{%- endfor -%}
+) {
 	if (email === undefined)
 		throw new Error("[email] argument is missing");
 	if (password === undefined)
 		throw new Error("[password] argument is missing");
-	{%- for accountField in authAccountFields %}
+	{% for accountField in authAccountFields -%}
 	if ({{accountField}} === undefined)
 		throw new Error("[{{accountField}}] argument is missing");
-	{% endfor %}
+	{% endfor -%}
 	const url = `${apiVersion}/auth/register`;
 	try {
 		// TODO control {{authIdentProp.name|camelCase}} and {{authPasswordProp.name|camelCase}} values are not empty
-		const requestBody = { 
-			{{authIdentProp.name|camelCase}}: {{authIdentProp.name|camelCase}}, 
-			{{authPasswordProp.name|camelCase}}: {{authPasswordProp.name|camelCase}}
-		};
+		const requestBody = {
+			{{authIdentProp.name|camelCase}}, 
+			{{authPasswordProp.name|camelCase}},
+			{% for accountField in authAccountFields -%}
+			{{accountField}},
+			{% endfor -%}
+			}
 		const result = await apiTools.request(url, 'POST',  requestBody, null, false);
 		const {{authObject.name|camelCase}}Id = result['{{authObject.name|camelCase}}Id'];;
 		if ({{authObject.name|camelCase}}Id === undefined)
