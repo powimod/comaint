@@ -399,6 +399,12 @@ files:
     input:  "templates/api-backend/util.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/src/util.js"
 
+  - scope:  "object"
+    input:  "templates/global/object-helper.js.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/src/objects/{{object.name | kebabCase }}-object-helper.js"
+
+
+
     ########################### API library
    
   - scope:  "project"
@@ -417,6 +423,9 @@ files:
     input:  "templates/api-lib/object-api.js.liquid"
     output: "output/{{project.attributes.api_lib_project_dir}}/src/{{object.name | kebabCase}}-api.js"
 
+  - scope:  "object"
+    input:  "templates/global/object-helper.js.liquid"
+    output: "output/{{project.attributes.api_lib_project_dir}}/src/objects/{{object.name | kebabCase}}-object-helper.js"
 
     ########################### Multi Page frontend
       # MPA is disabled since API was rewrited from CommonJS to ECMA Script
