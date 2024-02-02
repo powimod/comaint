@@ -7,3 +7,135 @@
 		filename    : filename
 		%}
 'use strict'
+
+{%- liquid
+assign string_types = 'string, text, uuid, email, image' | split: ', '
+assign integer_types = 'integer, id' | split: ', '
+assign objectName = object.name | camelCase
+%}
+
+{% comment %}
+	'string'
+	'integer'
+	'boolean'
+	'text', 
+	'uuid',    
+	'id',
+	'date',
+	'time',
+	'datetime',
+	'email',
+	'image',
+
+	TODO : control links
+	TODO : control patterns
+	TODO : null values
+
+{% endcomment %}
+
+
+const controlObject{{object.name|pascalCase}} = ({{objectName}}, fullCheck = false, checkId = false, i18n_t = null ) => {
+
+	if ({{objectName}} === undefined) return i18n_t('error_object_is_not_defined') 
+	if ({{objectName}} === null) return i18n_t('error_object_is_null') 
+	if (typeof({{objectName}}) !== 'object') return i18n_t('error_object_is_not_an_object') 
+
+	if (i18n_t === null) i18n_t = (m) => m
+
+{% for property in object.properties %} 
+	{%- assign propName = property.name|camelCase %}
+	{%- if property.minimum %}
+	const {{propName}}Min = {{property.minimum}}
+	{%- endif %}
+	{%- if property.maximum %}
+	const {{propName}}Max = {{property.maximum}}
+	{%- endif %}
+{%- endfor %}
+
+{%- for property in object.properties %} 
+	{%- assign propName = property.name|camelCase %}
+
+	//============ Property [{{propName}}]
+	// - type = {{property.type.name}}
+	// - mandatory = {{property.mandatory}}
+	{%- if property.minimum %}
+	// - minimum = {{property.minimum}}
+	{%- endif %}
+	{%- if property.maximum %}
+	// - maximum = {{property.maximum}}
+	{%- endif %}
+	//
+
+	{% if property.type.name == 'id' -%}
+	if (checkId && {{objectName}}.{{propName}} === undefined)
+		return i18n_t('error_id_not_defined', {property: '{{propName}}'}) 
+	{%- endif %}
+
+	{%- if property.type.name != 'id' %}
+	if (fullCheck) {
+	       	if ( {{objectName}}.{{propName}} === undefined)
+			return i18n_t('error_property_is_missing', {property: '{{propName}}'}) 
+	       	if ( {{objectName}}.{{propName}} === null)
+			return i18n_t('error_property_is_null', {property: '{{propName}}'}) 
+	}
+	{%- endif %}
+
+	if ({{objectName}}.{{propName}} !== undefined && {{objectName}}.{{propName}} !== null) {
+
+		{%- if property.mandatory %}
+		if ({{objectName}}.{{propName}} == null) 
+			return i18n_t('error_property_is_mandatory', {property: '{{propName}}'}) 
+		{% endif %}
+
+	{%- if integer_types contains property.type.name %}
+
+		if (isNaN({{objectName}}.{{propName}}))
+			return i18n_t('error_is_not_an_integer', {property: '{{propName}}'}) 
+		{{objectName}}.{{propName}} = parseInt({{objectName}}.{{propName}})
+
+		{%- if property.minimum %}
+		if ({{objectName}}.{{propName}} < {{propName}}Min)
+			return i18n_t('error_is_too_small', {property: '{{propName}}', maxLength:{{propName}}Min}) 
+		{%- endif %}
+
+		{%- if property.maximum %}
+		if ({{objectName}}.{{propName}} > {{propName}}Max)
+			return i18n_t('error_is_too_large', {property: '{{propName}}', maxLength:{{propName}}Max) 
+		{%- endif %}
+
+
+	{%- endif %}
+
+
+	{%- if string_types contains property.type.name %}
+		if (typeof({{objectName}}.{{propName}} !== 'string' ))
+			return i18n_t('error_is_not_a_string', {property: '{{propName}}'}) 
+
+		{%- if property.minimum %}
+		if ({{objectName}}.{{propName}}.length < {{propName}}Min)
+			return i18n_t('error_is_too_short', {property: '{{propName}}', maxLength:{{propName}}Min}) 
+		{%- endif %}
+
+		{%- if property.maximum %}
+		if ({{objectName}}.{{propName}}.length > {{propName}}Max)
+			return i18n_t('error_is_too_long', {property: '{{propName}}', maxLength:{{propName}}Max}) 
+		{%- endif %}
+
+	{%- endif %}
+
+	{%- if property.type.name == 'boolean' %}
+		if (typeof({{objectName}}.{{propName}} !== 'boolean' ))
+			return i18n_t('error_is_not_a_boolean', {property: '{{propName}}'}) 
+	{%- endif %}
+
+
+
+	}
+
+{% endfor %}
+
+	return false // no error
+}
+
+export { controlObject{{object.name|pascalCase}} }
+
