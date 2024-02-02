@@ -7,6 +7,12 @@
 		%}
 'use strict';
 
+const fs = require("fs")
+const {join} = require('path')
+const i18next = require('i18next');
+const i18nextMiddleware = require('i18next-express-middleware');
+const Backend = require('i18next-node-fs-backend');
+
 function loadConfig()
 {
 	const configFile = './config.json';
@@ -63,7 +69,29 @@ function loadConfig()
 	return config;
 }
 
-async function main() {
+
+async function main()
+{
+	const localesDir = join(__dirname, '..', 'locales')
+	console.log('Locales directory', localesDir);
+	if (! fs.existsSync(localesDir)) 
+		throw new Error('Locales directory does not exist');
+	await i18next
+		.use(Backend)
+		.use(i18nextMiddleware.LanguageDetector)
+		.init({
+			backend: {
+				{% raw %}loadPath: `${localesDir}/{{lng}}/{{ns}}.json`,{% endraw %}
+			},
+			detection: {
+				order: ['querystring', 'cookie'],
+				caches: ['cookie']
+			},
+			fallbackLng: 'fr',
+			preload: ['fr', 'en']
+		})
+	console.log(i18next.t('general.loading'))
+
 	let config = null;
 	config = loadConfig();
 
@@ -85,10 +113,8 @@ async function main() {
 }
 
 main()
-/* TODO reactivate this
-.catch(error) {
+.catch(error =>{
 	const message = (error.message) ? error.message : error;
 	console.error(`Error : ${message}`);
 	process.exit(1);
-}
-*/
+})

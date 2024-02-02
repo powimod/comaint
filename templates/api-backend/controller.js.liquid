@@ -8,7 +8,8 @@
 'use strict';
 
 const util = require('../util.js');
-
+const i18next = require('i18next');
+const i18nextMiddleware = require('i18next-express-middleware');
 
 class Controller {
 	#app = null; // Express application
@@ -37,6 +38,7 @@ class Controller {
 		this.#app = express();
 		this.#app.use(express.json())
 		this.#app.use(express.urlencoded({extended: true}));
+		this.#app.use(i18nextMiddleware.handle(i18next));
 
 		const cors = require('cors')
 		this.#app.use(cors());
