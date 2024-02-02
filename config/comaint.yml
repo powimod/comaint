@@ -44,6 +44,7 @@ attributes:
   api_version: "v1"
   frontend-project : "comaint-frontend"
   compagny: "Comaint"
+  company: "Comaint"
   conception: "Powimod"
   authors: "Dominique Parisot"
   copyright: "2023-2024"

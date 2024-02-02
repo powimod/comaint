@@ -57,21 +57,23 @@ exports.initialize = (app, authModel, View, config) => {
 			if ({{authIdentProp.name|camelCase}} === undefined)
 				throw new Error(`Can't find <{{authIdentProp.name|camelCase}}> in request body`);
 			if ({{authIdentProp.name|camelCase}}.match(/{{authIdentProp.attributes.pattern}}/) === null)
-				throw new Error('Invalid {{authIdentProp.name|camelCase}}');
+				throw new Error(request.t('error.invalid_data', {'object': '{{authIdentProp.name|camelCase}}'}));
 
 			// TODO control password complexity
 			const {{authPasswordProp.name|camelCase}} = request.body.{{authPasswordProp.name|camelCase}};
 			if ({{authPasswordProp.name|camelCase}} === undefined)
 				throw new Error(`Can't find <{{authPasswordProp.name|camelCase}}> in request body`);
 			if ({{authPasswordProp.name|camelCase}}.length < {{authPasswordProp.minimum}})
-				throw new Error(`Value of <{{authPasswordProp.name|camelCase}}> in request body is too short`);
+				throw new Error(request.t('error.too_short_data', {'object': '{{authPasswordProp.name|camelCase}}'}));
 			if ({{authPasswordProp.name|camelCase}}.length > {{authPasswordProp.maximum}})
-				throw new Error(`Value of <{{authPasswordProp.name|camelCase}}> in request body is too long`);
+				throw new Error(request.t('error.too_long_data', {'object': '{{authPasswordProp.name|camelCase}}'}));
 
 			{% for accountField in authAccountFields %}
 			const {{accountField|camelCase}} = request.body.{{accountField|camelCase}}
 			if ({{accountField|camelCase}} === undefined)
 				throw new Error('{{accountField|camelCase}} not found in request body'); 
+			if ({{accountField|camelCase}}.length === 0)
+				throw new Error(request.t('error.empty_data', {'object': '{{accountField|camelCase}}'}));
 			{% endfor %}
 
 			// make a random validation code which will be sent by email to unlock account
@@ -82,7 +84,7 @@ exports.initialize = (app, authModel, View, config) => {
 				{%- for accountField in authAccountFields -%}
 				{{accountField|camelCase}}, 
 				{%- endfor -%}
-				{{authCodeProp.name|camelCase}});
+				{{authCodeProp.name|camelCase}}, request.t);
 
 			const {{authObject.name|camelCase}}Id = result.{{authObject.name|camelCase}}Id; 
 			if ({{authObject.name|camelCase}}Id === undefined)
@@ -92,7 +94,7 @@ exports.initialize = (app, authModel, View, config) => {
 			const {{project.attributes.auth_extra_field | camelCase}}Id = null;
 			{%- endif %}
 
-			await _authModel.sendValidationCode({{authCodeProp.name|camelCase}}, {{authIdentProp.name|camelCase}});
+			await _authModel.sendValidationCode({{authCodeProp.name|camelCase}}, {{authIdentProp.name|camelCase}}, request.t);
 
 			// generate access and refresh tokens
 			const newAccessToken  = await _authModel.generateAccessToken({{authObject.name|camelCase}}Id
@@ -133,12 +135,12 @@ exports.initialize = (app, authModel, View, config) => {
 			if ({{authCodeProp.name|camelCase}} === undefined)
 				throw new Error(`Can't find <{{authCodeProp.name|camelCase}}> in request body`);
 			if (isNaN({{authCodeProp.name|camelCase}}))
-				throw new Error(`<{{authCodeProp.name|camelCase}}> in request body is not an integer`);
+				throw new Error(request.t('error.invalid_data', {'object': '{{authCodeProp.name|camelCase}}'}));
 			{{authCodeProp.name|camelCase}} = parseInt({{authCodeProp.name|camelCase}});
 			if ({{authCodeProp.name|camelCase}} < {{authCodeProp.minimum}} || {{authCodeProp.name|camelCase}} > {{authCodeProp.maximum}})
-				throw new Error(`<{{authCodeProp.name|camelCase}}> in request body is out of range`);
+				throw new Error(request.t('error.invalid_data', {'object': '{{authCodeProp.name|camelCase}}'}));
 
-			await _authModel.validateRegistration({{authObject.name|camelCase}}Id, {{authCodeProp.name|camelCase}});
+			await _authModel.validateRegistration({{authObject.name|camelCase}}Id, {{authCodeProp.name|camelCase}}, request.t);
 			View.sendJsonResult(response, {});
 		}
 		catch (error) {
@@ -156,7 +158,7 @@ exports.initialize = (app, authModel, View, config) => {
 			if ({{authPasswordProp.name|camelCase}} === undefined)
 				throw new Error(`Can't find <{{authPasswordProp.name|camelCase}}> in request body`);
 
-			const result = await _authModel.login({{authIdentProp.name|camelCase}}, {{authPasswordProp.name|camelCase}});
+			const result = await _authModel.login({{authIdentProp.name|camelCase}}, {{authPasswordProp.name|camelCase}}, request.t);
 
 			const {{authObject.name|camelCase}}Id = result.{{authObject.name|camelCase}}Id; 
 			if ({{authObject.name|camelCase}}Id === undefined)
@@ -214,7 +216,7 @@ exports.initialize = (app, authModel, View, config) => {
 			const refreshToken = request.body.refreshToken;
 			if (refreshToken === undefined)
 				throw new Error(`Can't find <refreshToken> in request body`);
-			await _authModel.logout(refreshToken);
+			await _authModel.logout(refreshToken, request.t);
 			View.sendJsonResult(response, {});
 		}
 		catch (error) {
@@ -232,7 +234,7 @@ exports.initialize = (app, authModel, View, config) => {
 			{%- if project.attributes.auth_extra_field -%}
 			, {{project.attributes.auth_extra_field | camelCase}}Id
 			{%- endif -%}
-				] = await _authModel.checkRefreshToken(refreshToken);
+				] = await _authModel.checkRefreshToken(refreshToken, request.t);
 			if (! tokenFound) {
 				// if a token is not found, it should be an attempt to usurp cookie :
 				// since a refresh token is deleted when used, it will not be found with a second attempt to use it.
