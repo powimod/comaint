@@ -30,7 +30,6 @@ const LoginDialog = ({isOpen, onClose, onCreateAccount}) => {
 
 	useEffect( () => {
 		const email = localStorage.getItem(EMAIL_STORAGE_KEY);
-		console.log("email:", email)
 		if (email !== null)
 			setEmail(email)
 	}, []);
@@ -62,7 +61,6 @@ const LoginDialog = ({isOpen, onClose, onCreateAccount}) => {
 			return
 		}
 		try {
-			// TODO login with API
 			const result = await authApi.login(email, password);
 			if (! result.ok) {
 				setError(result.error);

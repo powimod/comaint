@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom'
 
 import PaletteIcon from './PaletteIcon';
 import Dialog from './dialog/Dialog';
+import authApi from '../api/auth-api.js'
 
 const CreateAccountDialog = ({isOpen, onClose, onCreateAccount}) => {
 	const { t } = useTranslation();
@@ -25,9 +26,11 @@ const CreateAccountDialog = ({isOpen, onClose, onCreateAccount}) => {
 
 	useEffect(() => {
 		setStep(1)
-	}, [])
+		setError(null)
+	}, [isOpen])
 
-	const onFirstStepValidateButtonClick = () => {
+	const onFirstStepValidateButtonClick = async () => {
+		setError(null);
 		if (email.length === 0) {
 			setError(t('invalid-email-error'));
 			return
@@ -44,9 +47,37 @@ const CreateAccountDialog = ({isOpen, onClose, onCreateAccount}) => {
 			setError(t('empty-lastname-error'));
 			return
 		}
-		// TODO send validation code with email
-		setStep(2);
+		try {
+			const result = await authApi.register(email, password, firstname, lastname);
+			if (! result.ok) {
+				setError(result.error);
+				return;
+			}
+			setStep(2);
+		}
+		catch (error) {
+			setError(error);
+		}
 	}
+
+	const onSecondStepValidateButtonClick = async () => {
+		setError(null);
+		if (validationCode.length === 0 || isNaN(validationCode)) {
+			setError(t('invalid-validation-code-error'));
+			return;
+		}
+		try {
+			const result = await authApi.validateRegistration(validationCode);
+			if (! result.ok) {
+				setError(result.error);
+				return;
+			}
+			onClose();
+		} catch (error) {
+			setError(error);
+		}
+	}
+
 
 	const onPreviousButtonClick = () => {
 		setStep(1);
@@ -79,21 +110,7 @@ const CreateAccountDialog = ({isOpen, onClose, onCreateAccount}) => {
 	}
 
 	const onValidationCodeChanged = (ev) => {
-		
 		setValidationCode(ev.target.value.trim());
-	}
-
-	const onValidationButtonClick = () => {
-		if (validationCode.length === 0 || isNaN(validationCode)) {
-			setError(t('invalid-validation-code-error'));
-			return;
-		}
-		try {
-			// TODO 
-			onClose();
-		} catch (error) {
-			setError(error);
-		}
 	}
 
 	return (<>
@@ -144,7 +161,7 @@ const CreateAccountDialog = ({isOpen, onClose, onCreateAccount}) => {
 					<div className='button-bar'>
 						<button onClick={onPreviousButtonClick}>{t('previous')}</button>
 						<button onClick={onClose}>{t('cancel')}</button>
-						<button onClick={onValidationButtonClick}>{t('validate')}</button>
+						<button onClick={onSecondStepValidateButtonClick}>{t('validate')}</button>
 					</div>
 				</section>
 			</>}
