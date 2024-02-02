@@ -121,6 +121,13 @@ const register = async function(email, password
 		const accessToken = result['access-token'];;
 		if (accessToken === undefined)
 			throw new Error('access-token not found in HTTP response');
+		const account = { {{authObject.name|camelCase}}Id, {{authIdentProp.name|camelCase}},
+			{%- for accountField in authAccountFields -%}
+			{{accountField}},
+			{%- endfor -%}
+		}
+		apiTools.setAccountAndTokens(account, accessToken, refreshToken)
+
 		return {
 			ok: true, 
 			{{authObject.name|camelCase}}Id: {{authObject.name|camelCase}}Id
@@ -140,11 +147,10 @@ const validateRegistration = async function(validationCode) {
 	const url = `${apiVersion}/auth/validateRegistration`;
 	try {
 		// TODO control {{authCodeProp.name|camelCase}} value is not empty
-
 		const requestBody = {
 			{{authCodeProp.name|camelCase}}: {{authCodeProp.name|camelCase}}
 		};
-		const result = await apiTools.request(url, 'POST',  requestBody, null, false);
+		const result = await apiTools.request(url, 'POST',  requestBody, null, true);
 		return {ok: true};
 	}
 	catch (error) {

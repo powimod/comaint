@@ -26,7 +26,8 @@ const CreateAccountDialog = ({isOpen, onClose, onCreateAccount}) => {
 
 	useEffect(() => {
 		setStep(1)
-	}, [])
+		setError(null)
+	}, [isOpen])
 
 	const onFirstStepValidateButtonClick = async () => {
 		setError(null);
