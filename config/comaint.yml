@@ -355,6 +355,14 @@ files:
     output: "output/{{project.attributes.backend_project_dir}}/config.json.sample"
 
   - scope:  "project"
+    input:  "templates/api-backend/locales/translation-fr.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/locales/fr/translation.json "
+
+  - scope:  "project"
+    input:  "templates/api-backend/locales/translation-en.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/locales/en/translation.json "
+
+  - scope:  "project"
     input:  "templates/api-backend/server.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/src/server.js"
 
