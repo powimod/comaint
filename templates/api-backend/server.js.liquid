@@ -81,7 +81,7 @@ async function main()
 		.use(i18nextMiddleware.LanguageDetector)
 		.init({
 			backend: {
-				loadPath: `${localesDir}/{{lng}}/{{ns}}.json`,
+				{% raw %}loadPath: `${localesDir}/{{lng}}/{{ns}}.json`,{% endraw %}
 			},
 			detection: {
 				order: ['querystring', 'cookie'],
