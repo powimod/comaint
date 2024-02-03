@@ -8,9 +8,7 @@ assign objectName = object.name | camelCase
 
 {%- comment %}
 	'string' 'integer' 'boolean' 'text', 'uuid',    'id', 'date', 'time', 'datetime', 'email', 'image'
-	TODO : control links
 	TODO : control patterns
-	TODO : null values
 {%- endcomment %}
 {% echo %}
 {%- for property in object.properties %} 
@@ -135,6 +133,18 @@ const controlProperty{{property.name|pascalCase}} = (value, i18n_t = null ) => {
 	{%- if property.type.name == 'boolean' %}
 	if (typeof(value) !== 'boolean')
 		return i18n_t('error_prop_is_not_a_boolean', {property: '{{propName}}'}) 
+	{%- endif %}
+
+	{%- if property.type.name == 'date' %}
+	if (! (value instanceof Date))
+		return i18n_t('error_prop_is_not_a_date', {property: 'birth'})
+	// if (value.getUTCHours() !== 0 || value.getUTCMinutes() !== 0 || value.getUTCSeconds() !== 0)
+	//	return i18n_t('error_prop_is_not_a_pure_date', {property: 'birth'})
+	{%- endif %}
+
+	{%- if property.type.name == 'datetime' %}
+	if (! (value instanceof Date))
+		return i18n_t('error_prop_is_not_a_date', {property: 'birth'})
 	{%- endif %}
 
 	{%- endif %}
