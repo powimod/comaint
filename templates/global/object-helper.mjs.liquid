@@ -35,9 +35,32 @@ function dumpError(error, infos = null) {
         return `${error} : ${JSON.stringify(infos)}`
 }
 
+
+{% for link in object.links%} 
+{%- assign linkName = link.name|camelCase %}
+//============ Link [{{linkName}}]
+// - mandatory = {{link.mandatory}}
+//
+const controlLink{{link.name|pascalCase}} = (value, i18n_t = null ) => {
+	if (i18n_t === null) i18n_t = dumpError
+	if (value === undefined)
+		return i18n_t('error_link_is_not_defined', {link: '{{linkName}}'}) 
+{%- if link.mandatory == false %}
+	if (value === null) 
+		return false // no error because not mandatory
+{%- else  %}
+	if (value === null)
+		return i18n_t('error_link_is_null', {link: '{{linkName}}'})
+{%- endif %}
+	if (isNaN(value))
+		return i18n_t('error_link_is_not_an_integer', {property: '{{linkName}}'})
+	return false // no error
+}
+{%- endfor %}
+
+
 {% for property in object.properties %} 
 {%- assign propName = property.name|camelCase %}
-
 //============ Property [{{propName}}]
 // - type = {{property.type.name}}
 // - mandatory = {{property.mandatory}}
@@ -72,7 +95,7 @@ const controlProperty{{property.name|pascalCase}} = (value, i18n_t = null ) => {
 	value = parseInt(value)
 	{%- if property.minimum %}
 	if (value < {{propName}}Min)
-		return i18n_t('error_prop_is_too_small', {property: '{{propName}}', maxLength:{{propName}}Min}) 
+		return i18n_t('error_prop_is_too_small', {property: '{{propName}}', minLength:{{propName}}Min}) 
 	{%- endif %}
 	{%- if property.maximum %}
 	if (value > {{propName}}Max)
@@ -94,15 +117,14 @@ const controlProperty{{property.name|pascalCase}} = (value, i18n_t = null ) => {
 	{%- endif %}
 
 	{%- if property.type.name == 'boolean' %}
-	if (typeof({{objectName}}.{{propName}} !== 'boolean' ))
+	if (typeof(value) !== 'boolean')
 		return i18n_t('error_prop_is_not_a_boolean', {property: '{{propName}}'}) 
 	{%- endif %}
 
 	{%- endif %}
 	return false // no error
 }
-
-{%- endfor %}
+{% endfor %}
 
 const controlObject{{object.name|pascalCase}} = ({{objectName}}, fullCheck = false, checkId = false, i18n_t = null ) => {
 	if (i18n_t === null) i18n_t = dumpError
@@ -125,6 +147,13 @@ const controlObject{{object.name|pascalCase}} = ({{objectName}}, fullCheck = fal
 	}
 	{%- endif %}
 {%- endfor %}
+{%- for link in object.links %} 
+	{%- assign linkName = link.name|camelCase %}
+	if ({{objectName}}.{{linkName}}Id !== undefined || fullCheck) {
+		error = controlLink{{link.name|pascalCase}}({{objectName}}.{{linkName}}Id)
+		if (error) return error
+	}
+{%- endfor %}
 
 	return false // no error
 }
@@ -133,6 +162,10 @@ export {
 {%- for property in object.properties %} 
 {%- assign propName = property.name|camelCase %}
 	controlProperty{{property.name|pascalCase}},
+{%- endfor %}
+{%- for link in object.links%} 
+{%- assign linkName = link.name|camelCase %}
+	controlLink{{link.name|pascalCase}},
 {%- endfor %}
 	controlObject{{object.name|pascalCase}}
 }
