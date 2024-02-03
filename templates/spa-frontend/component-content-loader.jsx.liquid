@@ -43,7 +43,11 @@ const ContentLoader = ({source}) => {
 			let paragraph = []
 			let n = 0;
 			const bulletListRegExp =  new RegExp('^\\d+[.] +(.*)')
-			for (let line of data.split('\n')) {
+
+			const lines = data.split('\n')
+			lines.push('x'); // add a fake line to force last data to be rendered
+
+			for (let line of lines) {
 				line = line.trim()
 
 				if ( paragraph.length > 0  && line.length > 0 ) {
@@ -85,7 +89,8 @@ const ContentLoader = ({source}) => {
 					continue
 				}
 
-				paragraph.push(line)
+				if (line.length > 0)
+					paragraph.push(line)
 
 			}
 			resolve(<>{components}</>)
