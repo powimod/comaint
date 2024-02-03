@@ -108,6 +108,30 @@ const controlProperty{{property.name|pascalCase}} = (value, i18n_t = null ) => {
 	{%- endif %}
 	{%- endif %}
 
+	{%- if property.secret  %}
+	const passwordMinLength = 6
+	if (value.length < passwordMinLength) 
+		return i18n_t('error_password_to_small', {property: 'password', minLength: passwordMinLength})
+	let nLower = 0
+	let nUpper = 0
+	let nDigit = 0
+	let nSpec = 0
+	for (const c of value) {
+		if (c >= 'a' && c <= 'z') nLower++
+		else if (c >= 'A' && c <= 'Z') nUpper++
+		else if (c >= '0' && c <= '9') nDigit++
+		else nSpec++ 
+	}
+	if (nLower == 0)
+		return i18n_t('error_password_no_lowercase_letter', {property: 'password'})
+	if (nUpper == 0)
+		return i18n_t('error_password_no_uppercase_letter', {property: 'password'})
+	if (nDigit == 0)
+		return i18n_t('error_password_no_digit_character', {property: 'password'})
+	if (nSpec == 0)
+		return i18n_t('error_password_no_special_character', {property: 'password'})
+	{%- endif %}
+
 	{%- if property.type.name == 'boolean' %}
 	if (typeof(value) !== 'boolean')
 		return i18n_t('error_prop_is_not_a_boolean', {property: '{{propName}}'}) 
