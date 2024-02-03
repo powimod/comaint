@@ -10,7 +10,8 @@
 
 {% include "./object-helper-common.js.liquid" %}
 
-export {
+
+module.exports = {
 {%- for property in object.properties %} 
 {%- assign propName = property.name|camelCase %}
 	controlProperty{{property.name|pascalCase}},

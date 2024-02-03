@@ -400,8 +400,8 @@ files:
     output: "output/{{project.attributes.backend_project_dir}}/src/util.js"
 
   - scope:  "object"
-    input:  "templates/global/object-helper.mjs.liquid"
-    output: "output/{{project.attributes.backend_project_dir}}/src/objects/{{object.name | kebabCase }}-object-helper.mjs"
+    input:  "templates/global/object-helper.cjs.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/src/objects/{{object.name | kebabCase }}-object-helper.cjs"
 
 
 
