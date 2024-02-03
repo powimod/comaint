@@ -11,10 +11,20 @@ import { Link } from 'react-router-dom'
 import Async, { useAsync } from "react-async"
 import i18n from "i18next";
 
+const MODE_NONE = 0;
+const MODE_TITLE_1 = 1;
+const MODE_TITLE_2 = 2;
+const MODE_TITLE_3 = 3;
+const MODE_PARAGRAPH = 5;
+const MODE_UNORDERED_LIST = 6;
+const MODE_ORDERED_LIST = 7;
+
 const ContentLoader = ({source}) => {
 	const { t } = useTranslation()
+	const bulletListRegExp =  new RegExp('^\\d+[.] +(.*)')
 
 	const [ lang, setLang ] = useState(null)
+
 
 	useEffect(() => {
 		setLang(i18n.language)
@@ -37,63 +47,155 @@ const ContentLoader = ({source}) => {
 
 	const render = (data) => {
 		return new Promise( (resolve, reject) => {
-			const components = []
+			const componentStack = []
+			let currentComponent = null 
 			let bulletList = []
 			let orderedList = []
 			let paragraph = []
 			let n = 0;
-			const bulletListRegExp =  new RegExp('^\\d+[.] +(.*)')
+			let currentMode = MODE_NONE
 
 			const lines = data.split('\n')
 			lines.push('x'); // add a fake line to force last data to be rendered
 
+			console.clear() // TODO remove this
 			for (let line of lines) {
 				line = line.trim()
+				console.log("=======================")
+				console.log("- line", line);
 
-				if ( paragraph.length > 0  && line.length > 0 ) {
-					components.push(<p key={n++}>{paragraph.join('\n')}</p>)
-					paragraph = []
+				if (currentComponent === null) {
+					currentComponent = []
+					componentStack.push(currentComponent)
 				}
-
-				if ( bulletList.length > 0  && ! line.startsWith('-') ) {
-					components.push( <ul key={n++}> { bulletList.map( (line,i) => <li key={i}>{line}</li> ) } </ul>)
-					bulletList = []
-				}
-
+				
 				const extractOrderedItem =  bulletListRegExp.exec(line)
-				if ( orderedList.length > 0  && extractOrderedItem === null) {
-					components.push( <ol key={n++}> { orderedList.map( (line,i) => <li key={i}>{line}</li> ) } </ol>)
-					orderedList = []
+
+				if (currentMode === MODE_TITLE_3 ) {
+					currentMode = MODE_TITLE_3 
+					console.log("current mode : title 3")
+				}
+				else if (currentMode === MODE_TITLE_2 ) {
+					currentMode = MODE_TITLE_2 
+					console.log("current mode : title 2")
+				}
+				else if (currentMode === MODE_TITLE_1 ) {
+					console.log("current mode : title 1")
+				}
+				else if (currentMode === MODE_ORDERED_LIST) {
+					console.log("current mode : ordered list")
+				}
+				else if (currentMode === MODE_UNORDERED_LIST) {
+					console.log("current mode : unordered list")
+				}
+				else if (currentMode === MODE_PARAGRAPH) {
+					console.log("current mode : paragraph")
+				}
+				else {
+					console.log("current mode : none")
 				}
 
+
+				let newMode = MODE_NONE
 				if (line.startsWith('###')) {
-					components.push(<h3 key={n++}>{line.substr(3).trim()}</h3>)
-					continue
+					newMode = MODE_TITLE_3 
+					console.log("new mode : title 3")
 				}
-				if (line.startsWith('##')) {
-					components.push(<h2 key={n++}>{line.substr(2).trim()}</h2>)
-					continue
+				else if (line.startsWith('##')) {
+					newMode = MODE_TITLE_2 
+					console.log("new mode : title 2")
 				}
-				if (line.startsWith('#')) {
-					components.push(<h1 key={n++}>{line.substr(1).trim()}</h1>)
+				else if (line.startsWith('#')){
+					newMode = MODE_TITLE_1 
+					console.log("new mode : title 1")
+				}
+				else if (line.startsWith('-')) {
+					newMode = MODE_ORDERED_LIST
+					console.log("new mode : ordered list")
+				}
+				else if (extractOrderedItem !== null){
+					newMode = MODE_UNORDERED_LIST
+					console.log("new mode : unordered list")
+				}
+				else if (line.length > 0){
+					newMode = MODE_PARAGRAPH
+					console.log("new mode : paragraph")
+				}
+				else {
+					console.log("new mode : none")
+				}
+
+
+				if (currentMode === MODE_NONE)
+					currentMode = newMode
+
+				if (currentMode == MODE_PARAGRAPH) {
+					if (newMode == MODE_PARAGRAPH) {
+						console.log("-> paragraph : append buffer");
+						paragraph.push(line)
+					}
+					else {
+						console.log("-> paragraph : print buffer");
+						currentComponent.push(<p key={n++}>{paragraph.join('\n')}</p>)
+						paragraph = []
+					}
+					currentMode = newMode
 					continue
 				}
 
-				if (line.startsWith('-')) {
-					bulletList.push(line.substr(1).trim())
+				if (currentMode == MODE_ORDERED_LIST) {
+					if (newMode == MODE_ORDERED_LIST) {
+						console.log("-> ordered list : append buffer");
+						bulletList.push(line.substr(1).trim())
+					}
+					else {
+						console.log("-> ordered list : print buffer");
+						currentComponent.push( <ul key={n++}> { bulletList.map( (line,i) => <li key={i}>{line}</li> ) } </ul>)
+						bulletList = []
+					}
+					currentMode = newMode
 					continue
 				}
 
-				if (extractOrderedItem !== null) {
-					orderedList.push(extractOrderedItem[1])
+				if (currentMode == MODE_UNORDERED_LIST) {
+					if (newMode == MODE_UNORDERED_LIST) {
+						console.log("-> unordered list : append buffer");
+						orderedList.push(extractOrderedItem[1])
+					}
+					else {
+						console.log("-> unordered list : print buffer");
+						currentComponent.push( <ol key={n++}> { orderedList.map( (line,i) => <li key={i}>{line}</li> ) } </ol>)
+						orderedList = []
+					}
+					currentMode = newMode
 					continue
 				}
 
-				if (line.length > 0)
-					paragraph.push(line)
+				if ( newMode === MODE_TITLE_3 ) {
+					console.log("-> title 3 : print title");
+					currentComponent.push(<h3 key={n++}>{line.substr(3).trim()}</h3>)
+					currentMode = MODE_NONE
+					continue
+				}
+				if ( newMode === MODE_TITLE_2 ) {
+					console.log("-> title 2 : print title");
+					currentComponent.push(<h2 key={n++}>{line.substr(2).trim()}</h2>)
+					currentMode = MODE_NONE
+					continue
+				}
+				if ( newMode === MODE_TITLE_1 ) {
+					console.log("-> title 1 : print title");
+					currentComponent.push(<h1 key={n++}>{line.substr(1).trim()}</h1>)
+					currentMode = MODE_NONE
+					continue
+				}
 
+				console.log("-> ignore line :", line);
 			}
-			resolve(<>{components}</>)
+
+			if (componentStack.length > 1)
+				console.error('Component stack root is not unique')
+			resolve(<>{componentStack[0]}</>)
 		});
 	}
 
