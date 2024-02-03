@@ -1,4 +1,4 @@
-{% render "../../templates/license_header_js.liquid",
+{% render '../../templates/license_header_js.liquid',
 		project     : project.attributes.spa_frontend_project_name,
   		description : project.attributes.spa_frontend_project_description,
 		authors     : project.attributes.authors,
@@ -8,13 +8,23 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom'
-import Async, { useAsync } from "react-async"
-import i18n from "i18next";
+import Async, { useAsync } from 'react-async'
+import i18n from 'i18next';
+
+const MODE_NONE = 0; // FIXME really used ?
+const MODE_TITLE_1 = 1;
+const MODE_TITLE_2 = 2;
+const MODE_TITLE_3 = 3;
+const MODE_PARAGRAPH = 5;
+const MODE_UNORDERED_LIST = 6;
+const MODE_ORDERED_LIST = 7;
 
 const ContentLoader = ({source}) => {
 	const { t } = useTranslation()
+	const orderedListRegExp =  new RegExp('^\\d+ +(.*)')
 
 	const [ lang, setLang ] = useState(null)
+
 
 	useEffect(() => {
 		setLang(i18n.language)
@@ -22,7 +32,6 @@ const ContentLoader = ({source}) => {
 
 
 	const onLanguageChanged = (lang) => {
-		console.log("ContentLoader Language changed : ", lang);
 		setLang(lang);
 	}
 
@@ -37,58 +46,91 @@ const ContentLoader = ({source}) => {
 
 	const render = (data) => {
 		return new Promise( (resolve, reject) => {
-			const components = []
+			const componentStack = []
+			let currentComponent = null 
 			let bulletList = []
 			let orderedList = []
 			let paragraph = []
 			let n = 0;
-			const bulletListRegExp =  new RegExp('^\\d+[.] +(.*)')
-			for (let line of data.split('\n')) {
+			let lastMode = MODE_NONE
+
+			const lines = data.split('\n')
+			lines.push(''); // add an empty line at then end to force last data to be rendered
+
+			console.clear() // TODO remove this
+			for (let line of lines) {
 				line = line.trim()
 
-				if ( paragraph.length > 0  && line.length > 0 ) {
-					components.push(<p key={n++}>{paragraph.join('\n')}</p>)
-					paragraph = []
+				if (currentComponent === null) {
+					currentComponent = []
+					componentStack.push(currentComponent)
+				}
+				
+				const extractOrderedItem =  orderedListRegExp.exec(line)
+
+				let newMode = MODE_NONE
+				if (line.startsWith('###'))
+					newMode = MODE_TITLE_3 
+				else if (line.startsWith('##'))
+					newMode = MODE_TITLE_2 
+				else if (line.startsWith('#'))
+					newMode = MODE_TITLE_1 
+				else if (line.startsWith('-'))
+					newMode = MODE_ORDERED_LIST
+				else if (extractOrderedItem !== null)
+					newMode = MODE_UNORDERED_LIST
+				else if (line.length > 0)
+					newMode = MODE_PARAGRAPH
+
+				// render and empty buffers when mode changes
+				switch (lastMode) {
+					case MODE_PARAGRAPH:
+						if (newMode !== MODE_PARAGRAPH) {
+							currentComponent.push(<p key={n++}>{paragraph.join('\n')}</p>)
+							paragraph = []
+						}
+						break;
+					case MODE_ORDERED_LIST:
+						if (newMode !== MODE_ORDERED_LIST) {
+							currentComponent.push( <ul key={n++}> { bulletList.map( (line,i) => <li key={i}>{line}</li> ) } </ul>)
+							bulletList = []
+						}
+						break;
+					case MODE_UNORDERED_LIST:
+						if (lastMode === MODE_UNORDERED_LIST && newMode !== MODE_UNORDERED_LIST) {
+							currentComponent.push( <ol key={n++}> { orderedList.map( (line,i) => <li key={i}>{line}</li> ) } </ol>)
+							orderedList = []
+						}
+						break;
 				}
 
-				if ( bulletList.length > 0  && ! line.startsWith('-') ) {
-					components.push( <ul key={n++}> { bulletList.map( (line,i) => <li key={i}>{line}</li> ) } </ul>)
-					bulletList = []
+				switch (newMode) {
+					case MODE_PARAGRAPH:
+						paragraph.push(line)
+						break;
+					case MODE_ORDERED_LIST:
+						bulletList.push(line.substr(1).trim())
+						break;
+					case MODE_UNORDERED_LIST:
+						orderedList.push(extractOrderedItem[1])
+						break;
+					case MODE_TITLE_3 :
+						currentComponent.push(<h3 key={n++}>{line.substr(3).trim()}</h3>)
+						break;
+					case MODE_TITLE_2 :
+						currentComponent.push(<h2 key={n++}>{line.substr(2).trim()}</h2>)
+						break;
+					case MODE_TITLE_1 :
+						currentComponent.push(<h1 key={n++}>{line.substr(1).trim()}</h1>)
+						break;
 				}
 
-				const extractOrderedItem =  bulletListRegExp.exec(line)
-				if ( orderedList.length > 0  && extractOrderedItem === null) {
-					components.push( <ol key={n++}> { orderedList.map( (line,i) => <li key={i}>{line}</li> ) } </ol>)
-					orderedList = []
-				}
-
-				if (line.startsWith('###')) {
-					components.push(<h3 key={n++}>{line.substr(3).trim()}</h3>)
-					continue
-				}
-				if (line.startsWith('##')) {
-					components.push(<h2 key={n++}>{line.substr(2).trim()}</h2>)
-					continue
-				}
-				if (line.startsWith('#')) {
-					components.push(<h1 key={n++}>{line.substr(1).trim()}</h1>)
-					continue
-				}
-
-				if (line.startsWith('-')) {
-					bulletList.push(line.substr(1).trim())
-					continue
-				}
-
-				if (extractOrderedItem !== null) {
-					orderedList.push(extractOrderedItem[1])
-					continue
-				}
-
-				paragraph.push(line)
-
+				lastMode = newMode
 			}
-			resolve(<>{components}</>)
+
+			if (componentStack.length > 1)
+				console.error('Component stack root is not unique')
+			resolve(<>{componentStack[0]}</>)
 		});
 	}
 
@@ -112,9 +154,9 @@ const ContentLoader = ({source}) => {
 			<Async promiseFn={loadUrl} url={sourceUrl}>
 				{({ data, error, isPending }) => {
 					if (isPending)
-						return "Loading..." // TODO translation
+						return 'Loading...' // TODO translation
 					if (error)
-						return "Something went wrong: " + error.message // TODO translation
+						return 'Something went wrong: ' + error.message // TODO translation
 					if (data) 
 						return data
 					return null
