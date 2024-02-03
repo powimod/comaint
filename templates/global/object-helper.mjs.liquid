@@ -1,0 +1,134 @@
+{%- assign filename = object.name | kebabCase | append: "-helper.js" -%}
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : filename
+		%}
+'use strict'
+
+{%- liquid
+assign string_types = 'string, text, uuid, email, image' | split: ', '
+assign integer_types = 'integer' | split: ', '
+assign objectName = object.name | camelCase
+%}
+
+{%- comment %}
+	'string' 'integer' 'boolean' 'text', 'uuid',    'id', 'date', 'time', 'datetime', 'email', 'image'
+	TODO : control links
+	TODO : control patterns
+	TODO : null values
+{%- endcomment %}
+{% echo %}
+{%- for property in object.properties %} 
+{%- assign propName = property.name|camelCase %}
+{%- if property.minimum %}
+const {{propName}}Min = {{property.minimum}}
+{%- endif %}
+{%- if property.maximum %}
+const {{propName}}Max = {{property.maximum}}
+{%- endif %}
+{%- endfor %}
+
+{% for property in object.properties %} 
+{%- assign propName = property.name|camelCase %}
+
+//============ Property [{{propName}}]
+// - type = {{property.type.name}}
+// - mandatory = {{property.mandatory}}
+{%- if property.minimum %}
+// - minimum = {{property.minimum}}
+{%- endif %}
+{%- if property.maximum %}
+// - maximum = {{property.maximum}}
+{%- endif %}
+//
+
+const controlProperty{{property.name|pascalCase}} = (value, i18n_t = null ) => {
+	if (i18n_t === null) i18n_t = (m) => m
+	if (value === undefined)
+		return i18n_t('error_prop_is_not_defined') 
+{%- if property.mandatory == false %}
+	if (value === null) 
+		return false // no error because not mandatory
+{%- else  %}
+	if (value === null)
+		return i18n_t('error_prop_is_null', {property: '{{propName}}'})
+{%- endif %}
+
+	{%- if property.type.name == 'id' %}
+	if (isNaN(value))
+		return i18n_t('error_prop_is_not_an_integer', {property: '{{propName}}'})
+	{%- else %}
+
+	{%- if integer_types contains property.type.name %}
+	if (isNaN(value))
+		return i18n_t('error_prop_is_not_an_integer', {property: '{{propName}}'})
+	value = parseInt(value)
+	{%- if property.minimum %}
+	if (value < {{propName}}Min)
+		return i18n_t('error_prop_is_too_small', {property: '{{propName}}', maxLength:{{propName}}Min}) 
+	{%- endif %}
+	{%- if property.maximum %}
+	if (value > {{propName}}Max)
+		return i18n_t('error_prop_is_too_large', {property: '{{propName}}', maxLength:{{propName}}Max}) 
+	{%- endif %}
+	{%- endif %}
+
+	{%- if string_types contains property.type.name %}
+	if (typeof(value) !== 'string' )
+		return i18n_t('error_prop_is_not_a_string', {property: '{{propName}}'}) 
+	{%- if property.minimum %}
+	if (value.length < {{propName}}Min)
+		return i18n_t('error_prop_is_too_short', {property: '{{propName}}', maxLength:{{propName}}Min}) 
+	{%- endif %}
+	{%- if property.maximum %}
+	if (value.length > {{propName}}Max)
+		return i18n_t('error_prop_is_too_long', {property: '{{propName}}', maxLength:{{propName}}Max}) 
+	{%- endif %}
+	{%- endif %}
+
+	{%- if property.type.name == 'boolean' %}
+	if (typeof({{objectName}}.{{propName}} !== 'boolean' ))
+		return i18n_t('error_prop_is_not_a_boolean', {property: '{{propName}}'}) 
+	{%- endif %}
+
+	{%- endif %}
+	return false // no error
+}
+
+{%- endfor %}
+
+const controlObject{{object.name|pascalCase}} = ({{objectName}}, fullCheck = false, checkId = false, i18n_t = null ) => {
+	if ({{objectName}} === undefined) return i18n_t('error_object_is_not_defined') 
+	if ({{objectName}} === null) return i18n_t('error_object_is_null') 
+	if (typeof({{objectName}}) !== 'object') return i18n_t('error_object_is_not_an_object') 
+	if (i18n_t === null) i18n_t = (m) => m
+
+	let error;
+{%- for property in object.properties %} 
+	{%- assign propName = property.name|camelCase %}
+	{%- if property.type.name == 'id' %}
+	if (checkId) {
+		error = controlProperty{{property.name|pascalCase}}({{objectName}}.{{propName}})
+		if (error) return error
+	}
+	{%- else %}
+	if ({{objectName}}.{{propName}} !== undefined || fullCheck) {
+		error = controlProperty{{property.name|pascalCase}}({{objectName}}.{{propName}})
+		if (error) return error
+	}
+	{%- endif %}
+{%- endfor %}
+
+	return false // no error
+}
+
+export {
+{%- for property in object.properties %} 
+{%- assign propName = property.name|camelCase %}
+	controlProperty{{property.name|pascalCase}},
+{%- endfor %}
+	controlObject{{object.name|pascalCase}}
+}
