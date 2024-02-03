@@ -158,6 +158,34 @@ const controlObject{{object.name|pascalCase}} = ({{objectName}}, fullCheck = fal
 	return false // no error
 }
 
+
+const convert{{object.name|pascalCase}}FromDb(record) = () => {
+	if (record === undefined)
+		throw new Error('Argument [record] is missing')
+	return {
+{%- for property in object.properties %} 
+		{{property.name|camelCase}}: record.{{property.name|snakeCase}},
+{%- endfor %}
+{%- for link in object.links %} 
+		{{link.name|camelCase}}Id: record.id_{{link.name|snakeCase}},
+{%- endfor %}
+	};
+}
+
+const convert{{object.name|PacalCase}}ToDb({{objectName}}) = () => {
+	if ({{objectName}}=== undefined)
+		throw new Error('Argument [record] is missing')
+	return {
+{%- for property in object.properties %} 
+		{{property.name|snakeCase}}: {{objectName}}.{{property.name|camelCase}},
+{%- endfor %}
+{%- for link in object.links %} 
+		id_{{link.name|snakeCase}}: {{objectName}}.{{link.name|camelCase}}Id,
+{%- endfor %}
+	};
+}
+
+
 export {
 {%- for property in object.properties %} 
 {%- assign propName = property.name|camelCase %}
@@ -167,5 +195,7 @@ export {
 {%- assign linkName = link.name|camelCase %}
 	controlLink{{link.name|pascalCase}},
 {%- endfor %}
-	controlObject{{object.name|pascalCase}}
+	controlObject{{object.name|pascalCase}},
+	convert{{object.name|pascalCase}}FromDb,
+	convert{{object.name|pascalCase}}ToDb
 }
