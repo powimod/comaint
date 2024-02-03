@@ -159,7 +159,7 @@ const controlObject{{object.name|pascalCase}} = ({{objectName}}, fullCheck = fal
 }
 
 
-const convert{{object.name|pascalCase}}FromDb(record) = () => {
+const convert{{object.name|pascalCase}}FromDb = (record) => {
 	if (record === undefined)
 		throw new Error('Argument [record] is missing')
 	return {
@@ -172,7 +172,7 @@ const convert{{object.name|pascalCase}}FromDb(record) = () => {
 	};
 }
 
-const convert{{object.name|PacalCase}}ToDb({{objectName}}) = () => {
+const convert{{object.name|PacalCase}}ToDb = ({{objectName}}) => {
 	if ({{objectName}}=== undefined)
 		throw new Error('Argument [record] is missing')
 	return {
