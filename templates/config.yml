@@ -348,9 +348,9 @@ objects:
 
 #====================== Stock
 
-  - name: "Family"
+  - name: "EquipmentFamily"
     attributes:
-      table_name: "families"
+      table_name: "equipment_families"
     properties:
       - name: "id"
         type: "id"
@@ -369,9 +369,9 @@ objects:
           - property: "name"
 
 
-  - name: "Type"
+  - name: "EquipmentType"
     attributes:
-      table_name: "types"
+      table_name: "equipment_types"
     properties:
       - name: "id"
         type: "id"
@@ -380,17 +380,17 @@ objects:
         minimum: 2
         maximum: 32
     links:
-      - name : "family"
-        target: "Family"
+      - name : "equipmentFamily"
+        target: "EquipmentFamily"
         mandatory: true
       - name: "company"
         target: "Company"
         mandatory: true
     indexes:
-      - name: "idx_family_name"
+      - name: "idx_equipmentfamily_name"
         unique: true
         keys:
-          - link : "family"
+          - link : "equipmentFamily"
           - property: "name"
  
 
@@ -432,8 +432,8 @@ objects:
         type: "text"
         mandatory: false
     links:
-      - name: "type"
-        target: "Type"
+      - name: "equipmentType"
+        target: "EquipmentType"
         mandatory: true 
       - name: "section"
         target: "Section"
@@ -442,10 +442,10 @@ objects:
         target: "Company"
         mandatory: true
     indexes:
-      - name: "idx_type_name"
+      - name: "idx_equipmenttype_name"
         unique: true
         keys:
-          - link : "type"
+          - link : "equipmentType"
           - property: "name"
       - name: "section_name"
         unique: false
@@ -456,9 +456,9 @@ objects:
 
 #====================== Stock
 
-  - name: "Category"
+  - name: "ArticleCategory"
     attributes:
-      table_name: "categories"
+      table_name: "article_categories"
     properties:
       - name: "id"
         type: "id"
@@ -477,9 +477,9 @@ objects:
           - property: "name"
 
 
-  - name: "SubCategory"
+  - name: "ArticleSubCategory"
     attributes:
-      table_name: "subcategories"
+      table_name: "article_subcategories"
     properties:
       - name: "id"
         type: "id"
@@ -489,7 +489,7 @@ objects:
         maximum: 32
     links:
       - name : "category"
-        target: "Category"
+        target: "ArticleCategory"
         mandatory: true
       - name: "company"
         target: "Company"
@@ -550,8 +550,8 @@ objects:
         maximum: 127
         default: 0
     links:
-      - name: "subCategory"
-        target: "SubCategory"
+      - name: "articleSubCategory"
+        target: "ArticleSubCategory"
         mandatory: true 
       - name: "section"
         target: "Section"
@@ -563,7 +563,7 @@ objects:
       - name: "idx_subcategory_name"
         unique: true
         keys:
-          - link : "subCategory"
+          - link : "articleSubCategory"
           - property: "name"
       - name: "idx_section_name"
         unique: false
@@ -584,17 +584,17 @@ objects:
         minimum: 2
         maximum: 32
     links:
-      - name : "family"
-        target: "Family"
+      - name : "equipmentFamily"
+        target: "EquipmentFamily"
         mandatory: true
       - name: "company"
         target: "Company"
         mandatory: true
     indexes:
-      - name: "idx_family_name"
+      - name: "idx_equipmentfamily_name"
         unique: true
         keys:
-          - link : "family"
+          - link : "equipmentFamily"
           - property: "name"
 
 
@@ -610,8 +610,8 @@ objects:
         maximum: 127
         default: 1
     links:
-      - name: "type"
-        target: "Type"
+      - name: "equipmentType"
+        target: "EquipmentType"
         mandatory: true 
       - name: "article"
         target: "Article"
@@ -628,6 +628,10 @@ objects:
         keys:
           - link : "component"
           - link : "article"
+      - name: "idx_equipmenttype"
+        unique: false
+        keys:
+          - link : "equipmentType"
       - name: "idx_component"
         unique: false
         keys:
@@ -748,7 +752,7 @@ objects:
  
   - name: "ArticleToChange"
     attributes:
-      table_name: "article_to_change"
+      table_name: "articles_to_change"
     properties:
       - name: "id"
         type: "id"
@@ -855,7 +859,7 @@ objects:
  
   - name: "ChangedArticle"
     attributes:
-      table_name: "changed_article"
+      table_name: "changed_articles"
     properties:
       - name: "id"
         type: "id"
