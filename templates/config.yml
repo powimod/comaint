@@ -114,7 +114,7 @@ objects:
       - name: "status"
         type: "integer"
       - name: "price"
-        type: "real"
+        type: "price"
     links:
       - name: "offer"
         target: "Offer"
@@ -535,7 +535,7 @@ objects:
           - link : "type"
           - link : "article"
 
-   - name: "Inventory"
+  - name: "Inventory"
     attributes:
       table_name: "inventories"
     properties:
@@ -721,6 +721,138 @@ objects:
           - link : "intervention"
           - link : "article"
  
+
+
+#====================== Suppliers / orders
+
+  - name: "Supplier"
+    attributes:
+      table_name: "suppliers"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "name"
+        type: "string"
+        minimum: 2
+        maximum: 32
+      - name: "website"
+        type: "string"
+        mandatory: false
+      - name: "address"
+        type: "text"
+        mandatory: false
+    links:
+      - name: "company"
+        target: "Company"
+        mandatory: true 
+    indexes:
+      - name: "idx_company_name"
+        keys:
+          - link: "company"
+          - property: "name"
+
+
+  - name: "Catalog"
+    attributes:
+      table_name: "catalog"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "reference"
+        type: "string"
+        maximum: 32
+        mandatory: false
+      - name: "price"
+        type: "price"
+        mandatory: false
+    links:
+      - name: "supplier"
+        target: "Supplier"
+        mandatory: true 
+      - name: "article"
+        target: "Article"
+        mandatory: true 
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_supplier_article"
+        unique: true
+        keys:
+          - link : "supplier"
+          - link : "article"
+
+
+  - name: "Order"
+    attributes:
+      table_name: "order"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "status"
+        type: "integer"
+        minimum: 1
+        maximum: 10
+        mandatory: true
+      - name: "date"
+        type: "date"
+        mandatory: true
+      - name: "price"
+        type: "price"
+        mandatory: true 
+      - name: "reference"
+        type: "string"
+        maximum: 32
+        mandatory: false
+    links:
+      - name: "supplier"
+        target: "Supplier"
+        mandatory: true 
+      - name: "article"
+        target: "Article"
+        mandatory: true 
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_supplier_article"
+        unique: true
+        keys:
+          - link : "supplier"
+          - link : "article"
+
+
+  - name: "OrderLine"
+    attributes:
+      table_name: "order_lines"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "quantity"
+        type: "integer"
+        minimum: 1
+        maximum: 999
+      - name: "price"
+        type: "price"
+        mandatory: false
+    links:
+      - name: "order"
+        target: "Order"
+        mandatory: true 
+      - name: "article"
+        target: "Article"
+        mandatory: true 
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_order_article"
+        unique: true
+        keys:
+          - link : "order"
+          - link : "article"
+
+
 
 files:
   - scope:  "project"
