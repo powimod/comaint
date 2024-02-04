@@ -157,6 +157,11 @@ const controlProperty{{property.name|pascalCase}} = (value, i18n_t = null ) => {
 		return i18n_t('error_prop_is_malformed_email', {property: '{{propName}}'})
 	{%- endif %}
 
+	{%- if property.pattern %}
+	if (value.match(property.pattern) === null)
+		return i18n_t('error_prop_is_malformed', {property: '{{propName}}'})
+	{%- endif %}
+
 	{%- endif %}
 	return false // no error
 }
