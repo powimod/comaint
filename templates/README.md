@@ -12,3 +12,15 @@ To create database tables :
 
 To drop tables in database : 
   $ bdd < scripts/drop-db.sql
+
+Create backend config files : 
+  $ cd output/comaint-backend/
+  $ cp config.json.template config.json
+
+Customize `output/comaint-backend/config.json` file
+
+Create frontend config files : 
+  $ cd output/comaint-spa-frontend/
+  $ cp config.json.template config.json
+
+Customize `output/comaint-spa-frontend/config.json` file
