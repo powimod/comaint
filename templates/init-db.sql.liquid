@@ -47,11 +47,11 @@ CREATE TABLE {{object.attributes.table_name}}(
 		      when "integer"
 			 assign data_type = "INTEGER"
 			 if property.maximum
-			   if property.maximum <= 127
-			     assign data_type = "TINYINT"
-			   endif
 			   if property.maximum <= 32767
 			     assign data_type = "SMALLINT"
+			   endif
+			   if property.maximum <= 127
+			     assign data_type = "TINYINT"
 			   endif
 			 endif
 		      when "date"
@@ -74,9 +74,12 @@ CREATE TABLE {{object.attributes.table_name}}(
 			 assign data_type = property.type.name | append: ">>>" | prepend: "<<<"
 		   endcase
 		   if property.defaultValue 
-		         assign default_value = property.defaultValue | prepend: " DEFAULT '" | append: "'"
+		     assign default_value = property.defaultValue | prepend: " DEFAULT '" | append: "'"
+		     if property.type.name == 'boolean'
+		       assign default_value = property.defaultValue | prepend: " DEFAULT "
+		     endif
 		   else
-		         assign default_value = ""
+		     assign default_value = ""
 	           endif -%}
 		{%- if property.type.name != 'id' -%}
 			{{property.name | snakeCase }} {{data_type}}{{mandatory}}{{default_value}}, 

@@ -559,9 +559,6 @@ objects:
       - name: "company"
         target: "Company"
         mandatory: true
-      - name: "company"
-        target: "Company"
-        mandatory: true
     indexes:
       - name: "idx_subcategory_name"
         unique: true
@@ -964,7 +961,7 @@ objects:
 
   - name: "Order"
     attributes:
-      table_name: "order"
+      table_name: "orders"
     properties:
       - name: "id"
         type: "id"
