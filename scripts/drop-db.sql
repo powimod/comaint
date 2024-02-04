@@ -1,14 +1,38 @@
-USE db_comaint
+USE db_comaint;
+
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS order_lines;
+
+DROP TABLE IF EXISTS inventories;
+
+DROP TABLE IF EXISTS article_to_change;
+DROP TABLE IF EXISTS assignation;
+DROP TABLE IF EXISTS work_orders;
+
+DROP TABLE IF EXISTS changed_article;
+DROP TABLE IF EXISTS intervenant;
+DROP TABLE IF EXISTS interventions;
+
+DROP TABLE IF EXISTS catalog;
+DROP TABLE IF EXISTS suppliers;
+
+DROP TABLE IF EXISTS nomenclatures;
+DROP TABLE IF EXISTS components;
+
+DROP TABLE IF EXISTS articles;
+DROP TABLE IF EXISTS subcategories;
+DROP TABLE IF EXISTS categories;
+
+DROP TABLE IF EXISTS equipments;
+DROP TABLE IF EXISTS types;
+DROP TABLE IF EXISTS families;
+
+DROP TABLE IF EXISTS units;
+DROP TABLE IF EXISTS sections;
 
 DROP TABLE IF EXISTS tokens;
 DROP TABLE IF EXISTS users;
-
-DROP TABLE IF EXISTS equipments;
-
-DROP TABLE IF EXISTS unit_sections;
-DROP TABLE IF EXISTS units;
-
-DROP TABLE IF EXISTS equipment_types;
-DROP TABLE IF EXISTS equipment_families;
-
 DROP TABLE IF EXISTS companies;
+
+DROP TABLE IF EXISTS subscriptions;
+DROP TABLE IF EXISTS offers;
