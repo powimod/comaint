@@ -46,6 +46,14 @@ CREATE TABLE {{object.attributes.table_name}}(
 			 assign data_type = "TEXT"
 		      when "integer"
 			 assign data_type = "INTEGER"
+			 if property.maximum
+			   if property.maximum <= 127
+			     assign data_type = "TINYINT"
+			   endif
+			   if property.maximum <= 32767
+			     assign data_type = "SMALLINT"
+			   endif
+			 endif
 		      when "date"
 			 assign data_type = "DATE"
 		      when "time"

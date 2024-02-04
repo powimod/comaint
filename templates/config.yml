@@ -84,7 +84,7 @@ objects:
       - name: "duration"
         type: "integer"
       - name: "price"
-        type: "real"
+        type: "price"
       - name: "userLimit"
         type: "integer"
       - name: "equipmentLimit"
@@ -113,6 +113,8 @@ objects:
         type: "date"
       - name: "status"
         type: "integer"
+        minimum: 1
+        maximum: 10
       - name: "price"
         type: "price"
     links:
@@ -171,10 +173,9 @@ objects:
       - name: "id"
         type: "id"
       - name: "email"
-        type: "string"
+        type: "email"
         minimum: 3
-        maximum: 320
-        pattern: "^\\S+@\\S+\\.\\S+$"
+        maximum: 128
       - name: "password"
         type: "string"
         secret: true
@@ -394,6 +395,29 @@ objects:
         type: "string"
         maximum: 256
         mandatory: false
+      - name: "notes"
+        type: "text"
+        mandatory: false
+        maximum: 255
+      - name: "reference"
+        type: "string"
+        maximum: 32
+        mandatory: false
+      - name: "xPos"
+        type: "integer"
+        default: -1
+      - name: "yPos"
+        type: "integer"
+        default: -1
+      - name: "xSize"
+        type: "integer"
+        default: -1
+      - name: "ySize"
+        type: "integer"
+        default: -1
+      - name: "documents"
+        type: "text"
+        mandatory: false
     links:
       - name: "type"
         target: "Type"
@@ -401,9 +425,6 @@ objects:
       - name: "section"
         target: "Section"
         mandatory: true 
-      - name: "company"
-        target: "Company"
-        mandatory: true
       - name: "company"
         target: "Company"
         mandatory: true
@@ -482,6 +503,39 @@ objects:
         type: "string"
         maximum: 256
         mandatory: false
+      - name: "localisation"
+        type: "string"
+        maximum: 32
+        mandatory: false
+      - name: "reference"
+        type: "string"
+        maximum: 32
+        mandatory: false
+      - name: "stockQuantity"
+        type: "integer"
+        minimum: 0
+        maximum: 127
+        default: 0
+      - name: "reservedQuantity"
+        type: "integer"
+        minimum: 0
+        maximum: 127
+        default: 0
+      - name: "orderQuantity"
+        type: "integer"
+        minimum: 0
+        maximum: 127
+        default: 0
+      - name: "minimumQuantity"
+        type: "integer"
+        minimum: 0
+        maximum: 127
+        default: 0
+      - name: "quantityToOrder"
+        type: "integer"
+        minimum: 0
+        maximum: 127
+        default: 0
     links:
       - name: "subCategory"
         target: "SubCategory"
@@ -507,6 +561,32 @@ objects:
           - link : "section"
           - property: "name"
 
+#====================== Nomenclature
+
+  - name: "Component"
+    attributes:
+      table_name: "components"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "name"
+        type: "string"
+        minimum: 2
+        maximum: 32
+    links:
+      - name : "family"
+        target: "Family"
+        mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_family_name"
+        unique: true
+        keys:
+          - link : "family"
+          - property: "name"
+
 
   - name: "Nomenclature"
     attributes:
@@ -517,7 +597,8 @@ objects:
       - name: "quantity"
         type: "integer"
         minimum: 1
-        maximum: 999
+        maximum: 127
+        default: 1
     links:
       - name: "type"
         target: "Type"
@@ -525,14 +606,17 @@ objects:
       - name: "article"
         target: "Article"
         mandatory: true 
+      - name: "component"
+        target: "Component"
+        mandatory: true 
       - name: "company"
         target: "Company"
         mandatory: true
     indexes:
-      - name: "idx_type_article"
+      - name: "idx_component_article"
         unique: true
         keys:
-          - link : "type"
+          - link : "component"
           - link : "article"
 
   - name: "Inventory"
@@ -543,16 +627,19 @@ objects:
         type: "id"
       - name: "date"
         type: "datetime"
-      - name: "old_quantity"
+      - name: "oldQuantity"
         type: "integer"
-        minimum: 1
-        maximum: 999
-      - name: "new_quantity"
+        minimum: 0
+        maximum: 127
+        default: 0
+      - name: "newQuantity"
         type: "integer"
-        minimum: 1
-        maximum: 999
+        minimum: 0
+        maximum: 127
+        default: 0
       - name: "comment"
         type: "text"
+        maximum: 96
     links:
       - name: "article"
         target: "Article"
@@ -581,15 +668,26 @@ objects:
     properties:
       - name: "id"
         type: "id"
+      - name: "status"
+        type: "integer"
+        minimum: 1
+        maximum: 10
       - name: "description"
         type: "text"
+        mandatory: true
+        default: ""
       - name: "notes"
         type: "text"
+        mandatory: false
+        maximum: 255
       - name: "maintenanceType"
         type: "integer"
         minimum: 1 # preventive
         maximum: 2 # corrective
     links:
+      - name: "equipment"
+        target: "Equipment"
+        mandatory: true
       - name: "company"
         target: "Company"
         mandatory: true
@@ -626,7 +724,8 @@ objects:
       - name: "quantity"
         type: "integer"
         minimum: 1
-        maximum: 999
+        maximum: 127
+        default: 1
     links:
       - name: "workOrder"
         target: "WorkOrder"
@@ -652,6 +751,10 @@ objects:
     properties:
       - name: "id"
         type: "id"
+      - name: "status"
+        type: "integer"
+        minimum: 1
+        maximum: 10
       - name: "description"
         type: "text"
       - name: "notes"
@@ -667,6 +770,9 @@ objects:
         type: "datetime"
         mandatory: false
     links:
+      - name: "equipment"
+        target: "Equipment"
+        mandatory: true
       - name: "company"
         target: "Company"
         mandatory: true
@@ -694,16 +800,17 @@ objects:
           - link : "user"
           - link : "intervention"
  
-  - name: "ArticleChanged"
+  - name: "ChangedArticle"
     attributes:
-      table_name: "article_changed"
+      table_name: "changed_article"
     properties:
       - name: "id"
         type: "id"
       - name: "quantity"
         type: "integer"
         minimum: 1
-        maximum: 999
+        maximum: 127
+        default: 1
     links:
       - name: "intervention"
         target: "Intervention"
@@ -720,7 +827,7 @@ objects:
         keys:
           - link : "intervention"
           - link : "article"
- 
+
 
 
 #====================== Suppliers / orders
@@ -808,9 +915,6 @@ objects:
       - name: "supplier"
         target: "Supplier"
         mandatory: true 
-      - name: "article"
-        target: "Article"
-        mandatory: true 
       - name: "company"
         target: "Company"
         mandatory: true
@@ -828,13 +932,19 @@ objects:
     properties:
       - name: "id"
         type: "id"
-      - name: "quantity"
-        type: "integer"
-        minimum: 1
-        maximum: 999
       - name: "price"
         type: "price"
         mandatory: false
+      - name: "orderQuantity"
+        type: "integer"
+        minimum: 1
+        maximum: 127
+        default: 1
+      - name: "receivedQuantity"
+        type: "integer"
+        minimum: 0
+        maximum: 127
+        default: 0
     links:
       - name: "order"
         target: "Order"
