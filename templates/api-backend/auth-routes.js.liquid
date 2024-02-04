@@ -56,9 +56,6 @@ exports.initialize = (app, authModel, View, config) => {
 			const {{authIdentProp.name|camelCase}} = request.body.{{authIdentProp.name|camelCase}};
 			if ({{authIdentProp.name|camelCase}} === undefined)
 				throw new Error(`Can't find <{{authIdentProp.name|camelCase}}> in request body`);
-			if ({{authIdentProp.name|camelCase}}.match(/{{authIdentProp.attributes.pattern}}/) === null)
-				throw new Error(request.t('error.invalid_data', {'object': '{{authIdentProp.name|camelCase}}'}));
-
 			// TODO control password complexity
 			const {{authPasswordProp.name|camelCase}} = request.body.{{authPasswordProp.name|camelCase}};
 			if ({{authPasswordProp.name|camelCase}} === undefined)

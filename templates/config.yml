@@ -66,6 +66,81 @@ attributes:
 
 objects:
 
+  - name: "Offer"
+    attributes:
+      table_name: "offers"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "title"
+        type: "string"
+        minimum: 1
+        maximum: 64
+      - name: "description"
+        type: "text"
+        maximum: 256
+      - name: "active"
+        type: "boolean"
+        default: true
+      - name: "duration"
+        type: "integer"
+        default: 0
+      - name: "price"
+        type: "price"
+        default: 0
+      - name: "userLimit"
+        type: "integer"
+        default: 0
+      - name: "equipmentLimit"
+        type: "integer"
+        default: 0
+      - name: "articleLimit"
+        type: "integer"
+        default: 0
+      - name: "interventionLimit"
+        type: "integer"
+        default: 0
+      - name: "storageLimit"
+        type: "integer"
+        default: 0
+    indexes:
+      - name: "title"
+        unique: true
+        keys:
+          - property : "title"
+
+  - name: "Subscription"
+    attributes:
+      table_name: "subscriptions"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "startDate"
+        type: "date"
+      - name: "endDate"
+        type: "date"
+      - name: "status"
+        type: "integer"
+        minimum: 1
+        maximum: 10
+      - name: "price"
+        type: "price"
+    links:
+      - name: "offer"
+        target: "Offer"
+        mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "offer"
+        unique: false
+        keys:
+          - link: "offer"
+      - name: "company"
+        unique: false
+        keys:
+          - link: "company"
 
   - name: "Company"
     attributes:
@@ -75,41 +150,38 @@ objects:
         type: "id"
       - name: "name"
         type: "string"
+        minimum: 2
+        maximum: 64
+      - name: "locked"
+        type: "boolean"
+        default: false 
       - name: "address"
         type: "text"
         default: ""
-      - name: "equipmentUnitCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
-      - name: "equipmentUnitSectionCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
-      - name: "equipmentFamilyCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
-      - name: "equipmentTypeCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
-      - name: "equipmentCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
+        maximum: 128
+      - name: "city"
+        type: "text"
+        default: ""
+        maximum: 64
+      - name: "zipCode"
+        type: "text"
+        default: ""
+        maximum: 16
+      - name: "country"
+        type: "text"
+        default: ""
+        maximum: 32
+      - name: "logoUid"
+        type: "image"
+    links:
+      - name: "manager"
+        target: "Company"
+        mandatory: false
     indexes:
       - name: "name"
         unique: true
         keys:
           - property : "name"
-
-
 
   - name: "User"
     attributes:
@@ -118,10 +190,9 @@ objects:
       - name: "id"
         type: "id"
       - name: "email"
-        type: "string"
-        maximum: 320
-        attributes:
-          pattern: "^\\S+@\\S+\\.\\S+$"
+        type: "email"
+        minimum: 3
+        maximum: 128
       - name: "password"
         type: "string"
         secret: true
@@ -130,9 +201,11 @@ objects:
       - name: "firstname"
         type: "string"
         mandatory: false
+        maximum: 30
       - name: "lastname"
         type: "string"
         mandatory: false
+        maximum: 30
       - name: "accountLocked"
         type: "boolean"
         default: false
@@ -143,7 +216,27 @@ objects:
         maximum: 99999
       - name: "phone"
         type: "string"
+        maximum: 25
         mandatory: false
+      - name: "active"
+        type: "boolean"
+        default: true
+      - name: "lastConnection"
+        type: "datetime"
+        mandatory: false
+      - name: "administrator"
+        type: "boolean"
+        default: false
+      - name: "stockRole"
+        type: "integer"
+        default: 0
+        minimum: 0
+        maximum: 3
+      - name: "parkRole"
+        type: "integer"
+        default: 0
+        minimum: 0
+        maximum: 3
     links:
       - name: "company"
         target: "Company"
@@ -153,12 +246,16 @@ objects:
         unique: true
         keys:
           - property : "email"
-      - name: "id_company_lastname_firstname"
+      - name: "idx_company_lastname_firstname"
         unique: true
         keys:
           - link: "company"
           - property : "lastname"
           - property : "firstname"
+      - name: "idx_company"
+        unique: false
+        keys:
+          - link: "company"
 
   - name: "Token"
     attributes:
@@ -172,13 +269,12 @@ objects:
       - name: "user"
         target: "User"
     indexes:
-      - name: "id_user"
+      - name: "idx_user"
         unique: false
         keys:
           - link: "user"
 
-
-
+#====================== Localisation
 
   - name: "Unit"
     attributes:
@@ -188,57 +284,78 @@ objects:
         type: "id"
       - name: "name"
         type: "string"
+        minimum: 2
+        maximum: 32
       - name: "description"
         type: "string"
         mandatory: false
-      - name: "equipmentUnitSectionCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
-      - name: "equipmentCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
+      - name: "address"
+        type: "text"
+        default: ""
+        maximum: 128
+      - name: "city"
+        type: "text"
+        default: ""
+        maximum: 64
+      - name: "zipCode"
+        type: "text"
+        default: ""
+        maximum: 16
+      - name: "country"
+        type: "text"
+        default: ""
+        maximum: 32
+      - name: "planUid"
+        type: "image"
     links:
       - name: "company"
         target: "Company"
+        mandatory: true
     indexes:
-      - name: "id_company_name"
+      - name: "idx_company_name"
         unique: true
         keys:
           - link: "company"
           - property : "name"
 
-  - name: "UnitSection"
+  - name: "Section"
     attributes:
-      table_name: "unit_sections"
+      table_name: "sections"
     properties:
       - name: "id"
         type: "id"
       - name: "name"
         type: "string"
-      - name: "description"
-        type: "string"
-        mandatory: false
-      - name: "equipmentCount"
+        minimum: 2
+        maximum: 32
+      - name: "xPos"
         type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
+        default: -1
+      - name: "yPos"
+        type: "integer"
+        default: -1
+      - name: "xSize"
+        type: "integer"
+        default: -1
+      - name: "ySize"
+        type: "integer"
+        default: -1
     links:
-      - name: "company"
-        target: "Company"
       - name: "unit"
         target: "Unit"
+        mandatory: true 
+      - name: "company"
+        target: "Company"
+        mandatory: true 
     indexes:
-      - name: "id_unit_name"
+      - name: "idx_unit_name"
         unique: true
         keys:
           - link : "unit"
           - property : "name"
  
+
+#====================== Stock
 
   - name: "EquipmentFamily"
     attributes:
@@ -249,26 +366,13 @@ objects:
       - name: "name"
         type: "string"
         minimum: 2
-        maximum: 30
-      - name: "description"
-        type: "string"
-        mandatory: false
-      - name: "equipmentTypeCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
-      - name: "equipmentCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
+        maximum: 32
     links:
       - name: "company"
         target: "Company"
         mandatory: true 
     indexes:
-      - name: "id_company_name"
+      - name: "idx_company_name"
         keys:
           - link: "company"
           - property: "name"
@@ -282,26 +386,20 @@ objects:
         type: "id"
       - name: "name"
         type: "string"
-      - name: "description"
-        type: "string"
-        mandatory: false
-      - name: "equipmentCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
+        minimum: 2
+        maximum: 32
     links:
+      - name : "equipmentFamily"
+        target: "EquipmentFamily"
+        mandatory: true
       - name: "company"
         target: "Company"
         mandatory: true
-      - name : "family"
-        target: "EquipmentFamily"
-        mandatory: true
     indexes:
-      - name: "id_family_name"
+      - name: "idx_equipmentfamily_name"
         unique: true
         keys:
-          - link : "family"
+          - link : "equipmentFamily"
           - property: "name"
  
 
@@ -313,30 +411,645 @@ objects:
         type: "id"
       - name: "name"
         type: "string"
+        minimum: 2
+        maximum: 128
       - name: "description"
         type: "string"
+        maximum: 256
+        mandatory: false
+      - name: "notes"
+        type: "text"
+        mandatory: false
+        maximum: 255
+      - name: "reference"
+        type: "string"
+        maximum: 32
+        mandatory: false
+      - name: "xPos"
+        type: "integer"
+        default: -1
+      - name: "yPos"
+        type: "integer"
+        default: -1
+      - name: "xSize"
+        type: "integer"
+        default: -1
+      - name: "ySize"
+        type: "integer"
+        default: -1
+      - name: "documents"
+        type: "text"
         mandatory: false
     links:
-      - name: "company"
-        target: "Company"
-        mandatory: true
-      - name: "type"
+      - name: "equipmentType"
         target: "EquipmentType"
         mandatory: true 
       - name: "section"
-        target: "UnitSection"
+        target: "Section"
         mandatory: true 
+      - name: "company"
+        target: "Company"
+        mandatory: true
     indexes:
-      - name: "id_type_name"
+      - name: "idx_equipmenttype_name"
         unique: true
         keys:
-          - link : "type"
+          - link : "equipmentType"
           - property: "name"
       - name: "section_name"
         unique: false
         keys:
           - link : "section"
           - property: "name"
+
+
+#====================== Stock
+
+  - name: "ArticleCategory"
+    attributes:
+      table_name: "article_categories"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "name"
+        type: "string"
+        minimum: 2
+        maximum: 32
+    links:
+      - name: "company"
+        target: "Company"
+        mandatory: true 
+    indexes:
+      - name: "idx_company_name"
+        keys:
+          - link: "company"
+          - property: "name"
+
+
+  - name: "ArticleSubCategory"
+    attributes:
+      table_name: "article_subcategories"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "name"
+        type: "string"
+        minimum: 2
+        maximum: 32
+    links:
+      - name : "category"
+        target: "ArticleCategory"
+        mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_category_name"
+        unique: true
+        keys:
+          - link : "category"
+          - property: "name"
+ 
+
+  - name: "Article"
+    attributes:
+      table_name: "articles"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "name"
+        type: "string"
+        minimum: 2
+        maximum: 128
+      - name: "description"
+        type: "string"
+        maximum: 256
+        mandatory: false
+      - name: "localisation"
+        type: "string"
+        maximum: 32
+        mandatory: false
+      - name: "reference"
+        type: "string"
+        maximum: 32
+        mandatory: false
+      - name: "stockQuantity"
+        type: "integer"
+        minimum: 0
+        maximum: 127
+        default: 0
+      - name: "reservedQuantity"
+        type: "integer"
+        minimum: 0
+        maximum: 127
+        default: 0
+      - name: "orderQuantity"
+        type: "integer"
+        minimum: 0
+        maximum: 127
+        default: 0
+      - name: "minimumQuantity"
+        type: "integer"
+        minimum: 0
+        maximum: 127
+        default: 0
+      - name: "quantityToOrder"
+        type: "integer"
+        minimum: 0
+        maximum: 127
+        default: 0
+    links:
+      - name: "articleSubCategory"
+        target: "ArticleSubCategory"
+        mandatory: true 
+      - name: "section"
+        target: "Section"
+        mandatory: true 
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_subcategory_name"
+        unique: true
+        keys:
+          - link : "articleSubCategory"
+          - property: "name"
+      - name: "idx_section_name"
+        unique: false
+        keys:
+          - link : "section"
+          - property: "name"
+
+#====================== Nomenclature
+
+  - name: "Component"
+    attributes:
+      table_name: "components"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "name"
+        type: "string"
+        minimum: 2
+        maximum: 32
+    links:
+      - name : "equipmentFamily"
+        target: "EquipmentFamily"
+        mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_equipmentfamily_name"
+        unique: true
+        keys:
+          - link : "equipmentFamily"
+          - property: "name"
+
+
+  - name: "Nomenclature"
+    attributes:
+      table_name: "nomenclatures"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "quantity"
+        type: "integer"
+        minimum: 1
+        maximum: 127
+        default: 1
+    links:
+      - name: "equipmentType"
+        target: "EquipmentType"
+        mandatory: true 
+      - name: "article"
+        target: "Article"
+        mandatory: true 
+      - name: "component"
+        target: "Component"
+        mandatory: true 
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_component_article"
+        unique: true
+        keys:
+          - link : "component"
+          - link : "article"
+      - name: "idx_equipmenttype"
+        unique: false
+        keys:
+          - link : "equipmentType"
+      - name: "idx_component"
+        unique: false
+        keys:
+          - link : "component"
+      - name: "idx_article"
+        unique: false
+        keys:
+          - link : "article"
+
+  - name: "Inventory"
+    attributes:
+      table_name: "inventories"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "date"
+        type: "datetime"
+      - name: "oldQuantity"
+        type: "integer"
+        minimum: 0
+        maximum: 127
+        default: 0
+      - name: "newQuantity"
+        type: "integer"
+        minimum: 0
+        maximum: 127
+        default: 0
+      - name: "comment"
+        type: "text"
+        maximum: 96
+    links:
+      - name: "article"
+        target: "Article"
+        mandatory: true 
+      - name: "user"
+        target: "User"
+        mandatory: true 
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_article"
+        unique: false
+        keys:
+          - link : "article"
+      - name: "idx_user"
+        unique: false
+        keys:
+          - link : "user"
+ 
+#====================== WorkOrder 
+
+  - name: "WorkOrder"
+    attributes:
+      table_name: "work_orders"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "status"
+        type: "integer"
+        minimum: 1
+        maximum: 10
+      - name: "description"
+        type: "text"
+        mandatory: true
+        default: ""
+      - name: "notes"
+        type: "text"
+        mandatory: false
+        maximum: 255
+      - name: "maintenanceType"
+        type: "integer"
+        minimum: 1 # preventive
+        maximum: 2 # corrective
+    links:
+      - name: "equipment"
+        target: "Equipment"
+        mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_equipment"
+        unique: false
+        keys:
+          - link : "equipment"
+
+  - name: "Assignation"
+    attributes:
+      table_name: "assignation"
+    properties:
+      - name: "id"
+        type: "id"
+    links:
+      - name: "user"
+        target: "User"
+        mandatory: true
+      - name: "workOrder"
+        target: "WorkOrder"
+        mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_user_workorder"
+        unique: true
+        keys:
+          - link : "user"
+          - link : "workOrder"
+      - name: "idx_user"
+        unique: false
+        keys:
+          - link : "user"
+      - name: "idx_workorder"
+        unique: false
+        keys:
+          - link : "workOrder"
+ 
+  - name: "ArticleToChange"
+    attributes:
+      table_name: "articles_to_change"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "quantity"
+        type: "integer"
+        minimum: 1
+        maximum: 127
+        default: 1
+    links:
+      - name: "workOrder"
+        target: "WorkOrder"
+        mandatory: true
+      - name: "article"
+        target: "Article"
+        mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_workorder_article"
+        unique: true
+        keys:
+          - link : "workOrder"
+          - link : "article"
+      - name: "idx_workorder"
+        unique: false
+        keys:
+          - link : "workOrder"
+      - name: "idx_article"
+        unique: false
+        keys:
+          - link : "article"
+ 
+#====================== Intervention 
+
+  - name: "Intervention"
+    attributes:
+      table_name: "interventions"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "status"
+        type: "integer"
+        minimum: 1
+        maximum: 10
+      - name: "description"
+        type: "text"
+      - name: "notes"
+        type: "text"
+      - name: "maintenanceType"
+        type: "integer"
+        minimum: 1 # preventive
+        maximum: 2 # corrective
+      - name: "startDate"
+        type: "datetime"
+        mandatory: false
+      - name: "endDate"
+        type: "datetime"
+        mandatory: false
+    links:
+      - name: "equipment"
+        target: "Equipment"
+        mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_equipment"
+        unique: false
+        keys:
+          - link : "equipment"
+
+  - name: "Intervenant"
+    attributes:
+      table_name: "intervenant"
+    properties:
+      - name: "id"
+        type: "id"
+    links:
+      - name: "user"
+        target: "User"
+        mandatory: true
+      - name: "intervention"
+        target: "Intervention"
+        mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_user_intervenant"
+        unique: true
+        keys:
+          - link : "user"
+          - link : "intervention"
+      - name: "idx_user"
+        unique: false
+        keys:
+          - link : "user"
+      - name: "idx_intervenant"
+        unique: false
+        keys:
+          - link : "user"
+ 
+ 
+  - name: "ChangedArticle"
+    attributes:
+      table_name: "changed_articles"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "quantity"
+        type: "integer"
+        minimum: 1
+        maximum: 127
+        default: 1
+    links:
+      - name: "intervention"
+        target: "Intervention"
+        mandatory: true
+      - name: "article"
+        target: "Article"
+        mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_intervention_article"
+        unique: true
+        keys:
+          - link : "intervention"
+          - link : "article"
+      - name: "idx_intervention"
+        unique: false
+        keys:
+          - link : "intervention"
+      - name: "idx_article"
+        unique: false
+        keys:
+          - link : "article"
+
+
+
+#====================== Suppliers / orders
+
+  - name: "Supplier"
+    attributes:
+      table_name: "suppliers"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "name"
+        type: "string"
+        minimum: 2
+        maximum: 32
+      - name: "website"
+        type: "string"
+        mandatory: false
+      - name: "address"
+        type: "text"
+        mandatory: false
+    links:
+      - name: "company"
+        target: "Company"
+        mandatory: true 
+    indexes:
+      - name: "idx_company_name"
+        keys:
+          - link: "company"
+          - property: "name"
+
+
+  - name: "Catalog"
+    attributes:
+      table_name: "catalog"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "reference"
+        type: "string"
+        maximum: 32
+        mandatory: false
+      - name: "price"
+        type: "price"
+        mandatory: false
+    links:
+      - name: "supplier"
+        target: "Supplier"
+        mandatory: true 
+      - name: "article"
+        target: "Article"
+        mandatory: true 
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_supplier_article"
+        unique: true
+        keys:
+          - link : "supplier"
+          - link : "article"
+      - name: "idx_supplier"
+        unique: false
+        keys:
+          - link : "supplier"
+      - name: "idx_article"
+        unique: false
+        keys:
+          - link : "article"
+
+
+  - name: "Order"
+    attributes:
+      table_name: "orders"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "status"
+        type: "integer"
+        minimum: 1
+        maximum: 10
+        mandatory: true
+      - name: "date"
+        type: "date"
+        mandatory: true
+      - name: "price"
+        type: "price"
+        mandatory: true 
+      - name: "reference"
+        type: "string"
+        maximum: 32
+        mandatory: false
+    links:
+      - name: "supplier"
+        target: "Supplier"
+        mandatory: true 
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_supplier_article"
+        unique: false
+        keys:
+          - link : "supplier"
+
+
+  - name: "OrderLine"
+    attributes:
+      table_name: "order_lines"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "price"
+        type: "price"
+        mandatory: false
+      - name: "orderQuantity"
+        type: "integer"
+        minimum: 1
+        maximum: 127
+        default: 1
+      - name: "receivedQuantity"
+        type: "integer"
+        minimum: 0
+        maximum: 127
+        default: 0
+    links:
+      - name: "order"
+        target: "Order"
+        mandatory: true 
+      - name: "article"
+        target: "Article"
+        mandatory: true 
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_order_article"
+        unique: true
+        keys:
+          - link : "order"
+          - link : "article"
+      - name: "idx_order"
+        unique: false
+        keys:
+          - link : "order"
+      - name: "idx_article"
+        unique: false
+        keys:
+          - link : "article"
 
 
 

@@ -24,7 +24,11 @@ CREATE TABLE {{object.attributes.table_name}}(
 	{%- endfor -%}
 
 	{% for link in object.links %}
-	id_{{link.name | snakeCase }} INTEGER NOT NULL, 
+	{%-   assign constraint = " NOT NULL" %}
+	{%-   if link.mandatory == false %}
+	{%-     assign constraint = "" %}
+	{%-   endif %}
+	id_{{link.name | snakeCase }} INTEGER{{constraint}}, 
 	{%- endfor -%}
 
 	{% for property in object.properties %}
@@ -46,6 +50,14 @@ CREATE TABLE {{object.attributes.table_name}}(
 			 assign data_type = "TEXT"
 		      when "integer"
 			 assign data_type = "INTEGER"
+			 if property.maximum
+			   if property.maximum <= 32767
+			     assign data_type = "SMALLINT"
+			   endif
+			   if property.maximum <= 127
+			     assign data_type = "TINYINT"
+			   endif
+			 endif
 		      when "date"
 			 assign data_type = "DATE"
 		      when "time"
@@ -54,13 +66,24 @@ CREATE TABLE {{object.attributes.table_name}}(
 			 assign data_type = "DATETIME"
 		      when "boolean"
 			 assign data_type = "BOOLEAN"
+		      when "price"
+			 assign data_type = "DECIMAL(8,2)"
+		      when "uuid"
+			 assign data_type = "VARCHAR(36)"
+		      when "image"
+			 assign data_type = "VARCHAR(36)"
+		      when "email"
+			 assign data_type = "VARCHAR(96)"
 		      else
-			 assign data_type = "???"
+			 assign data_type = property.type.name | append: ">>>" | prepend: "<<<"
 		   endcase
-		   if property.defaultValue 
-		         assign default_value = property.defaultValue | prepend: " DEFAULT '" | append: "'"
+		   if property.defaultValue != nil 
+		     assign default_value = property.defaultValue | prepend: " DEFAULT '" | append: "'"
+		     if property.type.name == 'boolean'
+		       assign default_value = property.defaultValue | prepend: " DEFAULT "
+		     endif
 		   else
-		         assign default_value = ""
+		     assign default_value = ""
 	           endif -%}
 		{%- if property.type.name != 'id' -%}
 			{{property.name | snakeCase }} {{data_type}}{{mandatory}}{{default_value}}, 
