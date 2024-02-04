@@ -54,8 +54,16 @@ CREATE TABLE {{object.attributes.table_name}}(
 			 assign data_type = "DATETIME"
 		      when "boolean"
 			 assign data_type = "BOOLEAN"
+		      when "price"
+			 assign data_type = "DECIMAL(8,2)"
+		      when "uuid"
+			 assign data_type = "VARCHAR(36)"
+		      when "image"
+			 assign data_type = "VARCHAR(36)"
+		      when "email"
+			 assign data_type = "VARCHAR(96)"
 		      else
-			 assign data_type = "???"
+			 assign data_type = property.type.name | append: ">>>" | prepend: "<<<"
 		   endcase
 		   if property.defaultValue 
 		         assign default_value = property.defaultValue | prepend: " DEFAULT '" | append: "'"
