@@ -1,0 +1,233 @@
+// common part of MJS and CJS object helper
+
+{%- liquid
+assign string_types = 'string, text, uuid, email, image' | split: ', '
+assign integer_types = 'integer' | split: ', '
+assign objectName = object.name | camelCase
+%}
+
+{%- comment %}
+	'string' 'integer' 'boolean' 'text', 'uuid', 'id', 'date', 'time', 'datetime', 'email', 'image'
+	TODO : control patterns
+{%- endcomment %}
+{% echo %}
+{%- for property in object.properties %} 
+{%- assign propName = property.name|camelCase %}
+{%- if property.minimum %}
+const {{propName}}Min = {{property.minimum}}
+{%- endif %}
+{%- if property.maximum %}
+const {{propName}}Max = {{property.maximum}}
+{%- endif %}
+{%- endfor %}
+
+function dumpError(error, infos = null) {
+        return `${error} : ${JSON.stringify(infos)}`
+}
+
+
+{% for link in object.links%} 
+{%- assign linkName = link.name|camelCase %}
+//============ Link [{{linkName}}]
+// - mandatory = {{link.mandatory}}
+//
+const controlLink{{link.name|pascalCase}} = (value, i18n_t = null ) => {
+	if (i18n_t === null) i18n_t = dumpError
+	if (value === undefined)
+		return `Value of '{{link.name|camelCase}}Id' is not defined`
+{%- if link.mandatory == false %}
+	if (value === null) 
+		return false // no error because not mandatory
+{%- else  %}
+	if (value === null)
+		return `Value of '{{link.name|camelCase}}Id' is null`
+{%- endif %}
+	if (isNaN(value))
+		return `Value of '{{link.name|camelCase}}Id' is not numeric`
+	return false // no error
+}
+{%- endfor %}
+
+
+{% for property in object.properties %} 
+{%- assign propName = property.name|camelCase %}
+//============ Property [{{propName}}]
+// - type = {{property.type.name}}
+// - mandatory = {{property.mandatory}}
+{%- if property.minimum %}
+// - minimum = {{property.minimum}}
+{%- endif %}
+{%- if property.maximum %}
+// - maximum = {{property.maximum}}
+{%- endif %}
+//
+
+const controlProperty{{property.name|pascalCase}} = (value, i18n_t = null ) => {
+	if (i18n_t === null) i18n_t = dumpError
+	if (value === undefined)
+		return i18n_t('error.prop.is_not_defined', {property: '{{propName}}'}) 
+{%- if property.mandatory == false %}
+	if (value === null) 
+		return false // no error because not mandatory
+{%- else  %}
+	if (value === null)
+		return i18n_t('error.prop.is_null', {property: '{{propName}}'})
+{%- endif %}
+
+	{%- if property.type.name == 'id' %}
+	if (isNaN(value))
+		return i18n_t('error.prop.is_not_an_integer', {property: '{{propName}}'})
+	{%- else %}
+
+	{%- if integer_types contains property.type.name %}
+	if (isNaN(value))
+		return i18n_t('error.prop.is_not_an_integer', {property: '{{propName}}'})
+	value = parseInt(value)
+	{%- if property.minimum %}
+	if (value < {{propName}}Min)
+		return i18n_t('error.prop.is_too_small', {property: '{{propName}}', minLength:{{propName}}Min}) 
+	{%- endif %}
+	{%- if property.maximum %}
+	if (value > {{propName}}Max)
+		return i18n_t('error.prop.is_too_large', {property: '{{propName}}', maxLength:{{propName}}Max}) 
+	{%- endif %}
+	{%- endif %}
+
+	{%- if string_types contains property.type.name %}
+	if (typeof(value) !== 'string' )
+		return i18n_t('error.prop.is_not_a_string', {property: '{{propName}}'}) 
+	{%- if property.minimum %}
+	if (value.length < {{propName}}Min)
+		return i18n_t('error.prop.is_too_short', {property: '{{propName}}', minLength:{{propName}}Min}) 
+	{%- endif %}
+	{%- if property.maximum %}
+	if (value.length > {{propName}}Max)
+		return i18n_t('error.prop.is_too_long', {property: '{{propName}}', maxLength:{{propName}}Max}) 
+	{%- endif %}
+	{%- endif %}
+
+	{%- if property.secret  %}
+	const passwordMinLength = 6
+	if (value.length < passwordMinLength) 
+		return i18n_t('error.prop.password_to_small', {property: 'password', minLength: passwordMinLength})
+	let nLower = 0
+	let nUpper = 0
+	let nDigit = 0
+	let nSpec = 0
+	for (const c of value) {
+		if (c >= 'a' && c <= 'z') nLower++
+		else if (c >= 'A' && c <= 'Z') nUpper++
+		else if (c >= '0' && c <= '9') nDigit++
+		else nSpec++ 
+	}
+	if (nLower == 0)
+		return i18n_t('error.prop.password_no_lowercase_letter', {property: '{{propName}}'})
+	if (nUpper == 0)
+		return i18n_t('error.prop.password_no_uppercase_letter', {property: '{{propName}}'})
+	if (nDigit == 0)
+		return i18n_t('error.prop.password_no_digit_character', {property: '{{propName}}'})
+	if (nSpec == 0)
+		return i18n_t('error.prop.password_no_special_character', {property: '{{propName}}'})
+	{%- endif %}
+
+	{%- if property.type.name == 'boolean' %}
+	if (typeof(value) !== 'boolean')
+		return i18n_t('error.prop.is_not_a_boolean', {property: '{{propName}}'}) 
+	{%- endif %}
+
+	{%- if property.type.name == 'date' %}
+	if (! (value instanceof Date))
+		return i18n_t('error.prop.is_not_a_date', {property: '{{propName}}'})
+	// if (value.getUTCHours() !== 0 || value.getUTCMinutes() !== 0 || value.getUTCSeconds() !== 0)
+	//	return i18n_t('error.prop.is_not_a_pure_date', {property: '{{propName}}'})
+	{%- endif %}
+
+	{%- if property.type.name == 'datetime' %}
+	if (! (value instanceof Date))
+		return i18n_t('error.prop.is_not_a_datetime', {property: '{{propName}}'})
+	{%- endif %}
+
+	{%- if property.type.name == 'email' %}
+	if (value.match(/\S+@\S+\.\S+/) === null)
+		return i18n_t('error.prop.is_malformed_email', {property: '{{propName}}'})
+	{%- endif %}
+
+	{%- if property.type.name == 'uuid' %}
+	if (value.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/) === null)
+		return i18n_t('error.prop.is_malformed_uuid', {property: '{{propName}}'})
+	{%- endif %}
+
+	{%- if property.pattern %}
+	if (value.match(property.pattern) === null)
+		return i18n_t('error.prop.is_malformed', {property: '{{propName}}'})
+	{%- endif %}
+
+	{%- endif %}
+	return false // no error
+}
+{% endfor %}
+
+const controlObject{{object.name|pascalCase}} = ({{objectName}}, fullCheck = false, checkId = false, i18n_t = null ) => {
+	if (i18n_t === null) i18n_t = dumpError
+	if ({{objectName}} === undefined) 
+		return `Object {{object.name|pascalCase}} is not defined`
+	if ({{objectName}} === null)
+		return `Object {{object.name|pascalCase}} is null`
+	if (typeof({{objectName}}) !== 'object')
+		return `Object {{object.name|pascalCase}} is not an object`
+
+	let error;
+{%- for property in object.properties %} 
+	{%- assign propName = property.name|camelCase %}
+	{%- if property.type.name == 'id' %}
+	if (checkId) {
+		error = controlProperty{{property.name|pascalCase}}({{objectName}}.{{propName}})
+		if (error) return error
+	}
+	{%- else %}
+	if ({{objectName}}.{{propName}} !== undefined || fullCheck) {
+		error = controlProperty{{property.name|pascalCase}}({{objectName}}.{{propName}})
+		if (error) return error
+	}
+	{%- endif %}
+{%- endfor %}
+{%- for link in object.links %} 
+	{%- assign linkName = link.name|camelCase %}
+	if ({{objectName}}.{{linkName}}Id !== undefined || fullCheck) {
+		error = controlLink{{link.name|pascalCase}}({{objectName}}.{{linkName}}Id)
+		if (error) return error
+	}
+{%- endfor %}
+
+	return false // no error
+}
+
+
+const convert{{object.name|pascalCase}}FromDb = (record) => {
+	if (record === undefined)
+		throw new Error('Argument [record] is missing')
+	return {
+{%- for property in object.properties %} 
+		{{property.name|camelCase}}: record.{{property.name|snakeCase}},
+{%- endfor %}
+{%- for link in object.links %} 
+		{{link.name|camelCase}}Id: record.id_{{link.name|snakeCase}},
+{%- endfor %}
+	};
+}
+
+const convert{{object.name|PacalCase}}ToDb = ({{objectName}}) => {
+	if ({{objectName}}=== undefined)
+		throw new Error('Argument [record] is missing')
+	return {
+{%- for property in object.properties %} 
+		{{property.name|snakeCase}}: {{objectName}}.{{property.name|camelCase}},
+{%- endfor %}
+{%- for link in object.links %} 
+		id_{{link.name|snakeCase}}: {{objectName}}.{{link.name|camelCase}}Id,
+{%- endfor %}
+	};
+}
+
+
+

@@ -1,0 +1,25 @@
+{%- assign filename = object.name | kebabCase | append: "-object-helper.mjs" -%}
+{% render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : filename
+		%}
+'use strict'
+
+{% include "./object-helper-common.js.liquid" %}
+
+export {
+{%- for property in object.properties %} 
+{%- assign propName = property.name|camelCase %}
+	controlProperty{{property.name|pascalCase}},
+{%- endfor %}
+{%- for link in object.links%} 
+{%- assign linkName = link.name|camelCase %}
+	controlLink{{link.name|pascalCase}},
+{%- endfor %}
+	controlObject{{object.name|pascalCase}},
+	convert{{object.name|pascalCase}}FromDb,
+	convert{{object.name|pascalCase}}ToDb
+}

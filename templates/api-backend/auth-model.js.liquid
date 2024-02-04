@@ -42,10 +42,10 @@ class AuthModel {
 		return parseInt(Math.random() * (maximum - minimum) + minimum);
 	}
 
-	static async sendValidationCode(code, email) {
-		const subject = "Comaint registering";
-		const textBody = `Welcome,\nYour validation code is ${code}`;
-		const htmlBody = `Welcome,\nYour validation code is <b>${code}</b>`;
+	static async sendValidationCode(code, email, i18n_t) {
+		const subject = i18n_t('register.mail_title')
+		const textBody = i18n_t('register.mail_body', { 'code' : code })
+		const htmlBody = i18n_t('register.mail_body', { 'code' : `<b>${code}</b>code` })
 		return await util.sendMail(
 				email,
 				subject,
@@ -59,7 +59,7 @@ class AuthModel {
 		{%- for accountField in authAccountFields -%}
 		{{accountField|camelCase}}, 
 		{%- endfor -%}
-		{{authCodeProp.name}}) {
+		{{authCodeProp.name}}, i18n_t) {
 		assert({{authIdentProp.name}} !== undefined);
 		assert({{authPasswordProp.name}} !== undefined);
 		assert({{authCodeProp.name}} !== undefined);
@@ -72,7 +72,7 @@ class AuthModel {
 		if (result.code)
 			throw new Error(result.code);
 		if (result.length > 0) 
-			throw new Error('An account with this {{authIdentProp.name}} already exists');
+			throw new Error(i18n_t('register.account_already_exists'));
 
 		// make a hash of the password
 		assert(this.#config.security.hashSalt !== undefined);
@@ -108,7 +108,7 @@ class AuthModel {
 		}
 	}
 
-	static async validateRegistration({{authObject.name|camelCase}}Id, {{authCodeProp.name}}) {
+	static async validateRegistration({{authObject.name|camelCase}}Id, {{authCodeProp.name}}, i18n_t) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
 		let sqlRequest = `
@@ -126,7 +126,7 @@ class AuthModel {
 		if ({{authCodeProp.name}} !== result[0].{{authCodeProp.name|snakeCase}})
 			throw new Error('Invalid code');
 		if (! result[0].{{authLockProp.name|snakeCase}})
-			throw new Error('Account is not locked');
+			throw new Error(i18n_t('error.account_not_locked'));
 
 		// unlock {{authObject.name|pascalCase}} account and reset validation code
 		sqlRequest = `UPDATE {{authTableName}} 
@@ -137,11 +137,10 @@ class AuthModel {
 		if (result.code)
 			throw new Error(result.code);
 		if (result.affectedRows=== 0) 
-			throw new Error('{{authObject.name|pascalCase}} not found');
-
+			throw new Error(i18n_t('error.account_not_found'));
 	}
 
-	static async login({{authIdentProp.name}}, {{authPasswordProp.name}}) {
+	static async login({{authIdentProp.name}}, {{authPasswordProp.name}}, i18n_t) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
 		{% liquid
@@ -159,11 +158,11 @@ class AuthModel {
 		if (result.code)
 			throw new Error(result.code);
 		if (result.length === 0) 
-			throw new Error('Unknown {{authIdentProp.name}} or invalid {{authPasswordProp.name}}');
+			throw new Error(i18n_t('error.invalid_account_ident'));
 		const bcrypt = require('bcrypt');
 		const {{authPasswordProp.name}}Valid = await bcrypt.compare({{authPasswordProp.name}}, result[0].{{authPasswordProp.name}});
 		if (! {{authPasswordProp.name}}Valid)
-			throw new Error('Unknown {{authIdentProp.name}} or invalid {{authPasswordProp.name}}');
+			throw new Error(i18n_t('error.invalid_account_ident'));
 		if (result[0].{{authLockProp.name}})
 			throw new Error('{{authObject.name|pascalCase}} account is locked');
 		return {

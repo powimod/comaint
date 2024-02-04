@@ -1,4 +1,3 @@
-{% raw %}
 {
 	"yes" : "Yes",
 	"no" : "No",
@@ -14,8 +13,8 @@
 	"contact_us": "Contact us",
 	"privacy_policy": "Privacy policy",
 	"terms_of_use": "Terms of use",
-	"all_right_reserved": "© All right reserved {{name}} - {{years}}",
-	"product_conception": "{{name}} conception",
+	{% raw %}"all_right_reserved": "© All right reserved {{name}} - {{years}}", {% endraw %}
+	{% raw %}"product_conception": "{{name}} conception", {% endraw %}
 
 	"public_welcome_text": "Welcome to Comaint",
 
@@ -60,12 +59,15 @@
 	"error-page-home-link": "Home",
 
 	"about-link": "About",
-	"frontend_version": "Frontal version : {{version}}",
-	"backend_version": "Backend version : {{version}}",
+	{% raw %}"frontend_version": "Frontal version : {{version}}", {% endraw %}
+	{% raw %}"backend_version": "Backend version : {{version}}", {% endraw %}
 	"website": "Website",
 	"contact": "Contact",
 
 	"logout-button": "Logout",
-	"logout-question": "Do you want to disconnect ?"
+	"logout-question": "Do you want to disconnect ?",
+
+	"error": {
+{%- include "../../global/locales/translation-en.json.liquid" %}
+	}
 }
-{% endraw %}

@@ -1,5 +1,26 @@
+{% liquid 
+	assign authObject = project.objects | where: 'name',  project.attributes.auth_object | first
+	assign authIdentProp = authObject.properties | where: 'name', project.attributes.auth_ident_property | first
+	assign authPasswordProp = authObject.properties | where: 'name', project.attributes.auth_password_property | first
+%}
 {
 	"general": {
 		"loading": "Chargement en cours..."
+	},
+	"error": {
+		{% raw %}"invalid_data": "{{object}} invalide !",{% endraw %}
+		{% raw %}"empty_data": "Le champ '{{object}}' est vide !",{% endraw %}
+		{% raw %}"too_short_data": "Le champ '{{object}}' est trop petit !",{% endraw %}
+		{% raw %}"too_long_data": "Le champ '{{object}}' est trop long !",{% endraw %}
+		"account_locked": "Le compte est verrouillé",
+		"account_not_locked": "Le compte n'est pas verrouillé",
+		"account_not_found": "Ce compte n'existe pas",
+		"invalid_account_ident": "{{authIdentProp.name|PascalCase}} inconnu ou {{authPasswordProp.name}} incorrect",
+{%- include "../../global/locales/translation-fr.json.liquid" %}
+	},
+	"register": {
+		"account_already_exists" : "Un compte avec cet {{authIdentProp.name}} existe déjà",
+		{% raw %}"mail_body": "Bonjour,\nVotre code pour la création d'un compte vaut {{code}}.\nSi vous n'êtes pas à l'origine de cette demande, ignorez simplement ce message",{% endraw %}
+		"mail_title": "Enregistrement {{project.attributes.company}}"
 	}
 }

@@ -1,4 +1,3 @@
-{% raw %}
 {
 	"yes" : "Oui",
 	"no" : "Non",
@@ -14,8 +13,8 @@
 	"contact_us": "Contactez-nous",
 	"privacy_policy": "Politique de confidentialité",
 	"terms_of_use": "Conditions d'utilisation",
-	"all_right_reserved": "© Tous droits réservés {{name}} - {{years}}",
-	"product_conception": "Conçu par {{name}}",
+	{% raw %}"all_right_reserved": "© Tous droits réservés {{name}} - {{years}}", {% endraw %}
+	{% raw %}"product_conception": "Conçu par {{name}}", {% endraw %}
 
 	"public_welcome_text": "Bienvenue sur Comaint",
 
@@ -60,12 +59,16 @@
 	"error-page-home-link": "Accueil",
 
 	"about-link": "À propos de",
-	"frontend_version": "Version du frontal : {{version}}",
-	"backend_version": "Version du dorsal : {{version}}",
+	{% raw %}"frontend_version": "Version du frontal : {{version}}", {% endraw %}
+	{% raw %}"backend_version": "Version du dorsal : {{version}}", {% endraw %}
 	"website": "Site web",
 	"contact": "Contact",
 
 	"logout-button": "Se déconnecter",
-	"logout-question": "Voulez-vous vous déconnecter ?"
+	"logout-question": "Voulez-vous vous déconnecter ?",
+
+	"error": {
+{%- include "../../global/locales/translation-fr.json.liquid" %}
+	}
+
 }
-{% endraw %}
