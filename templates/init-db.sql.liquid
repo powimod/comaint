@@ -24,7 +24,11 @@ CREATE TABLE {{object.attributes.table_name}}(
 	{%- endfor -%}
 
 	{% for link in object.links %}
-	id_{{link.name | snakeCase }} INTEGER NOT NULL, 
+	{%-   assign constraint = " NOT NULL" %}
+	{%-   if link.mandatory == false %}
+	{%-     assign constraint = "" %}
+	{%-   endif %}
+	id_{{link.name | snakeCase }} INTEGER{{constraint}}, 
 	{%- endfor -%}
 
 	{% for property in object.properties %}
