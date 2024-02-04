@@ -117,12 +117,12 @@ objects:
         type: "real"
     links:
       - name: "offer"
-        target: "offer"
+        target: "Offer"
         mandatory: true
       - name: "company"
-        target: "company"
+        target: "Company"
         mandatory: true
- 
+
   - name: "Company"
     attributes:
       table_name: "companies"
@@ -156,7 +156,7 @@ objects:
         type: "image"
     links:
       - name: "manager"
-        target: "company"
+        target: "Company"
         mandatory: false
     indexes:
       - name: "name"
@@ -227,7 +227,7 @@ objects:
         unique: true
         keys:
           - property : "email"
-      - name: "id_company_lastname_firstname"
+      - name: "idx_company_lastname_firstname"
         unique: true
         keys:
           - link: "company"
@@ -246,10 +246,12 @@ objects:
       - name: "user"
         target: "User"
     indexes:
-      - name: "id_user"
+      - name: "idx_user"
         unique: false
         keys:
           - link: "user"
+
+#====================== Localisation
 
   - name: "Unit"
     attributes:
@@ -282,12 +284,12 @@ objects:
         maximum: 32
       - name: "planUid"
         type: "image"
-
     links:
       - name: "company"
         target: "Company"
+        mandatory: true
     indexes:
-      - name: "id_company_name"
+      - name: "idx_company_name"
         unique: true
         keys:
           - link: "company"
@@ -316,17 +318,21 @@ objects:
         type: "integer"
         default: -1
     links:
-      - name: "company"
-        target: "Company"
       - name: "unit"
         target: "Unit"
+        mandatory: true 
+      - name: "company"
+        target: "Company"
+        mandatory: true 
     indexes:
-      - name: "id_unit_name"
+      - name: "idx_unit_name"
         unique: true
         keys:
           - link : "unit"
           - property : "name"
  
+
+#====================== Stock
 
   - name: "Family"
     attributes:
@@ -343,7 +349,7 @@ objects:
         target: "Company"
         mandatory: true 
     indexes:
-      - name: "id_company_name"
+      - name: "idx_company_name"
         keys:
           - link: "company"
           - property: "name"
@@ -360,14 +366,14 @@ objects:
         minimum: 2
         maximum: 32
     links:
-      - name: "company"
-        target: "Company"
-        mandatory: true
       - name : "family"
         target: "Family"
         mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
     indexes:
-      - name: "id_family_name"
+      - name: "idx_family_name"
         unique: true
         keys:
           - link : "family"
@@ -389,17 +395,20 @@ objects:
         maximum: 256
         mandatory: false
     links:
-      - name: "company"
-        target: "Company"
-        mandatory: true
       - name: "type"
         target: "Type"
         mandatory: true 
       - name: "section"
         target: "Section"
         mandatory: true 
+      - name: "company"
+        target: "Company"
+        mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
     indexes:
-      - name: "id_type_name"
+      - name: "idx_type_name"
         unique: true
         keys:
           - link : "type"
@@ -411,8 +420,308 @@ objects:
           - property: "name"
 
 
+#====================== Stock
 
-        
+  - name: "Category"
+    attributes:
+      table_name: "categories"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "name"
+        type: "string"
+        minimum: 2
+        maximum: 32
+    links:
+      - name: "company"
+        target: "Company"
+        mandatory: true 
+    indexes:
+      - name: "idx_company_name"
+        keys:
+          - link: "company"
+          - property: "name"
+
+
+  - name: "SubCategory"
+    attributes:
+      table_name: "subcategories"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "name"
+        type: "string"
+        minimum: 2
+        maximum: 32
+    links:
+      - name : "category"
+        target: "Category"
+        mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_category_name"
+        unique: true
+        keys:
+          - link : "category"
+          - property: "name"
+ 
+
+  - name: "Article"
+    attributes:
+      table_name: "articles"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "name"
+        type: "string"
+        minimum: 2
+        maximum: 128
+      - name: "description"
+        type: "string"
+        maximum: 256
+        mandatory: false
+    links:
+      - name: "subCategory"
+        target: "SubCategory"
+        mandatory: true 
+      - name: "section"
+        target: "Section"
+        mandatory: true 
+      - name: "company"
+        target: "Company"
+        mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_subcategory_name"
+        unique: true
+        keys:
+          - link : "subCategory"
+          - property: "name"
+      - name: "section_name"
+        unique: false
+        keys:
+          - link : "section"
+          - property: "name"
+
+
+  - name: "Nomenclature"
+    attributes:
+      table_name: "nomenclatures"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "quantity"
+        type: "integer"
+        minimum: 1
+        maximum: 999
+    links:
+      - name: "type"
+        target: "Type"
+        mandatory: true 
+      - name: "article"
+        target: "Article"
+        mandatory: true 
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_type_article"
+        unique: true
+        keys:
+          - link : "type"
+          - link : "article"
+
+   - name: "Inventory"
+    attributes:
+      table_name: "inventories"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "date"
+        type: "datetime"
+      - name: "old_quantity"
+        type: "integer"
+        minimum: 1
+        maximum: 999
+      - name: "new_quantity"
+        type: "integer"
+        minimum: 1
+        maximum: 999
+      - name: "comment"
+        type: "text"
+    links:
+      - name: "article"
+        target: "Article"
+        mandatory: true 
+      - name: "user"
+        target: "User"
+        mandatory: true 
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_article"
+        unique: false
+        keys:
+          - link : "article"
+      - name: "idx_user"
+        unique: false
+        keys:
+          - link : "user"
+ 
+#====================== WorkOrder 
+
+  - name: "WorkOrder"
+    attributes:
+      table_name: "work_orders"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "description"
+        type: "text"
+      - name: "notes"
+        type: "text"
+      - name: "maintenanceType"
+        type: "integer"
+        minimum: 1 # preventive
+        maximum: 2 # corrective
+    links:
+      - name: "company"
+        target: "Company"
+        mandatory: true
+
+  - name: "Assignation"
+    attributes:
+      table_name: "assignation"
+    properties:
+      - name: "id"
+        type: "id"
+    links:
+      - name: "user"
+        target: "User"
+        mandatory: true
+      - name: "workOrder"
+        target: "WorkOrder"
+        mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_user_assignation"
+        unique: true
+        keys:
+          - link : "user"
+          - link : "workOrder"
+ 
+  - name: "ArticleToChange"
+    attributes:
+      table_name: "article_to_change"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "quantity"
+        type: "integer"
+        minimum: 1
+        maximum: 999
+    links:
+      - name: "workOrder"
+        target: "WorkOrder"
+        mandatory: true
+      - name: "article"
+        target: "Article"
+        mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_workorder_article"
+        unique: true
+        keys:
+          - link : "workOrder"
+          - link : "article"
+ 
+#====================== Intervention 
+
+  - name: "Intervention"
+    attributes:
+      table_name: "interventions"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "description"
+        type: "text"
+      - name: "notes"
+        type: "text"
+      - name: "maintenanceType"
+        type: "integer"
+        minimum: 1 # preventive
+        maximum: 2 # corrective
+      - name: "startDate"
+        type: "datetime"
+        mandatory: false
+      - name: "endDate"
+        type: "datetime"
+        mandatory: false
+    links:
+      - name: "company"
+        target: "Company"
+        mandatory: true
+
+  - name: "Intervenant"
+    attributes:
+      table_name: "intervenant"
+    properties:
+      - name: "id"
+        type: "id"
+    links:
+      - name: "user"
+        target: "User"
+        mandatory: true
+      - name: "intervention"
+        target: "Intervention"
+        mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_user_intervenant"
+        unique: true
+        keys:
+          - link : "user"
+          - link : "intervention"
+ 
+  - name: "ArticleChanged"
+    attributes:
+      table_name: "article_changed"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "quantity"
+        type: "integer"
+        minimum: 1
+        maximum: 999
+    links:
+      - name: "intervention"
+        target: "Intervention"
+        mandatory: true
+      - name: "article"
+        target: "Article"
+        mandatory: true
+      - name: "company"
+        target: "Company"
+        mandatory: true
+    indexes:
+      - name: "idx_intervention_article"
+        unique: true
+        keys:
+          - link : "intervention"
+          - link : "article"
+ 
+
 files:
   - scope:  "project"
     input:  "templates/init-db.sql.liquid"
