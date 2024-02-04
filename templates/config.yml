@@ -66,7 +66,63 @@ attributes:
 
 objects:
 
+  - name: "Offer"
+    attributes:
+      table_name: "offers"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "title"
+        type: "string"
+        minimum: 1
+        maximum: 64
+      - name: "description"
+        type: "text"
+        maximum: 256
+      - name: "active"
+        type: "boolean"
+      - name: "duration"
+        type: "integer"
+      - name: "price"
+        type: "real"
+      - name: "userLimit"
+        type: "integer"
+      - name: "equipmentLimit"
+        type: "integer"
+      - name: "articleLimit"
+        type: "integer"
+      - name: "interventionLimit"
+        type: "integer"
+      - name: "storageLimit"
+        type: "integer"
+    indexes:
+      - name: "title"
+        unique: true
+        keys:
+          - property : "title"
 
+  - name: "Subscription"
+    attributes:
+      table_name: "subscriptions"
+    properties:
+      - name: "id"
+        type: "id"
+      - name: "startDate"
+        type: "date"
+      - name: "endDate"
+        type: "date"
+      - name: "status"
+        type: "integer"
+      - name: "price"
+        type: "real"
+    links:
+      - name: "offer"
+        target: "offer"
+        mandatory: true
+      - name: "company"
+        target: "company"
+        mandatory: true
+ 
   - name: "Company"
     attributes:
       table_name: "companies"
@@ -75,41 +131,38 @@ objects:
         type: "id"
       - name: "name"
         type: "string"
+        minimum: 2
+        maximum: 64
+      - name: "locked"
+        type: "boolean"
+        default: false 
       - name: "address"
         type: "text"
         default: ""
-      - name: "equipmentUnitCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
-      - name: "equipmentUnitSectionCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
-      - name: "equipmentFamilyCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
-      - name: "equipmentTypeCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
-      - name: "equipmentCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
+        maximum: 128
+      - name: "city"
+        type: "text"
+        default: ""
+        maximum: 64
+      - name: "zipCode"
+        type: "text"
+        default: ""
+        maximum: 16
+      - name: "country"
+        type: "text"
+        default: ""
+        maximum: 32
+      - name: "logoUid"
+        type: "image"
+    links:
+      - name: "manager"
+        target: "company"
+        mandatory: false
     indexes:
       - name: "name"
         unique: true
         keys:
           - property : "name"
-
-
 
   - name: "User"
     attributes:
@@ -119,9 +172,9 @@ objects:
         type: "id"
       - name: "email"
         type: "string"
+        minimum: 3
         maximum: 320
-        attributes:
-          pattern: "^\\S+@\\S+\\.\\S+$"
+        pattern: "^\\S+@\\S+\\.\\S+$"
       - name: "password"
         type: "string"
         secret: true
@@ -130,9 +183,11 @@ objects:
       - name: "firstname"
         type: "string"
         mandatory: false
+        maximum: 30
       - name: "lastname"
         type: "string"
         mandatory: false
+        maximum: 30
       - name: "accountLocked"
         type: "boolean"
         default: false
@@ -143,7 +198,26 @@ objects:
         maximum: 99999
       - name: "phone"
         type: "string"
+        maximum: 25
         mandatory: false
+      - name: "active"
+        type: "boolean"
+        default: true
+      - name: "lastConnection"
+        type: "datetime"
+      - name: "administrator"
+        type: "boolean"
+        default: false
+      - name: "stockRole"
+        type: "integer"
+        default: 0
+        minimum: 0
+        maximum: 3
+      - name: "parkRole"
+        type: "integer"
+        default: 0
+        minimum: 0
+        maximum: 3
     links:
       - name: "company"
         target: "Company"
@@ -177,9 +251,6 @@ objects:
         keys:
           - link: "user"
 
-
-
-
   - name: "Unit"
     attributes:
       table_name: "units"
@@ -188,19 +259,30 @@ objects:
         type: "id"
       - name: "name"
         type: "string"
+        minimum: 2
+        maximum: 32
       - name: "description"
         type: "string"
         mandatory: false
-      - name: "equipmentUnitSectionCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
-      - name: "equipmentCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
+      - name: "address"
+        type: "text"
+        default: ""
+        maximum: 128
+      - name: "city"
+        type: "text"
+        default: ""
+        maximum: 64
+      - name: "zipCode"
+        type: "text"
+        default: ""
+        maximum: 16
+      - name: "country"
+        type: "text"
+        default: ""
+        maximum: 32
+      - name: "planUid"
+        type: "image"
+
     links:
       - name: "company"
         target: "Company"
@@ -211,22 +293,28 @@ objects:
           - link: "company"
           - property : "name"
 
-  - name: "UnitSection"
+  - name: "Section"
     attributes:
-      table_name: "unit_sections"
+      table_name: "sections"
     properties:
       - name: "id"
         type: "id"
       - name: "name"
         type: "string"
-      - name: "description"
-        type: "string"
-        mandatory: false
-      - name: "equipmentCount"
+        minimum: 2
+        maximum: 32
+      - name: "xPos"
         type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
+        default: -1
+      - name: "yPos"
+        type: "integer"
+        default: -1
+      - name: "xSize"
+        type: "integer"
+        default: -1
+      - name: "ySize"
+        type: "integer"
+        default: -1
     links:
       - name: "company"
         target: "Company"
@@ -240,29 +328,16 @@ objects:
           - property : "name"
  
 
-  - name: "EquipmentFamily"
+  - name: "Family"
     attributes:
-      table_name: "equipment_families"
+      table_name: "families"
     properties:
       - name: "id"
         type: "id"
       - name: "name"
         type: "string"
         minimum: 2
-        maximum: 30
-      - name: "description"
-        type: "string"
-        mandatory: false
-      - name: "equipmentTypeCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
-      - name: "equipmentCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
+        maximum: 32
     links:
       - name: "company"
         target: "Company"
@@ -274,28 +349,22 @@ objects:
           - property: "name"
 
 
-  - name: "EquipmentType"
+  - name: "Type"
     attributes:
-      table_name: "equipment_types"
+      table_name: "types"
     properties:
       - name: "id"
         type: "id"
       - name: "name"
         type: "string"
-      - name: "description"
-        type: "string"
-        mandatory: false
-      - name: "equipmentCount"
-        type: "integer"
-        default: 0
-        attributes:
-          auto_counter: true
+        minimum: 2
+        maximum: 32
     links:
       - name: "company"
         target: "Company"
         mandatory: true
       - name : "family"
-        target: "EquipmentFamily"
+        target: "Family"
         mandatory: true
     indexes:
       - name: "id_family_name"
@@ -313,18 +382,21 @@ objects:
         type: "id"
       - name: "name"
         type: "string"
+        minimum: 2
+        maximum: 128
       - name: "description"
         type: "string"
+        maximum: 256
         mandatory: false
     links:
       - name: "company"
         target: "Company"
         mandatory: true
       - name: "type"
-        target: "EquipmentType"
+        target: "Type"
         mandatory: true 
       - name: "section"
-        target: "UnitSection"
+        target: "Section"
         mandatory: true 
     indexes:
       - name: "id_type_name"
@@ -340,6 +412,7 @@ objects:
 
 
 
+        
 files:
   - scope:  "project"
     input:  "templates/init-db.sql.liquid"
