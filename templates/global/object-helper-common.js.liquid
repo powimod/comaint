@@ -34,16 +34,16 @@ function dumpError(error, infos = null) {
 const controlLink{{link.name|pascalCase}} = (value, i18n_t = null ) => {
 	if (i18n_t === null) i18n_t = dumpError
 	if (value === undefined)
-		return i18n_t('error_link_is_not_defined', {link: '{{linkName}}'}) 
+		return `Value of '{{link.name|camelCase}}Id' is not defined`
 {%- if link.mandatory == false %}
 	if (value === null) 
 		return false // no error because not mandatory
 {%- else  %}
 	if (value === null)
-		return i18n_t('error_link_is_null', {link: '{{linkName}}'})
+		return `Value of '{{link.name|camelCase}}Id' is null`
 {%- endif %}
 	if (isNaN(value))
-		return i18n_t('error_link_is_not_an_integer', {property: '{{linkName}}'})
+		return `Value of '{{link.name|camelCase}}Id' is not numeric`
 	return false // no error
 }
 {%- endfor %}
@@ -65,51 +65,51 @@ const controlLink{{link.name|pascalCase}} = (value, i18n_t = null ) => {
 const controlProperty{{property.name|pascalCase}} = (value, i18n_t = null ) => {
 	if (i18n_t === null) i18n_t = dumpError
 	if (value === undefined)
-		return i18n_t('error_prop_is_not_defined', {property: '{{propName}}'}) 
+		return i18n_t('error.prop.is_not_defined', {property: '{{propName}}'}) 
 {%- if property.mandatory == false %}
 	if (value === null) 
 		return false // no error because not mandatory
 {%- else  %}
 	if (value === null)
-		return i18n_t('error_prop_is_null', {property: '{{propName}}'})
+		return i18n_t('error.prop.is_null', {property: '{{propName}}'})
 {%- endif %}
 
 	{%- if property.type.name == 'id' %}
 	if (isNaN(value))
-		return i18n_t('error_prop_is_not_an_integer', {property: '{{propName}}'})
+		return i18n_t('error.prop.is_not_an_integer', {property: '{{propName}}'})
 	{%- else %}
 
 	{%- if integer_types contains property.type.name %}
 	if (isNaN(value))
-		return i18n_t('error_prop_is_not_an_integer', {property: '{{propName}}'})
+		return i18n_t('error.prop.is_not_an_integer', {property: '{{propName}}'})
 	value = parseInt(value)
 	{%- if property.minimum %}
 	if (value < {{propName}}Min)
-		return i18n_t('error_prop_is_too_small', {property: '{{propName}}', minLength:{{propName}}Min}) 
+		return i18n_t('error.prop.is_too_small', {property: '{{propName}}', minLength:{{propName}}Min}) 
 	{%- endif %}
 	{%- if property.maximum %}
 	if (value > {{propName}}Max)
-		return i18n_t('error_prop_is_too_large', {property: '{{propName}}', maxLength:{{propName}}Max}) 
+		return i18n_t('error.prop.is_too_large', {property: '{{propName}}', maxLength:{{propName}}Max}) 
 	{%- endif %}
 	{%- endif %}
 
 	{%- if string_types contains property.type.name %}
 	if (typeof(value) !== 'string' )
-		return i18n_t('error_prop_is_not_a_string', {property: '{{propName}}'}) 
+		return i18n_t('error.prop.is_not_a_string', {property: '{{propName}}'}) 
 	{%- if property.minimum %}
 	if (value.length < {{propName}}Min)
-		return i18n_t('error_prop_is_too_short', {property: '{{propName}}', minLength:{{propName}}Min}) 
+		return i18n_t('error.prop.is_too_short', {property: '{{propName}}', minLength:{{propName}}Min}) 
 	{%- endif %}
 	{%- if property.maximum %}
 	if (value.length > {{propName}}Max)
-		return i18n_t('error_prop_is_too_long', {property: '{{propName}}', maxLength:{{propName}}Max}) 
+		return i18n_t('error.prop.is_too_long', {property: '{{propName}}', maxLength:{{propName}}Max}) 
 	{%- endif %}
 	{%- endif %}
 
 	{%- if property.secret  %}
 	const passwordMinLength = 6
 	if (value.length < passwordMinLength) 
-		return i18n_t('error_password_to_small', {property: 'password', minLength: passwordMinLength})
+		return i18n_t('error.prop.password_to_small', {property: 'password', minLength: passwordMinLength})
 	let nLower = 0
 	let nUpper = 0
 	let nDigit = 0
@@ -121,45 +121,45 @@ const controlProperty{{property.name|pascalCase}} = (value, i18n_t = null ) => {
 		else nSpec++ 
 	}
 	if (nLower == 0)
-		return i18n_t('error_password_no_lowercase_letter', {property: '{{propName}}'})
+		return i18n_t('error.prop.password_no_lowercase_letter', {property: '{{propName}}'})
 	if (nUpper == 0)
-		return i18n_t('error_password_no_uppercase_letter', {property: '{{propName}}'})
+		return i18n_t('error.prop.password_no_uppercase_letter', {property: '{{propName}}'})
 	if (nDigit == 0)
-		return i18n_t('error_password_no_digit_character', {property: '{{propName}}'})
+		return i18n_t('error.prop.password_no_digit_character', {property: '{{propName}}'})
 	if (nSpec == 0)
-		return i18n_t('error_password_no_special_character', {property: '{{propName}}'})
+		return i18n_t('error.prop.password_no_special_character', {property: '{{propName}}'})
 	{%- endif %}
 
 	{%- if property.type.name == 'boolean' %}
 	if (typeof(value) !== 'boolean')
-		return i18n_t('error_prop_is_not_a_boolean', {property: '{{propName}}'}) 
+		return i18n_t('error.prop.is_not_a_boolean', {property: '{{propName}}'}) 
 	{%- endif %}
 
 	{%- if property.type.name == 'date' %}
 	if (! (value instanceof Date))
-		return i18n_t('error_prop_is_not_a_date', {property: '{{propName}}'})
+		return i18n_t('error.prop.is_not_a_date', {property: '{{propName}}'})
 	// if (value.getUTCHours() !== 0 || value.getUTCMinutes() !== 0 || value.getUTCSeconds() !== 0)
-	//	return i18n_t('error_prop_is_not_a_pure_date', {property: '{{propName}}'})
+	//	return i18n_t('error.prop.is_not_a_pure_date', {property: '{{propName}}'})
 	{%- endif %}
 
 	{%- if property.type.name == 'datetime' %}
 	if (! (value instanceof Date))
-		return i18n_t('error_prop_is_not_a_date', {property: '{{propName}}'})
+		return i18n_t('error.prop.is_not_a_datetime', {property: '{{propName}}'})
 	{%- endif %}
 
 	{%- if property.type.name == 'email' %}
 	if (value.match(/\S+@\S+\.\S+/) === null)
-		return i18n_t('error_prop_is_malformed_email', {property: '{{propName}}'})
+		return i18n_t('error.prop.is_malformed_email', {property: '{{propName}}'})
 	{%- endif %}
 
 	{%- if property.type.name == 'uuid' %}
 	if (value.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/) === null)
-		return i18n_t('error_prop_is_malformed_email', {property: '{{propName}}'})
+		return i18n_t('error.prop.is_malformed_uuid', {property: '{{propName}}'})
 	{%- endif %}
 
 	{%- if property.pattern %}
 	if (value.match(property.pattern) === null)
-		return i18n_t('error_prop_is_malformed', {property: '{{propName}}'})
+		return i18n_t('error.prop.is_malformed', {property: '{{propName}}'})
 	{%- endif %}
 
 	{%- endif %}
@@ -169,9 +169,12 @@ const controlProperty{{property.name|pascalCase}} = (value, i18n_t = null ) => {
 
 const controlObject{{object.name|pascalCase}} = ({{objectName}}, fullCheck = false, checkId = false, i18n_t = null ) => {
 	if (i18n_t === null) i18n_t = dumpError
-	if ({{objectName}} === undefined) return i18n_t('error_object_is_not_defined') 
-	if ({{objectName}} === null) return i18n_t('error_object_is_null') 
-	if (typeof({{objectName}}) !== 'object') return i18n_t('error_object_is_not_an_object') 
+	if ({{objectName}} === undefined) 
+		return `Object {{object.name|pascalCase}} is not defined`
+	if ({{objectName}} === null)
+		return `Object {{object.name|pascalCase}} is null`
+	if (typeof({{objectName}}) !== 'object')
+		return `Object {{object.name|pascalCase}} is not an object`
 
 	let error;
 {%- for property in object.properties %} 
