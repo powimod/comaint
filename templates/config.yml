@@ -124,6 +124,15 @@ objects:
       - name: "company"
         target: "Company"
         mandatory: true
+    indexes:
+      - name: "offer"
+        unique: false
+        keys:
+          - link: "offer"
+      - name: "company"
+        unique: false
+        keys:
+          - link: "company"
 
   - name: "Company"
     attributes:
@@ -234,6 +243,10 @@ objects:
           - link: "company"
           - property : "lastname"
           - property : "firstname"
+      - name: "idx_company"
+        unique: false
+        keys:
+          - link: "company"
 
   - name: "Token"
     attributes:
@@ -555,7 +568,7 @@ objects:
         keys:
           - link : "subCategory"
           - property: "name"
-      - name: "section_name"
+      - name: "idx_section_name"
         unique: false
         keys:
           - link : "section"
@@ -617,6 +630,14 @@ objects:
         unique: true
         keys:
           - link : "component"
+          - link : "article"
+      - name: "idx_component"
+        unique: false
+        keys:
+          - link : "component"
+      - name: "idx_article"
+        unique: false
+        keys:
           - link : "article"
 
   - name: "Inventory"
@@ -691,6 +712,11 @@ objects:
       - name: "company"
         target: "Company"
         mandatory: true
+    indexes:
+      - name: "idx_equipment"
+        unique: false
+        keys:
+          - link : "equipment"
 
   - name: "Assignation"
     attributes:
@@ -709,10 +735,18 @@ objects:
         target: "Company"
         mandatory: true
     indexes:
-      - name: "idx_user_assignation"
+      - name: "idx_user_workorder"
         unique: true
         keys:
           - link : "user"
+          - link : "workOrder"
+      - name: "idx_user"
+        unique: false
+        keys:
+          - link : "user"
+      - name: "idx_workorder"
+        unique: false
+        keys:
           - link : "workOrder"
  
   - name: "ArticleToChange"
@@ -741,6 +775,14 @@ objects:
         unique: true
         keys:
           - link : "workOrder"
+          - link : "article"
+      - name: "idx_workorder"
+        unique: false
+        keys:
+          - link : "workOrder"
+      - name: "idx_article"
+        unique: false
+        keys:
           - link : "article"
  
 #====================== Intervention 
@@ -776,6 +818,11 @@ objects:
       - name: "company"
         target: "Company"
         mandatory: true
+    indexes:
+      - name: "idx_equipment"
+        unique: false
+        keys:
+          - link : "equipment"
 
   - name: "Intervenant"
     attributes:
@@ -799,6 +846,15 @@ objects:
         keys:
           - link : "user"
           - link : "intervention"
+      - name: "idx_user"
+        unique: false
+        keys:
+          - link : "user"
+      - name: "idx_intervenant"
+        unique: false
+        keys:
+          - link : "user"
+ 
  
   - name: "ChangedArticle"
     attributes:
@@ -826,6 +882,14 @@ objects:
         unique: true
         keys:
           - link : "intervention"
+          - link : "article"
+      - name: "idx_intervention"
+        unique: false
+        keys:
+          - link : "intervention"
+      - name: "idx_article"
+        unique: false
+        keys:
           - link : "article"
 
 
@@ -888,6 +952,14 @@ objects:
         keys:
           - link : "supplier"
           - link : "article"
+      - name: "idx_supplier"
+        unique: false
+        keys:
+          - link : "supplier"
+      - name: "idx_article"
+        unique: false
+        keys:
+          - link : "article"
 
 
   - name: "Order"
@@ -920,10 +992,9 @@ objects:
         mandatory: true
     indexes:
       - name: "idx_supplier_article"
-        unique: true
+        unique: false
         keys:
           - link : "supplier"
-          - link : "article"
 
 
   - name: "OrderLine"
@@ -960,6 +1031,14 @@ objects:
         unique: true
         keys:
           - link : "order"
+          - link : "article"
+      - name: "idx_order"
+        unique: false
+        keys:
+          - link : "order"
+      - name: "idx_article"
+        unique: false
+        keys:
           - link : "article"
 
 
