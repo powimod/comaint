@@ -81,20 +81,28 @@ objects:
         maximum: 256
       - name: "active"
         type: "boolean"
+        default: true
       - name: "duration"
         type: "integer"
+        default: 0
       - name: "price"
         type: "price"
+        default: 0
       - name: "userLimit"
         type: "integer"
+        default: 0
       - name: "equipmentLimit"
         type: "integer"
+        default: 0
       - name: "articleLimit"
         type: "integer"
+        default: 0
       - name: "interventionLimit"
         type: "integer"
+        default: 0
       - name: "storageLimit"
         type: "integer"
+        default: 0
     indexes:
       - name: "title"
         unique: true
@@ -215,6 +223,7 @@ objects:
         default: true
       - name: "lastConnection"
         type: "datetime"
+        mandatory: false
       - name: "administrator"
         type: "boolean"
         default: false

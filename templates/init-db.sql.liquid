@@ -77,7 +77,7 @@ CREATE TABLE {{object.attributes.table_name}}(
 		      else
 			 assign data_type = property.type.name | append: ">>>" | prepend: "<<<"
 		   endcase
-		   if property.defaultValue 
+		   if property.defaultValue != nil 
 		     assign default_value = property.defaultValue | prepend: " DEFAULT '" | append: "'"
 		     if property.type.name == 'boolean'
 		       assign default_value = property.defaultValue | prepend: " DEFAULT "
