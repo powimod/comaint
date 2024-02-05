@@ -24,22 +24,30 @@ exports.initialize = (app, authModel, View, config) => {
 	_authModel = authModel;
 
 	app.use( async (request, response, next) => {
+		console.log(`Cookie middleware : load access token for request ${request.url} ...`)
 		assert(_authModel !== null);
 		let {{authObject.name|camelCase}}Id = null;
 		{% if project.attributes.auth_extra_field -%}
 		let {{project.attributes.auth_extra_field | camelCase}}Id = null;
 		{%- endif %}
 		const token = request.headers['x-access-token'];
-		if (token !== undefined) {
+		if (token === undefined) {
+			console.log(`Cookie middleware -> access token absent (anonymous request)`)
+		}
+		else {
 			try {
 				[{{authObject.name|camelCase}}Id
 				{%- if project.attributes.auth_extra_field -%}
 				, {{project.attributes.auth_extra_field | camelCase}}Id
 				{%- endif -%}
-
-			] = await _authModel.checkAccessToken(token);
+				] = await _authModel.checkAccessToken(token);
+				console.log(`Cookie middleware -> cookie {{authObject.name|camelCase}}Id = ${ {{authObject.name|camelCase}}Id }`);
+				{% if project.attributes.auth_extra_field -%}
+				console.log(`Cookie middleware -> cookie {{project.attributes.auth_extra_field | camelCase}}Id = ${ {{project.attributes.auth_extra_field | camelCase}}Id }`); 
+				{%- endif %}
 			}
 			catch (error) {
+				console.log(`Cookie middleware -> cookie error : ${ error.message ? error.message : error }`)
 				View.sendJsonError(response, error);
 				return;
 			}
@@ -227,6 +235,8 @@ exports.initialize = (app, authModel, View, config) => {
 			const refreshToken = request.body.token;
 			if (refreshToken === undefined)
 				throw new Error(`Can't find <token> in request body`);
+			if (refreshToken === null)
+				throw new Error(`Token in request body is null`);
 			const [tokenFound, tokenId, {{authObject.name|camelCase}}Id 
 			{%- if project.attributes.auth_extra_field -%}
 			, {{project.attributes.auth_extra_field | camelCase}}Id
@@ -235,25 +245,30 @@ exports.initialize = (app, authModel, View, config) => {
 			if (! tokenFound) {
 				// if a token is not found, it should be an attempt to usurp cookie :
 				// since a refresh token is deleted when used, it will not be found with a second attempt to use it.
+				console.log(`auth/refresh - detect an attempt to reuse a token : lock account userId = ${userId}`)
 				await _authModel.lockAccount({{authObject.name|camelCase}}Id);
 				throw new Error('Attempt to reuse a token');
 			}
 
 			await _authModel.deleteRefreshToken(tokenId);
 
-			if (await _authModel.checkAccountLocked({{authObject.name|camelCase}}Id))
-				throw new Error('Account locked');
+			if (await _authModel.checkAccountLocked({{authObject.name|camelCase}}Id)) {
+				console.log(`auth/refresh - account locked userId = ${userId}`)
+				throw new Error('Account locked')
+			}
 
 			const newAccessToken  = await _authModel.generateAccessToken({{authObject.name|camelCase}}Id
 			{%- if project.attributes.auth_extra_field -%}
 				, {{project.attributes.auth_extra_field | camelCase}}Id
 			{%- endif -%}
-			);
+			)
 			const newRefreshToken = await _authModel.generateRefreshToken({{authObject.name|camelCase}}Id
 			{%- if project.attributes.auth_extra_field -%}
 				, {{project.attributes.auth_extra_field | camelCase}}Id
 			{%- endif -%}
-			);
+			)
+
+			console.log(`auth/refresh - send new tokens to userId ${userId}`)
 			View.sendJsonResult(response, {
 				'{{authObject.name|camelCase}}Id' : {{authObject.name|camelCase}}Id,
 				{% if project.attributes.auth_extra_field -%}
@@ -261,12 +276,30 @@ exports.initialize = (app, authModel, View, config) => {
 				{%- endif %}
 				'access-token': newAccessToken,
 				'refresh-token': newRefreshToken
-			});
+			})
 		}
 		catch (error) {
+			console.error("auth/refresh - error:", (error.message) ? error.message : error)
 			View.sendJsonError(response, error);
 		}
 	});
+
+	app.get('/api/v1/auth/get-context', async (request, response) => {
+		try {
+			let context = null
+			if (request.{{authObject.name|camelCase}}Id !== null) {
+				context = await _authModel.getContext(request.{{authObject.name|camelCase}}Id);
+			}
+			View.sendJsonResult(response, {
+				'context': context
+			})
+		}
+		catch (error) {
+			console.error("auth/refresh - error:", (error.message) ? error.message : error)
+			View.sendJsonError(response, error);
+		}
+	});
+
 
 }
 

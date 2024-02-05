@@ -8,32 +8,49 @@
 import React, {createContext, useState, useEffect} from 'react'
 
 import ApiToolsSingleton from './api/api-tools'
+import authApi from './api/auth-api.js'
 import config from '../config.json'
 
-const userIdStorageKey = 'userId';
-const accountInitialValue = {
-	userId: null
-}
+const accountIdStorageKey = 'accountId';
+const refreshTokenKey = 'refresh-token';
+const accessTokenKey = 'access-token';
 
-const AccountContext = createContext(accountInitialValue);
 
-const loadInitialAccountContext = () => {
-	let userId = localStorage.getItem(userIdStorageKey);
-	if (userId === null)
-		return null
-	userId = parseInt(userId)
-	if (isNaN(userId))
-		return null
-	return { userId }
-}
+const AccountContext = createContext(null);
+
 
 const AccountProvider = ( ({children}) => {
-        const [account, setAccount] = useState(loadInitialAccountContext)
+	const [accountId, setAccountId] = useState(null)
+        const [account, setAccount] = useState(null)
 	const [apiInitError, setApiInitError] = useState(false);
 
+
+	const asyncLoadContext = async () => {
+		let account = null;
+		if (accountId === null) {
+			console.log(`AccountContext - reset context  ...`)
+		}
+		else {
+			console.log(`AccountContext - loading context accountId = ${accountId} ...`)
+			const result = await authApi.getContext()
+			if (! result.ok) {
+				console.error(`Can not get account from backend : ${error.message}`);
+			}
+			else {
+				console.log("OK account", result)
+				account = result.context
+			}
+		}
+		console.log('AccountContext - account', account)
+		setAccount(account)
+	}
+
 	useEffect( () => {
-		saveAccountContext()
-	}, [account]);
+		if (accountId === undefined)
+			return;
+		asyncLoadContext()
+	}, [accountId]);
+
 
 	useEffect( () => {
 		// initialize API backend url from config
@@ -46,13 +63,6 @@ const AccountProvider = ( ({children}) => {
 		}
 	}, []);
 
-	const saveAccountContext = () => {
-		if (account)
-			localStorage.setItem(userIdStorageKey, account.userId);
-		else
-			localStorage.removeItem(userIdStorageKey);
-	}
-
         return(
 		// AccountContext does not export a function to change account value 
 		// because it's changed internaly
@@ -61,51 +71,51 @@ const AccountProvider = ( ({children}) => {
                 </AccountContext.Provider>
         );
 
-	function accountSerializeFunction(mode, account, refreshToken, accessToken) {
+	function accountSerializeFunction(mode, accountId, refreshToken, accessToken) {
 		if (mode === undefined)
 			throw new Error('Missing mode parameter in accountSerializeFunction');
-		if (mode === 'save' && ( account === undefined || refreshToken === undefined || accessToken === undefined) )
+		if (mode === 'save' && ( accountId === undefined || refreshToken === undefined || accessToken === undefined) )
 			throw new Error('Missing parameters in accountSerializeFunction');
-
-		const refreshTokenKey = 'refresh-token';
-		const accessTokenKey = 'access-token';
-		const accountKey = 'account';
+		console.log("Account serialize - accountId", accountId)
+		if (accountId !== undefined && accountId !== null && isNaN(accountId)) 
+			throw new Error('Invalid accountId parameter')
+		console.log("Account serialize - mode", mode)
 
 		switch (mode) {
 			case 'save':
+				if (accountId)
+					localStorage.setItem(accountIdStorageKey, accountId);
+				else
+					localStorage.removeItem(accountIdStorageKey);
+
 				if (refreshToken)
 					localStorage.setItem(refreshTokenKey, refreshToken);
 				else
 					localStorage.removeItem(refreshTokenKey);
+
 				if (accessToken)
 					localStorage.setItem(accessTokenKey, accessToken);
 				else
 					localStorage.removeItem(accessTokenKey);
-				if (account)
-					localStorage.setItem(accountKey, JSON.stringify(account));
-				else
-					localStorage.removeItem(accountKey);
+
 				break;
 			case 'load':
+				accountId = localStorage.getItem(accountIdStorageKey);
+				if (accountId != null)
+					accountId = parseInt(accountId)
+				console.log("Account serialize - loaded userID =", accountId)
 				refreshToken = localStorage.getItem(refreshTokenKey);
 				accessToken = localStorage.getItem(accessTokenKey);
-				try {
-					account = JSON.parse(localStorage.getItem(accountKey));
-				}
-				catch (error) {
-					account = null;
-				}
 				break;
 
 			case 'clear':
+				localStorage.removeItem(accountIdStorageKey);
 				localStorage.removeItem(refreshTokenKey);
 				localStorage.removeItem(accessTokenKey);
-				localStorage.removeItem(accountKey);
 				break;
 		}
-		console.log('Account', account)
-                setAccount(account)
-		return [account, refreshToken, accessToken]
+                setAccountId(accountId)
+		return [ accountId , refreshToken, accessToken ]
 	}
 });
 

@@ -9,17 +9,19 @@ class ApiTool {
 	#apiBaseUrl = null; 
 	#accessToken = null;
 	#refreshToken = null;
+	#accountId = null;
 	#account = null;
 	#accountSerializeFunction = null;
 
-	_loadTokens() {
-		const [account, refreshToken, accessToken] = this.#accountSerializeFunction('load');
+	_load() {
+		const [accountId, refreshToken, accessToken] = this.#accountSerializeFunction('load');
 
-		if (account === undefined)
-			throw new Error('[accountSerializeFunction] did not return an account object');
-		if (account !== null && typeof(account) !== 'object')
-			throw new Error('[accountSerializeFunction] did not return a valid account object');
-		this.#account = account;
+		if (accountId === undefined)
+			throw new Error('[accountSerializeFunction] did not return an account ID');
+		if (accountId !== null && isNaN(accountId) )
+			throw new Error('[accountSerializeFunction] did not return a valid account ID');
+		this.#accountId = accountId
+		this.#account = null
 
 		if (refreshToken === undefined)
 			throw new Error('[accountSerializeFunction] did not return a refresh token');
@@ -43,7 +45,7 @@ class ApiTool {
 		if (typeof(accountSerializeFunction) !== 'function')
 			throw new Error('[accountSerializeFunction] argument is not a function');
 		this.#accountSerializeFunction  = accountSerializeFunction;
-		this._loadTokens();
+		this._load();
 
 		if (config === undefined)
 			throw new Error('[config] argument is missing');
@@ -60,10 +62,12 @@ class ApiTool {
 	setAccountAndTokens(account, accessToken, refreshToken) {
 		if (account === undefined || accessToken === undefined || refreshToken === undefined)
 			throw new Error('Missing parameters');
-		this.#account = account;
+		{% # TODO replace userID with pwm-code-gen variable in template %}
+		this.#accountId = (account !== null) ? account.userId : null;
+		this.#account = account
 		this.#accessToken = accessToken;
 		this.#refreshToken = refreshToken;
-		this.#accountSerializeFunction('save', this.#account, this.#refreshToken, this.#accessToken);
+		this.#accountSerializeFunction('save', this.#accountId, this.#refreshToken, this.#accessToken);
 	}
 
 	async request(route, httpMethod, requestBody = null, params = null, sendAccessToken = true, sendRefreshToken = false){
@@ -83,8 +87,11 @@ class ApiTool {
 			'Accept': 'application/json',
 			'Content-Type': 'application/json'
 		}
-		if (sendAccessToken && this.#accessToken !== null)
+		// TODO remove 'sendAccessToken' parameter
+		// if (sendAccessToken && this.#accessToken !== null)
+		if (this.#accessToken !== null)
 			httpHeaders['x-access-token'] = this.#accessToken;
+
 		if (sendRefreshToken) {
 			if (this.#refreshToken === null) {
 				console.error("Refresh token not found");
@@ -115,51 +122,72 @@ class ApiTool {
 			throw new Error('OK status is not a boolean in JSON response');
 
 		if (json.ok === false && json.error === 'Expired token' ) {
-			console.log('Refreshing access token...');
-			const refreshApiUrl = new URL(`${this.#apiBaseUrl}/v1/auth/refresh`);
+			console.log('Refreshing access token...')
+
+			let currentAccount = this.#account
+			let refreshToken = this.#refreshToken
+			if (refreshToken === null) 
+				throw new Error('No refresh token found to refresh access token')
+
+			// reset access and refresh tokens 
+			// (important since refresh tokens can be used only one time)
+			console.log("Reset access and refresh tokens in context")
+			this.setAccountAndTokens(currentAccount, null, null)
+
+			const refreshApiUrl = new URL(`${this.#apiBaseUrl}/v1/auth/refresh`)
 			const refreshHttpHeaders = {
 				'Accept': 'application/json',
 				'Content-Type': 'application/json'
 			}
 			const refreshRequestBody = {
-				token: this.#refreshToken
-			};
+				token: refreshToken
+			}
 			const refreshParams = {
 				method: 'POST',
 				headers: refreshHttpHeaders,
 				body: JSON.stringify(refreshRequestBody)
-			};
+			}
 			result = await fetch(refreshApiUrl, refreshParams);
 			if (result.status !== 200) 
-				throw new Error(`HTTP response status is ${result.status} (${result.statusText})`);
-			json = await result.json();
+				throw new Error(`HTTP response status is ${result.status} (${result.statusText})`)
+			json = await result.json()
 			if (json === null)
-				throw new Error('JSON response is null');
+				throw new Error('JSON response is null')
 			if (json.ok === undefined)
-				throw new Error('OK status not found in JSON response');
+				throw new Error('OK status not found in JSON response')
 			if (typeof(json.ok) !== 'boolean')
-				throw new Error('OK status is not a boolean in JSON response');
+				throw new Error('OK status is not a boolean in JSON response')
 
-			this.#accessToken = json.data['access-token'];
-			this.#refreshToken = json.data['refresh-token'];
+			if (! json.ok) {
+				console.log(`Error while refreshing tokens : ${json.error}`)
+				throw new Error(`Error while refreshing tokens : ${json.error}`)
+			}
 
-			httpHeaders['x-access-token'] =json.data['access-token']; 
-			/* TODO update request
-			request.session.userId = json.data.userId;
-			//request.session.companyId = json.data.companyId;
-			*/
+			const accessToken = json.data['access-token']
+			if (accessToken === undefined)
+				throw new Error(`Can't find new access token`)
+
+			refreshToken = json.data['refresh-token']
+			if (refreshToken === undefined)
+				throw new Error(`Can't find new refresh token`)
+
+			console.log("Save new access and refresh tokens in context")
+			this.setAccountAndTokens(currentAccount, accessToken, refreshToken) 
+
+			console.log(`Retry calling API ${apiUrl}`);
 
 			// second attempt
-			result = await fetch(apiUrl, requestParams);
+			httpHeaders['x-access-token'] = json.data['access-token']
+			result = await fetch(apiUrl, requestParams)
 			if (result.status !== 200) 
 				throw new Error(`HTTP response status is ${result.status} (${result.statusText})`);
-			json = await result.json();
+			json = await result.json()
 			if (json === null)
-				throw new Error('JSON response is null');
+				throw new Error('JSON response is null')
 			if (json.ok === undefined)
-				throw new Error('OK status not found in JSON response');
+				throw new Error('OK status not found in JSON response')
 			if (typeof(json.ok) !== 'boolean')
-				throw new Error('OK status is not a boolean in JSON response');
+				throw new Error('OK status is not a boolean in JSON response')
 		}
 
 		if (! json.ok )

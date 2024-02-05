@@ -45,6 +45,10 @@ class Controller {
 
 		// TODO add session
 
+		// initialize auth routes FIRST since it declares the cookie loader middleware
+		this.#authRoutes = require('./auth-routes.js');
+		this.#authRoutes.initialize(this.#app, this.#model.getAuthModel(), this.#view, config);
+
 		this.#app.get('/', (request, response) => {
 			this.#view.sendJsonResult(response, 'API {{project.name}} frontend ready');
 		});
@@ -89,8 +93,6 @@ class Controller {
 			}
 		});
 
-		this.#authRoutes = require('./auth-routes.js');
-		this.#authRoutes.initialize(this.#app, this.#model.getAuthModel(), this.#view, config);
 		{% for object in project.objects %}
 		this.#{{object.name | pascalCase }}Routes = require('./{{object.name | kebabCase }}-routes.js')(this.#app, this.#model.get{{object.name | pascalCase }}Model(), this.#view);
 		{%- endfor %}

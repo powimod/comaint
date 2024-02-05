@@ -161,10 +161,28 @@ const validateRegistration = async function(validationCode) {
 	}
 }
 
+const getContext = async function() {
+	const url = `${apiVersion}/auth/get-context`;
+	try {
+		const result = await apiTools.request(url, 'GET', null, null, false);
+		if (result.context === undefined)
+			throw new Error(`Can't find context in API response`);
+		return { ok: true, context: result.context };
+	}
+	catch (error) {
+		return {
+			ok: false, 
+			error: (error.message !== undefined) ? error.message : error
+		};
+	}
+}
+
+
 const authApi = {
 	login: login,
 	logout: logout,
 	register: register,
-	validateRegistration : validateRegistration
+	validateRegistration : validateRegistration,
+	getContext: getContext
 }
 export default authApi;

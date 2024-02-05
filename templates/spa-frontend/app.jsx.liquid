@@ -14,7 +14,7 @@ import { AccountContext } from './AccountContext'
 
 function App({children}) {
 
-	const { account, changeAccount } = useContext(AccountContext)
+	const { account } = useContext(AccountContext)
 	const [ accountLoaded, setAccountLoaded] = useState(false);
 	const navigate = useNavigate()
 

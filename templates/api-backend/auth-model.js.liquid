@@ -292,32 +292,32 @@ class AuthModel {
 			jwt.verify(token, this.#secret, (err, decoded) => {
 				if (err !== null)  {
 					if (err.constructor.name === 'TokenExpiredError')
-						reject('Expired token');
+						reject('Expired token') // DO NOT translate (used by API lib)
 					else
-						reject('Invalid token');
-					return;
+						reject('Invalid token')
+					return
 				}
 				if (decoded.type !== 'access') {
-					reject('Not an access token');
-					return;
+					reject('Not an access token')
+					return
 				}
 				if (isNaN(decoded.{{authObject.name|snakeCase}}_id)) {
-					reject(`Invalid token content`);
-					return;
+					reject(`Invalid token content`)
+					return
 				}
 				{% if project.attributes.auth_extra_field -%}
 				if (isNaN(decoded.{{project.attributes.auth_extra_field}}_id)) {
-					reject(`Invalid token content`);
-					return;
+					reject(`Invalid token content`)
+					return
 				}
 				{%- endif %}
 				resolve([decoded.{{authObject.name|snakeCase}}_id
 				{%- if project.attributes.auth_extra_field -%}
 					, decoded.{{ project.attributes.auth_extra_field | snakeCase }}_id
 				{%- endif -%}
-				]);
-			});
-		});
+				])
+			})
+		})
 	}
 
 	static async checkRefreshToken(token) {
@@ -327,26 +327,26 @@ class AuthModel {
 			jwt.verify(token, this.#secret, (err, decoded) => {
 				if (err !== null)  {
 					if (err.constructor.name === 'TokenExpiredError')
-						reject('Expired token');
+						reject('Expired token') // DO NOT translate (used by API lib)
 					else
-						reject('Invalid token');
-					return;
+						reject('Invalid token')
+					return
 				}
 				if (decoded.type !== 'refresh') {
-					reject('Not an refresh token');
-					return;
+					reject('Not an refresh token')
+					return
 				}
 				if (isNaN(decoded.token_id) || isNaN(decoded.{{authObject.name|snakeCase}}_id)) {
-					reject(`Invalid token content`);
-					return;
+					reject(`Invalid token content`)
+					return
 				}
 				resolve([decoded.token_id, decoded.{{authObject.name|snakeCase}}_id
 				{%- if project.attributes.auth_extra_field -%}
 					, decoded.{{project.attributes.auth_extra_field | snakeCase | append: '_id'}}
 				{%- endif -%}
-				]);
-			});
-		});
+				])
+			})
+		})
 		const [tokenId, {{authObject.name|camelCase}}Id
 			{%- if project.attributes.auth_extra_field -%}
 				, {{project.attributes.auth_extra_field | camelCase | append: 'Id'}}
@@ -415,6 +415,37 @@ class AuthModel {
 		result = await db.query(sqlRequest, sqlParams);
 	}
 
+	static async getContext({{authObject.name|camelCase}}Id) {
+		assert({{authObject.name|camelCase}}Id !== undefined)
+		assert({{authObject.name|camelCase}}Id !== null)
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		let sqlRequest = `
+			SELECT id,  {{ authIdentProp.name | snakeCase}}, 
+			{%- for accountField in authAccountFields -%}
+			{{accountField|snakeCase}},{%echo ' '%} 
+			{%- endfor -%}
+			{{ authExtraField | snakeCase | prepend: 'id_'  }}
+			FROM {{authTableName}} 
+			WHERE id = ?;`;
+		let sqlParams = [
+			{{authObject.name|camelCase}}Id
+		];
+		let result = await db.query(sqlRequest, sqlParams);
+		if (result.code)
+			throw new Error(result.code);
+		if (result.length === 0) 
+			throw new Error('Unknown {{ authObject.name | pascalCase}} Id');
+		const context = {
+			{{authObject.name|camelCase}}Id: result[0].id,
+			{{authIdentProp.name | camelCase}}: result[0].{{authIdentProp.name | snakeCase}},
+			{%- for accountField in authAccountFields %}
+			{{accountField|camelCase}}: result[0].{{accountField|snakeCase}},
+			{%- endfor %}
+			{{authExtraField | camelCase }}Id: result[0].id_{{authExtraField | snakeCase }}
+		}
+		return context
+	}
 
 }
 

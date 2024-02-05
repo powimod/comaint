@@ -17,7 +17,7 @@ const LogoutDialog = ({isOpen, onResponse}) => {
 	const { t } = useTranslation();
 
 	const [ error, setError ] = useState(null);
-	const { account, changeAccount } = useContext(AccountContext);
+	const { account } = useContext(AccountContext);
 
 	const onDialogResponse = async (confirmation) => {
 		if (confirmation)  {

@@ -19,7 +19,7 @@ import { AccountContext } from '../AccountContext'
 const LoginDialog = ({isOpen, onClose, onCreateAccount}) => {
 	const { t } = useTranslation();
 
-	const { account, changeAccount } = useContext(AccountContext);
+	const { account } = useContext(AccountContext);
 	const [ error, setError ] = useState(null);
 	const [ email, setEmail] = useState('');
 	const [ password, setPassword] = useState('');
@@ -46,9 +46,8 @@ const LoginDialog = ({isOpen, onClose, onCreateAccount}) => {
 			return
 		let focusedField = (emailRef.current.value.length > 0) ?  passwordRef : emailRef
 		setTimeout( () => {
-			console.log("set focus on ", focusedField.id)
 			focusedField.current.focus()
-		}, 0)
+		}, 100) // FIXME why does not work with zero ?
 	}, [isOpen]);
 
 	const onLoginButtonClick = async () => {
