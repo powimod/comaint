@@ -23,7 +23,7 @@ import { AccountContext } from '../AccountContext'
 const Header = (props) => {
 	const { t } = useTranslation();
 
-	const { account, changeAccount } = useContext(AccountContext);
+	const { account } = useContext(AccountContext);
 	const [isAccountMenuVisible, setAccountMenuVisible] = useState(false);
 	const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
 	const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
