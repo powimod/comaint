@@ -425,7 +425,7 @@ class AuthModel {
 			{%- for accountField in authAccountFields -%}
 			{{accountField|snakeCase}},{%echo ' '%} 
 			{%- endfor -%}
-			{{ authExtraField | snakeCase | prepend: 'id_'  }},
+			{{ authExtraField | snakeCase | prepend: 'id_'  }}
 			FROM {{authTableName}} 
 			WHERE id = ?;`;
 		let sqlParams = [
