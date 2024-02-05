@@ -83,8 +83,11 @@ class ApiTool {
 			'Accept': 'application/json',
 			'Content-Type': 'application/json'
 		}
-		if (sendAccessToken && this.#accessToken !== null)
+		// TODO remove 'sendAccessToken' parameter
+		// if (sendAccessToken && this.#accessToken !== null)
+		if (this.#accessToken !== null)
 			httpHeaders['x-access-token'] = this.#accessToken;
+
 		if (sendRefreshToken) {
 			if (this.#refreshToken === null) {
 				console.error("Refresh token not found");
@@ -115,51 +118,63 @@ class ApiTool {
 			throw new Error('OK status is not a boolean in JSON response');
 
 		if (json.ok === false && json.error === 'Expired token' ) {
-			console.log('Refreshing access token...');
-			const refreshApiUrl = new URL(`${this.#apiBaseUrl}/v1/auth/refresh`);
+			console.log('Refreshing access token...')
+			const refreshApiUrl = new URL(`${this.#apiBaseUrl}/v1/auth/refresh`)
 			const refreshHttpHeaders = {
 				'Accept': 'application/json',
 				'Content-Type': 'application/json'
 			}
 			const refreshRequestBody = {
 				token: this.#refreshToken
-			};
+			}
 			const refreshParams = {
 				method: 'POST',
 				headers: refreshHttpHeaders,
 				body: JSON.stringify(refreshRequestBody)
-			};
+			}
 			result = await fetch(refreshApiUrl, refreshParams);
 			if (result.status !== 200) 
-				throw new Error(`HTTP response status is ${result.status} (${result.statusText})`);
-			json = await result.json();
+				throw new Error(`HTTP response status is ${result.status} (${result.statusText})`)
+			json = await result.json()
 			if (json === null)
-				throw new Error('JSON response is null');
+				throw new Error('JSON response is null')
 			if (json.ok === undefined)
-				throw new Error('OK status not found in JSON response');
+				throw new Error('OK status not found in JSON response')
 			if (typeof(json.ok) !== 'boolean')
-				throw new Error('OK status is not a boolean in JSON response');
+				throw new Error('OK status is not a boolean in JSON response')
 
-			this.#accessToken = json.data['access-token'];
-			this.#refreshToken = json.data['refresh-token'];
+			if (! json.ok) {
+				console.log(`Error while refreshing tokens : ${json.error}`)
+				throw new Error(`Error while refreshing tokens : ${json.error}`)
+			}
 
-			httpHeaders['x-access-token'] =json.data['access-token']; 
-			/* TODO update request
-			request.session.userId = json.data.userId;
-			//request.session.companyId = json.data.companyId;
+			const accessToken = json.data['access-token']
+			if (accessToken === undefined)
+				throw new Error(`Can't find new access token`)
+			this.#accessToken = accessToken
+
+			const refreshToken = json.data['refresh-token']
+			if (refreshToken === undefined)
+				throw new Error(`Can't find new refresh token`)
+			this.#refreshToken = refreshToken
+
+			/* FIXME update request ?
+			request.session.userId = json.data.userId
+			request.session.companyId = json.data.companyId
 			*/
 
 			// second attempt
-			result = await fetch(apiUrl, requestParams);
+			httpHeaders['x-access-token'] = json.data['access-token']
+			result = await fetch(apiUrl, requestParams)
 			if (result.status !== 200) 
 				throw new Error(`HTTP response status is ${result.status} (${result.statusText})`);
-			json = await result.json();
+			json = await result.json()
 			if (json === null)
-				throw new Error('JSON response is null');
+				throw new Error('JSON response is null')
 			if (json.ok === undefined)
-				throw new Error('OK status not found in JSON response');
+				throw new Error('OK status not found in JSON response')
 			if (typeof(json.ok) !== 'boolean')
-				throw new Error('OK status is not a boolean in JSON response');
+				throw new Error('OK status is not a boolean in JSON response')
 		}
 
 		if (! json.ok )
