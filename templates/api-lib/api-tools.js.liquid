@@ -119,13 +119,24 @@ class ApiTool {
 
 		if (json.ok === false && json.error === 'Expired token' ) {
 			console.log('Refreshing access token...')
+
+			let currentAccount = this.#account
+			let refreshToken = this.#refreshToken
+			if (refreshToken === null) 
+				throw new Error('No refresh token found to refresh access token')
+
+			// reset access and refresh tokens 
+			// (important since refresh tokens can be used only one time)
+			console.log("Reset access and refresh tokens in context")
+			this.setAccountAndTokens(currentAccount, null, null)
+
 			const refreshApiUrl = new URL(`${this.#apiBaseUrl}/v1/auth/refresh`)
 			const refreshHttpHeaders = {
 				'Accept': 'application/json',
 				'Content-Type': 'application/json'
 			}
 			const refreshRequestBody = {
-				token: this.#refreshToken
+				token: refreshToken
 			}
 			const refreshParams = {
 				method: 'POST',
@@ -151,17 +162,20 @@ class ApiTool {
 			const accessToken = json.data['access-token']
 			if (accessToken === undefined)
 				throw new Error(`Can't find new access token`)
-			this.#accessToken = accessToken
 
-			const refreshToken = json.data['refresh-token']
+			refreshToken = json.data['refresh-token']
 			if (refreshToken === undefined)
 				throw new Error(`Can't find new refresh token`)
-			this.#refreshToken = refreshToken
 
 			/* FIXME update request ?
 			request.session.userId = json.data.userId
 			request.session.companyId = json.data.companyId
 			*/
+
+			console.log("Save new access and refresh tokens in context")
+			this.setAccountAndTokens(currentAccount, accessToken, refreshToken) 
+
+			console.log(`Retry calling API ${apiUrl}`);
 
 			// second attempt
 			httpHeaders['x-access-token'] = json.data['access-token']

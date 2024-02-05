@@ -61,10 +61,10 @@ const AccountProvider = ( ({children}) => {
                 </AccountContext.Provider>
         );
 
-	function accountSerializeFunction(mode, account, refreshToken, accessToken) {
+	function accountSerializeFunction(mode, newAccount, refreshToken, accessToken) {
 		if (mode === undefined)
 			throw new Error('Missing mode parameter in accountSerializeFunction');
-		if (mode === 'save' && ( account === undefined || refreshToken === undefined || accessToken === undefined) )
+		if (mode === 'save' && ( newAccount === undefined || refreshToken === undefined || accessToken === undefined) )
 			throw new Error('Missing parameters in accountSerializeFunction');
 
 		const refreshTokenKey = 'refresh-token';
@@ -81,8 +81,8 @@ const AccountProvider = ( ({children}) => {
 					localStorage.setItem(accessTokenKey, accessToken);
 				else
 					localStorage.removeItem(accessTokenKey);
-				if (account)
-					localStorage.setItem(accountKey, JSON.stringify(account));
+				if (newAccount)
+					localStorage.setItem(accountKey, JSON.stringify(newAccount));
 				else
 					localStorage.removeItem(accountKey);
 				break;
@@ -90,10 +90,10 @@ const AccountProvider = ( ({children}) => {
 				refreshToken = localStorage.getItem(refreshTokenKey);
 				accessToken = localStorage.getItem(accessTokenKey);
 				try {
-					account = JSON.parse(localStorage.getItem(accountKey));
+					newAccount = JSON.parse(localStorage.getItem(accountKey));
 				}
 				catch (error) {
-					account = null;
+					newAccount = null;
 				}
 				break;
 
@@ -103,9 +103,8 @@ const AccountProvider = ( ({children}) => {
 				localStorage.removeItem(accountKey);
 				break;
 		}
-		console.log('Account', account)
-                setAccount(account)
-		return [account, refreshToken, accessToken]
+                setAccount(newAccount)
+		return [newAccount, refreshToken, accessToken]
 	}
 });
 

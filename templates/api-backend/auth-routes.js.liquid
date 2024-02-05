@@ -235,6 +235,8 @@ exports.initialize = (app, authModel, View, config) => {
 			const refreshToken = request.body.token;
 			if (refreshToken === undefined)
 				throw new Error(`Can't find <token> in request body`);
+			if (refreshToken === null)
+				throw new Error(`Token in request body is null`);
 			const [tokenFound, tokenId, {{authObject.name|camelCase}}Id 
 			{%- if project.attributes.auth_extra_field -%}
 			, {{project.attributes.auth_extra_field | camelCase}}Id

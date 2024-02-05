@@ -77,7 +77,7 @@ const Header = (props) => {
 			<span className="subtitle">{t('header_subtitle')}</span>
 			<FontAwesomeIcon className="accessibility-button" icon={faWheelchair} onClick={onAccessibilityButtonClick} size="2x" inverse/>
 			<PaletteIcon className="account-button" element="user" button="true" onClick={onAccountButtonClick} />
-			{account !== null && <span className="userid">{account.email}</span>}
+			{account && <span className="userid">{account.email}</span>}
 		</header>
 		<PopupMenu isVisible={isAccountMenuVisible} setVisible={setAccountMenuVisible}>
 			<div onClick={onLogoutClick}>{t('logout-button')}</div>
