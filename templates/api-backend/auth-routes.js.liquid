@@ -284,6 +284,24 @@ exports.initialize = (app, authModel, View, config) => {
 		}
 	});
 
+	app.get('/api/v1/auth/get-context', async (request, response) => {
+		try {
+			let context = null
+			if (request.{{authObject.name|camelCase}}Id !== null) {
+				context = await _authModel.getContext(request.{{authObject.name|camelCase}}Id);
+			}
+			console.log("dOm context:", context)
+			View.sendJsonResult(response, {
+				'context': context
+			})
+		}
+		catch (error) {
+			console.error("auth/refresh - error:", (error.message) ? error.message : error)
+			View.sendJsonError(response, error);
+		}
+	});
+
+
 }
 
 exports.withAuth = async (request, response, next) => {
