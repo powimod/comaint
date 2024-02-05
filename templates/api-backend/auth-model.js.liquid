@@ -292,32 +292,32 @@ class AuthModel {
 			jwt.verify(token, this.#secret, (err, decoded) => {
 				if (err !== null)  {
 					if (err.constructor.name === 'TokenExpiredError')
-						reject('Expired token');
+						reject('Expired token') // DO NOT translate (used by API lib)
 					else
-						reject('Invalid token');
-					return;
+						reject('Invalid token')
+					return
 				}
 				if (decoded.type !== 'access') {
-					reject('Not an access token');
-					return;
+					reject('Not an access token')
+					return
 				}
 				if (isNaN(decoded.{{authObject.name|snakeCase}}_id)) {
-					reject(`Invalid token content`);
-					return;
+					reject(`Invalid token content`)
+					return
 				}
 				{% if project.attributes.auth_extra_field -%}
 				if (isNaN(decoded.{{project.attributes.auth_extra_field}}_id)) {
-					reject(`Invalid token content`);
-					return;
+					reject(`Invalid token content`)
+					return
 				}
 				{%- endif %}
 				resolve([decoded.{{authObject.name|snakeCase}}_id
 				{%- if project.attributes.auth_extra_field -%}
 					, decoded.{{ project.attributes.auth_extra_field | snakeCase }}_id
 				{%- endif -%}
-				]);
-			});
-		});
+				])
+			})
+		})
 	}
 
 	static async checkRefreshToken(token) {
@@ -327,26 +327,26 @@ class AuthModel {
 			jwt.verify(token, this.#secret, (err, decoded) => {
 				if (err !== null)  {
 					if (err.constructor.name === 'TokenExpiredError')
-						reject('Expired token');
+						reject('Expired token') // DO NOT translate (used by API lib)
 					else
-						reject('Invalid token');
-					return;
+						reject('Invalid token')
+					return
 				}
 				if (decoded.type !== 'refresh') {
-					reject('Not an refresh token');
-					return;
+					reject('Not an refresh token')
+					return
 				}
 				if (isNaN(decoded.token_id) || isNaN(decoded.{{authObject.name|snakeCase}}_id)) {
-					reject(`Invalid token content`);
-					return;
+					reject(`Invalid token content`)
+					return
 				}
 				resolve([decoded.token_id, decoded.{{authObject.name|snakeCase}}_id
 				{%- if project.attributes.auth_extra_field -%}
 					, decoded.{{project.attributes.auth_extra_field | snakeCase | append: '_id'}}
 				{%- endif -%}
-				]);
-			});
-		});
+				])
+			})
+		})
 		const [tokenId, {{authObject.name|camelCase}}Id
 			{%- if project.attributes.auth_extra_field -%}
 				, {{project.attributes.auth_extra_field | camelCase | append: 'Id'}}
