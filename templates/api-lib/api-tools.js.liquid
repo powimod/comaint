@@ -12,14 +12,16 @@ class ApiTool {
 	#account = null;
 	#accountSerializeFunction = null;
 
-	_loadTokens() {
-		const [account, refreshToken, accessToken] = this.#accountSerializeFunction('load');
+	_load() {
+		const [accountId, refreshToken, accessToken] = this.#accountSerializeFunction('load');
 
-		if (account === undefined)
-			throw new Error('[accountSerializeFunction] did not return an account object');
-		if (account !== null && typeof(account) !== 'object')
-			throw new Error('[accountSerializeFunction] did not return a valid account object');
-		this.#account = account;
+		if (accountId === undefined)
+			throw new Error('[accountSerializeFunction] did not return an account ID');
+		console.log("dOm accountId =", accountId)
+		if (accountId !== null && isNaN(accountId) )
+			throw new Error('[accountSerializeFunction] did not return a valid account ID');
+		this.#accountId = accountId
+		this.#account = null
 
 		if (refreshToken === undefined)
 			throw new Error('[accountSerializeFunction] did not return a refresh token');
@@ -43,7 +45,7 @@ class ApiTool {
 		if (typeof(accountSerializeFunction) !== 'function')
 			throw new Error('[accountSerializeFunction] argument is not a function');
 		this.#accountSerializeFunction  = accountSerializeFunction;
-		this._loadTokens();
+		this._load();
 
 		if (config === undefined)
 			throw new Error('[config] argument is missing');
@@ -60,10 +62,11 @@ class ApiTool {
 	setAccountAndTokens(account, accessToken, refreshToken) {
 		if (account === undefined || accessToken === undefined || refreshToken === undefined)
 			throw new Error('Missing parameters');
-		this.#account = account;
+		this.#accountId = account.userId;
+		this.#account = account
 		this.#accessToken = accessToken;
 		this.#refreshToken = refreshToken;
-		this.#accountSerializeFunction('save', this.#account, this.#refreshToken, this.#accessToken);
+		this.#accountSerializeFunction('save', this.#accountId, this.#refreshToken, this.#accessToken);
 	}
 
 	async request(route, httpMethod, requestBody = null, params = null, sendAccessToken = true, sendRefreshToken = false){
@@ -166,11 +169,6 @@ class ApiTool {
 			refreshToken = json.data['refresh-token']
 			if (refreshToken === undefined)
 				throw new Error(`Can't find new refresh token`)
-
-			/* FIXME update request ?
-			request.session.userId = json.data.userId
-			request.session.companyId = json.data.companyId
-			*/
 
 			console.log("Save new access and refresh tokens in context")
 			this.setAccountAndTokens(currentAccount, accessToken, refreshToken) 

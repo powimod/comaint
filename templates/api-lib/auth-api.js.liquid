@@ -161,10 +161,29 @@ const validateRegistration = async function(validationCode) {
 	}
 }
 
+const getContext = async function() {
+	console.log("dOm auth/get-context : start")
+	const url = `${apiVersion}/auth/get-context`;
+	try {
+		const result = await apiTools.request(url, 'GET', null, null, false);
+		console.log("Result get-context", result)
+		return { ok: true };
+	}
+	catch (error) {
+		console.log("dOm auth/get-context : error =", error)
+		return {
+			ok: false, 
+			error: (error.message !== undefined) ? error.message : error
+		};
+	}
+}
+
+
 const authApi = {
 	login: login,
 	logout: logout,
 	register: register,
-	validateRegistration : validateRegistration
+	validateRegistration : validateRegistration,
+	getContext: getContext
 }
 export default authApi;
