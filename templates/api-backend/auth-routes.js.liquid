@@ -290,7 +290,6 @@ exports.initialize = (app, authModel, View, config) => {
 			if (request.{{authObject.name|camelCase}}Id !== null) {
 				context = await _authModel.getContext(request.{{authObject.name|camelCase}}Id);
 			}
-			console.log("dOm context:", context)
 			View.sendJsonResult(response, {
 				'context': context
 			})

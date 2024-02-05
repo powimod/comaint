@@ -18,7 +18,6 @@ class ApiTool {
 
 		if (accountId === undefined)
 			throw new Error('[accountSerializeFunction] did not return an account ID');
-		console.log("dOm accountId =", accountId)
 		if (accountId !== null && isNaN(accountId) )
 			throw new Error('[accountSerializeFunction] did not return a valid account ID');
 		this.#accountId = accountId
@@ -63,7 +62,8 @@ class ApiTool {
 	setAccountAndTokens(account, accessToken, refreshToken) {
 		if (account === undefined || accessToken === undefined || refreshToken === undefined)
 			throw new Error('Missing parameters');
-		this.#accountId = account.userId;
+		{% # TODO replace userID with pwm-code-gen variable in template %}
+		this.#accountId = (account !== null) ? account.userId : null;
 		this.#account = account
 		this.#accessToken = accessToken;
 		this.#refreshToken = refreshToken;

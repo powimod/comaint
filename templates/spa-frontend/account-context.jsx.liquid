@@ -26,19 +26,28 @@ const AccountProvider = ( ({children}) => {
 
 
 	const asyncLoadContext = async () => {
-		console.log("dOm ================ load context accountId = ", accountId)
-		const result = await authApi.getContext()
-		console.log(result)
+		let account = null;
+		if (accountId === null) {
+			console.log(`AccountContext - reset context  ...`)
+		}
+		else {
+			console.log(`AccountContext - loading context accountId = ${accountId} ...`)
+			const result = await authApi.getContext()
+			if (! result.ok) {
+				console.error(`Can not get account from backend : ${error.message}`);
+			}
+			else {
+				console.log("OK account", result)
+				account = result.context
+			}
+		}
+		console.log('AccountContext - account', account)
+		setAccount(account)
 	}
 
 	useEffect( () => {
 		if (accountId === undefined)
 			return;
-		if (accountId === null) {
-			if (account !== null)
-				setAccount(null)
-			return;
-		}
 		asyncLoadContext()
 	}, [accountId]);
 
@@ -89,10 +98,6 @@ const AccountProvider = ( ({children}) => {
 				else
 					localStorage.removeItem(accessTokenKey);
 
-				if (newAccount)
-					localStorage.setItem(accountKey, JSON.stringify(newAccount));
-				else
-					localStorage.removeItem(accountKey);
 				break;
 			case 'load':
 				accountId = localStorage.getItem(accountIdStorageKey);

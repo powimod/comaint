@@ -162,15 +162,14 @@ const validateRegistration = async function(validationCode) {
 }
 
 const getContext = async function() {
-	console.log("dOm auth/get-context : start")
 	const url = `${apiVersion}/auth/get-context`;
 	try {
 		const result = await apiTools.request(url, 'GET', null, null, false);
-		console.log("Result get-context", result)
-		return { ok: true };
+		if (result.context === undefined)
+			throw new Error(`Can't find context in API response`);
+		return { ok: true, context: result.context };
 	}
 	catch (error) {
-		console.log("dOm auth/get-context : error =", error)
 		return {
 			ok: false, 
 			error: (error.message !== undefined) ? error.message : error
