@@ -24,13 +24,17 @@ exports.initialize = (app, authModel, View, config) => {
 	_authModel = authModel;
 
 	app.use( async (request, response, next) => {
+		console.log(`Loading access token for request ${request.url} ...`)
 		assert(_authModel !== null);
 		let {{authObject.name|camelCase}}Id = null;
 		{% if project.attributes.auth_extra_field -%}
 		let {{project.attributes.auth_extra_field | camelCase}}Id = null;
 		{%- endif %}
 		const token = request.headers['x-access-token'];
-		if (token !== undefined) {
+		if (token === undefined) {
+			console.log(`-> no token found`)
+		}
+		else {
 			try {
 				[{{authObject.name|camelCase}}Id
 				{%- if project.attributes.auth_extra_field -%}
@@ -38,8 +42,13 @@ exports.initialize = (app, authModel, View, config) => {
 				{%- endif -%}
 
 			] = await _authModel.checkAccessToken(token);
+				console.log(`-> cookie {{authObject.name|camelCase}}Id = ${ {{authObject.name|camelCase}}Id }`);
+				{% if project.attributes.auth_extra_field -%}
+				console.log(`-> cookie {{project.attributes.auth_extra_field | camelCase}}Id = ${ {{project.attributes.auth_extra_field | camelCase}}Id }`); 
+				{%- endif %}
 			}
 			catch (error) {
+				console.log(`-> cookie error : ${ error.message ? error.message : error }`)
 				View.sendJsonError(response, error);
 				return;
 			}
