@@ -1116,6 +1116,9 @@ files:
     input:  "templates/global/object-helper.cjs.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/src/objects/{{object.name | kebabCase }}-object-helper.cjs"
 
+  - scope:  "project"
+    input:  "templates/api-backend/test/test-01-api.js.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/test/test-01-api.js"
 
 
     ########################### API library
