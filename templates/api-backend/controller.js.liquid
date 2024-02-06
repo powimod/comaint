@@ -54,11 +54,11 @@ class Controller {
 		});
 
 		this.#app.get('/version', (request, response) => {
-			this.#view.sendJsonResult(response, '{{project.name backend}} V{{project.attributes.backend_project_version}}');
+			this.#view.sendJsonResult(response, '{{project.attributes.backend_project_version}}');
 		});
 
 		this.#app.get('/api/version', (request, response) => {
-			this.#view.sendJsonResult(response, '{{project.attributes.backend_project_version}}');
+			this.#view.sendJsonResult(response, '{{project.attributes.api_version}}');
 		});
 
 		this.#app.get('/api/{{project.attributes.api_version}}', (request, response) => {

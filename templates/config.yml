@@ -1117,6 +1117,29 @@ files:
     output: "output/{{project.attributes.backend_project_dir}}/src/objects/{{object.name | kebabCase }}-object-helper.cjs"
 
 
+  - scope:  "project"
+    input:  "templates/api-backend/test/selftest-config.json.sample.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/test/selftest-config.json.sample"
+
+  - scope:  "project"
+    input:  "templates/api-backend/test/test-util.js.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/test/helpers/util.js"
+
+  - scope:  "project"
+    input:  "templates/api-backend/test/account-helper.js.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/test/helpers/account.js"
+
+  - scope:  "project"
+    input:  "templates/api-backend/test/test-01-api.js.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/test/test-01-api.js"
+
+  - scope:  "project"
+    input:  "templates/api-backend/test/test-02-register.js.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/test/test-02-register.js"
+
+  - scope:  "project"
+    input:  "templates/api-backend/test/test-03-login.js.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/test/test-03-login.js"
 
     ########################### API library
    

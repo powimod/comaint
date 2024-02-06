@@ -1,0 +1,71 @@
+const assert = require('assert')
+const util = require('./util.js')
+
+const findUserByEmail= async (email) => {
+	assert(email !== undefined)	
+	const result = await util.dbRequest("SELECT * FROM users WHERE email = ?", [ email ] )
+	if (result.length === 0)
+		return null
+	return result[0]
+}
+
+const accountPurge = async (email) => {
+	const user = await findUserByEmail(email)
+	if (user === null)
+		return;
+	await util.dbRequest("DELETE FROM tokens WHERE id_user = ?", [ user.id ] )
+	result = await util.dbRequest("DELETE FROM users WHERE id = ?", [ user.id ] )
+	if (result.affectedRows !== 1)
+		throw new Error(`Can not delete User ID = ${user.id}`)
+}
+
+const declareUser = async (email, password) => {
+	await accountPurge(email)
+
+	const ROUTE_REGISTER = 'api/v1/auth/register'
+	let json = await util.requestJsonPost(ROUTE_REGISTER, {
+			email: email,
+			password:'abCD-EF-1023',
+			firstname:'John',
+			lastname:'Do'
+		})
+	if (json.ok === undefined)
+		throw new Error("Can't find ok in response");
+	if (json.ok === false)
+		throw new Error("Register route error : " + json.error);
+	if (json.data === undefined)
+		throw new Error("Can't find data in response");
+	const userId = json.data.userId
+	if (userId === undefined)
+		throw new Error("Can't find user ID in response");
+
+	let user = await findUserByEmail(email)
+	if (user === null)
+		throw new Error("Can't find user in database");
+	const validationCode = user.validation_code
+	if (validationCode === undefined)
+		throw new Error("Can't find validation code in database");
+	if (validationCode === null)
+		throw new Error("Validation code not set");
+
+	const ROUTE_VALIDATE = 'api/v1/auth/validateRegistration'
+	json = await util.requestJsonPost(ROUTE_VALIDATE, {
+			'validationCode': user.validation_code,
+		})
+	if (json.ok === undefined)
+		throw new Error("Can't find ok in response");
+	if (json.ok === false)
+		throw new Error("Register route error : " + json.error);
+
+	user = await findUserByEmail(email)
+	if (user === null)
+		throw new Error("Can't find user in database");
+	return user
+}
+
+
+module.exports = {
+	findUserByEmail,
+	accountPurge,
+	declareUser
+}
