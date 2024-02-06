@@ -1,0 +1,36 @@
+const configFile = './test/selftest-config.json';
+
+const nconf = require('nconf');
+const fs = require('fs')
+
+let backendUrl = null
+
+const loadConfig = () => {
+	if (! fs.existsSync(configFile))
+		throw new Error(`Can't find file "${configFile}"`)
+	nconf.file({ file: configFile });
+
+	let param = nconf.get('backend_url')
+	if (param === undefined)
+		throw new Error(`Can't find <backend_url> in file ${configFile}`);
+	backendUrl = param;
+	console.log("backendUrl=", backendUrl)
+}
+
+const requestJsonGet = async (routeUrl) => {
+	if (backendUrl === null)
+		loadConfig()
+	const url=`${backendUrl}/${routeUrl}`
+	const response = await fetch(url);
+	if (response.status != 200)
+		throw new Error(`Server status ${response.status} (${response.statusText})`);
+	const json = await response.json();
+	if (json.ok === undefined)
+		throw new Error(`Can't find "ok" in server response`)
+	return json
+}
+
+module.exports = {
+	loadConfig,
+	requestJsonGet
+}

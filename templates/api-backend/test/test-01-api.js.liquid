@@ -1,25 +1,19 @@
-const backendUrl = 'http://localhost:9001'
 
 var expect = require('chai').expect;
 let chai = require('chai');
 let chaiHttp = require('chai-http');
 
-const requestJsonGet = async (url) => {
-	let response = await fetch(url);
-	if (response.status != 200)
-		throw new Error(`Server status not 200 but ${response.status} (${response.statusText})`);
-	let json = await response.json();
-	if (json.ok === undefined)
-		throw new Error(`Can't find "ok" in server's response`)
-	return json
-}
+const util = require('./helpers/util.js')
 
 describe('Test API root', () => {
 
+	before( () =>  {
+		util.loadConfig()
+	}),
+
 	describe('Test root', () => {
 		it('Control / route', async () => {
-			let url=`${backendUrl}/`
-			let json = await requestJsonGet(url)
+			let json = await util.requestJsonGet('')
 			expect(json).to.have.property('ok')
 			expect(json.ok).to.be.a('boolean')
 				.and.to.be.equal(true)
@@ -28,8 +22,7 @@ describe('Test API root', () => {
 				.and.to.be.equal(`API comaint frontend ready`)
 		}),
 		it('Control /version route', async () => {
-			let url=`${backendUrl}/version`
-			let json = await requestJsonGet(url)
+			let json = await util.requestJsonGet('version')
 			expect(json).to.have.property('ok')
 			expect(json.ok).to.be.a('boolean')
 				.and.to.be.equal(true)
@@ -38,8 +31,7 @@ describe('Test API root', () => {
 				.and.match(/^\d+\.\d+\.\d+$/)
 		})
 		it('Control /api/version route', async () => {
-			let url=`${backendUrl}/api/version`
-			let json = await requestJsonGet(url)
+			let json = await util.requestJsonGet('api/version')
 			expect(json).to.have.property('ok')
 			expect(json.ok).to.be.a('boolean')
 				.and.to.be.equal(true)
