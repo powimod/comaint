@@ -1,0 +1,25 @@
+const assert = require('assert')
+const util = require('./util.js')
+
+const findUserByEmail= async (email) => {
+	assert(email !== undefined)	
+	const result = await util.dbRequest("SELECT * FROM users WHERE email = ?", [ email ] )
+	if (result.length === 0)
+		return null
+	return result[0]
+}
+
+const accountPurge = async (email) => {
+	const user = await findUserByEmail(email)
+	if (user === null)
+		return;
+	await util.dbRequest("DELETE FROM tokens WHERE id_user = ?", [ user.id ] )
+	result = await util.dbRequest("DELETE FROM users WHERE id = ?", [ user.id ] )
+	if (result.affectedRows !== 1)
+		throw new Error(`Can not delete User ID = ${user.id}`)
+}
+
+module.exports = {
+	findUserByEmail,
+	accountPurge,
+}
