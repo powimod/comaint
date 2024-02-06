@@ -19,10 +19,8 @@ describe('Test user registration', () => {
 		await util.connectDb()
 		userEmail = util.getEmail1()
 		await account.accountPurge(userEmail)
-		//const user = await account.findUserByEmail(userEmail)
-		await util.sleep(1000)
 	}),
-	before( async () =>  {
+	after( async () =>  {
 		await util.disconnectDb()
 	}),
 
@@ -42,10 +40,9 @@ describe('Test user registration', () => {
 				expect(json.error).to.be.a('string')
 					.and.to.be.equal(`Can't find <email> in request body`)
 			}),
-			// TODO test missing password
-			// TODO test missing firstname
-			// TODO test missing lastname
 			it(`Should create account`, async () => {
+				const firstname = 'John'
+				const lastname = 'Do'
 				assert(userEmail !== null)
 				let json = await util.requestJsonPost(ROUTE_REGISTER, {
 						email: userEmail,
@@ -65,16 +62,42 @@ describe('Test user registration', () => {
 				expect(json.data.companyId).to.be.null
 				expect(json.data).to.have.property('access-token')
 				expect(json.data).to.have.property('refresh-token')
+
+				expect(json.data).to.have.property('firstname')
+				expect(json.data.firstname).to.be.a('string')
+					.and.to.be.equal(firstname)
+				expect(json.data).to.have.property('lastname')
+				expect(json.data.lastname).to.be.a('string')
+					.and.to.be.equal(lastname)
+
+				const user = await account.findUserByEmail(userEmail)
+				expect(user).not.to.be.null
+				expect(user).to.have.property('id')
+				expect(user.id).to.be.a('number')
+
+				expect(user).to.have.property('validation_code')
+				expect(user.validation_code).to.be.a('number')
+
+				expect(user).to.have.property('firstname')
+				expect(user.firstname).to.be.a('string')
+					.and.to.be.equal(firstname)
+
+				expect(user).to.have.property('lastname')
+				expect(user.lastname).to.be.a('string')
+					.and.to.be.equal(lastname)
+
+				expect(user).to.have.property('account_locked')
+				expect(user.account_locked).to.be.a('number')
+					.and.to.be.equal(1)
 			})
 
 		}),
 		describe (`Control /${ROUTE_VALIDATE} route`, () => {
 			it(`Should accept validtion code`, async () => {
 				assert(userEmail !== null)
-				const user = await account.findUserByEmail(userEmail)
+				let user = await account.findUserByEmail(userEmail)
 				expect(user).not.to.be.null
-				expect(user).to.have.property('id')
-				expect(user).to.have.property('validation_code')
+
 				expect(user.validation_code).to.be.a('number')
 				let json = await util.requestJsonPost(ROUTE_VALIDATE, {
 						'validationCode': user.validation_code,
@@ -82,6 +105,19 @@ describe('Test user registration', () => {
 				expect(json).to.have.property('ok')
 				expect(json.ok).to.be.a('boolean')
 					.and.to.be.equal(true)
+
+				user = await account.findUserByEmail(userEmail)
+				expect(user).not.to.be.null
+				expect(json).to.have.property('ok')
+				expect(json.ok).to.be.a('boolean')
+					.and.to.be.equal(true)
+
+				expect(user).to.have.property('validation_code')
+				expect(user.validation_code).to.be.null
+
+				expect(user).to.have.property('account_locked')
+				expect(user.account_locked).to.be.a('number')
+					.and.to.be.equal(0)
 			})
 		})
 	})
