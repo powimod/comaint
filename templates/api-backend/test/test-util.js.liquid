@@ -133,6 +133,8 @@ const dbRequest = async (sqlQuery, sqlValues) => {
 
 const getEmail1 = () => testEmail1
 const getEmail2 = () => testEmail2
+const getAccessToken = () => accessToken  
+const getRefreshToken = () => refreshToken  
 
 module.exports = {
 	sleep,
@@ -143,5 +145,7 @@ module.exports = {
 	disconnectDb,
 	dbRequest,
 	getEmail1,
-	getEmail2
+	getEmail2,
+	getAccessToken,
+	getRefreshToken
 }

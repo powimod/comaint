@@ -1137,6 +1137,10 @@ files:
     input:  "templates/api-backend/test/test-02-register.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/test/test-02-register.js"
 
+  - scope:  "project"
+    input:  "templates/api-backend/test/test-03-login.js.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/test/test-03-login.js"
+
     ########################### API library
    
   - scope:  "project"
