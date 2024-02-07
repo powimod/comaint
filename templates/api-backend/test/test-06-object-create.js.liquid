@@ -73,7 +73,6 @@ describe('Test user edition', () => {
 				expect(foundUser).to.have.property('companyId')
 				expect(foundUser.companyId).to.be.null
 
-				console.log(foundUser)
 				expect(foundUser).to.have.property('active')
 				expect(foundUser.active).to.be.a('boolean').and.to.be.equal(true)
 
