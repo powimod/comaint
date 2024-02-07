@@ -200,43 +200,48 @@ objects:
         maximum: 70 # 61 is the minimum size of bcrypt hash
       - name: "firstname"
         type: "string"
-        mandatory: false
         maximum: 30
       - name: "lastname"
         type: "string"
-        mandatory: false
         maximum: 30
       - name: "accountLocked"
         type: "boolean"
+        mandatory: false
         default: false
       - name : "validationCode"
         type: "integer"
         mandatory: false
+        default: 0
         minimum: 10000
         maximum: 99999
       - name: "phone"
         type: "string"
-        maximum: 25
         mandatory: false
+        default: ""
+        maximum: 25
       - name: "active"
         type: "boolean"
+        mandatory: false
         default: true
       - name: "lastConnection"
         type: "datetime"
         mandatory: false
       - name: "administrator"
         type: "boolean"
+        mandatory: false
         default: false
       - name: "stockRole"
         type: "integer"
+        mandatory: false
         default: 0
         minimum: 0
-        maximum: 3
+        maximum: 4
       - name: "parkRole"
         type: "integer"
+        mandatory: false
         default: 0
         minimum: 0
-        maximum: 3
+        maximum: 4
     links:
       - name: "company"
         target: "Company"
