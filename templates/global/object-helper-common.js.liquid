@@ -217,7 +217,7 @@ const convert{{object.name|pascalCase}}FromDb = (record, filter = true) => {
 		throw new Error('Argument [record] is missing')
 	let {{object.name|camelCase}} = {
 {%- for property in object.properties %} 
-		{{property.name|camelCase}}: record.{{property.name|snakeCase}},
+		{{property.name|camelCase}}: record.{{property.name|snakeCase}}{% if property.type.name == 'boolean' %} == 1{% endif %},
 {%- endfor %}
 {%- for link in object.links %} 
 		{{link.name|camelCase}}Id: record.id_{{link.name|snakeCase}},

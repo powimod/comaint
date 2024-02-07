@@ -60,7 +60,6 @@ describe('Test user edition', () => {
 				expect(json).to.have.property('user')
 				const foundUser = json.user
 				expect(foundUser).to.be.a('object')
-				console.log(foundUser)
 
 				expect(foundUser).to.have.property('id')
 				expect(foundUser.id).to.be.a('number')
@@ -72,38 +71,21 @@ describe('Test user edition', () => {
 				expect(foundUser.lastname).to.be.a('string').and.to.be.equal(refNewUser.lastname)
 
 				expect(foundUser).to.have.property('companyId')
-				/*
-				if (foundUser.companyId !== null)
-					expect(foundUser.companyId).to.be.a('number').and.to.be.equal(dbUser.companyId)
-					*/
+				expect(foundUser.companyId).to.be.null
+
+				console.log(foundUser)
+				expect(foundUser).to.have.property('active')
+				expect(foundUser.active).to.be.a('boolean').and.to.be.equal(true)
+
+				expect(foundUser).to.have.property('administrator')
+				expect(foundUser.administrator).to.be.a('boolean').and.to.be.equal(false)
 
 				// should not have password hash since it's a secret
 				expect(foundUser).not.to.have.property('password')
-
 
 			})
 
 
-/*
-				expect(foundUser).to.be.a('object')
-
-				expect(foundUser).to.have.property('id')
-				expect(foundUser.id).to.be.a('number').and.to.be.equal(dbUser.id)
-
-				expect(foundUser).to.have.property('firstname')
-				expect(foundUser.firstname).to.be.a('string').and.to.be.equal(dbUser.firstname)
-
-				expect(foundUser).to.have.property('lastname')
-				expect(foundUser.lastname).to.be.a('string').and.to.be.equal(dbUser.lastname)
-
-				expect(foundUser).to.have.property('companyId')
-				if (foundUser.companyId !== null)
-					expect(foundUser.companyId).to.be.a('number').and.to.be.equal(dbUser.companyId)
-
-
-				// should not have password hash since it's a secret
-				expect(foundUser).not.to.have.property('password')
-				*/
 		})
 
 	})
