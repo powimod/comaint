@@ -34,7 +34,7 @@ const AccountProvider = ( ({children}) => {
 			console.log(`AccountContext - loading context accountId = ${accountId} ...`)
 			const result = await authApi.getContext()
 			if (! result.ok) {
-				console.error(`Can not get account from backend : ${error.message}`);
+				console.error(`Can not get account from backend : ${result.error}`);
 			}
 			else {
 				console.log("OK account", result)
