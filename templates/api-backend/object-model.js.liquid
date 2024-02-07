@@ -163,8 +163,9 @@ class {{object.name | pascalCase }}Model {
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
-		{{object.name | camelCase }}.id = result.insertId;
-		return {{object.name | camelCase }};
+		const {{object.name|camelCase}}Id = result.insertId;
+		{{object.name|camelCase }} = this.get{{object.name|pascalCase}}ById({{object.name|camelCase}}Id)
+		return {{object.name|camelCase}};
 	}
 }
 
