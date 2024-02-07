@@ -203,10 +203,10 @@ const controlObject{{object.name|pascalCase}} = ({{objectName}}, fullCheck = fal
 }
 
 
-const convert{{object.name|pascalCase}}FromDb = (record) => {
+const convert{{object.name|pascalCase}}FromDb = (record, filter = true) => {
 	if (record === undefined)
 		throw new Error('Argument [record] is missing')
-	return {
+	let {{object.name|camelCase}} = {
 {%- for property in object.properties %} 
 		{{property.name|camelCase}}: record.{{property.name|snakeCase}},
 {%- endfor %}
@@ -214,6 +214,24 @@ const convert{{object.name|pascalCase}}FromDb = (record) => {
 		{{link.name|camelCase}}Id: record.id_{{link.name|snakeCase}},
 {%- endfor %}
 	};
+{%- liquid
+	assign hasSecrets = false 
+	for property in object.properties
+		if property.secret
+			assign hasSecrets = true 
+		endif
+	endfor
+%}
+{% if hasSecrets %}
+	if (filter) {
+{%- for property in object.properties %} 
+{%- if property.secret %}
+		delete {{object.name|camelCase}}.{{property.name|camelCase}}
+{%- endif %}
+{%- endfor %}
+	}
+{%- endif %}
+	return {{object.name|camelCase}} 
 }
 
 const convert{{object.name|PacalCase}}ToDb = ({{objectName}}) => {
