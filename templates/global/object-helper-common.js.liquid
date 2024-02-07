@@ -25,7 +25,6 @@ function dumpError(error, infos = null) {
         return `${error} : ${JSON.stringify(infos)}`
 }
 
-
 {% for link in object.links%} 
 {%- assign linkName = link.name|camelCase %}
 //============ Link [{{linkName}}]
@@ -185,7 +184,7 @@ const controlObject{{object.name|pascalCase}} = ({{objectName}}, fullCheck = fal
 		if (error) return error
 	}
 	{%- else %}
-	if ({{objectName}}.{{propName}} !== undefined || fullCheck) {
+	if ({{objectName}}.{{propName}} !== undefined {%- if property.mandatory %} || fullCheck {% endif -%}){
 		error = controlProperty{{property.name|pascalCase}}({{objectName}}.{{propName}})
 		if (error) return error
 	}
@@ -193,7 +192,7 @@ const controlObject{{object.name|pascalCase}} = ({{objectName}}, fullCheck = fal
 {%- endfor %}
 {%- for link in object.links %} 
 	{%- assign linkName = link.name|camelCase %}
-	if ({{objectName}}.{{linkName}}Id !== undefined || fullCheck) {
+	if ({{objectName}}.{{linkName}}Id !== undefined {%- if link.mandatory %} || fullCheck {% endif -%}){
 		error = controlLink{{link.name|pascalCase}}({{objectName}}.{{linkName}}Id)
 		if (error) return error
 	}
@@ -221,7 +220,7 @@ const convert{{object.name|pascalCase}}FromDb = (record, filter = true) => {
 			assign hasSecrets = true 
 		endif
 	endfor
-%}
+-%}
 {% if hasSecrets %}
 	if (filter) {
 {%- for property in object.properties %} 
@@ -230,6 +229,8 @@ const convert{{object.name|pascalCase}}FromDb = (record, filter = true) => {
 {%- endif %}
 {%- endfor %}
 	}
+{%- else %}
+	// no secret property to filter in this object
 {%- endif %}
 	return {{object.name|camelCase}} 
 }
