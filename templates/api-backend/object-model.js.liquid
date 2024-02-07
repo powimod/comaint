@@ -9,6 +9,8 @@
 'use strict'
 const assert = require('assert');
 
+const {{object.name|camelCase}}ObjectHelper = require('../objects/{{object.name|kebabCase}}-object-helper.cjs')
+
 class {{object.name | pascalCase }}Model {
 
 	static #model = null;
@@ -19,54 +21,7 @@ class {{object.name | pascalCase }}Model {
 		this.#model = ModelSingleton.getInstance();
 	}
 
-	static control{{object.name | pascalCase }}Object({{object.name | camelCase }}, controlId = true){
-		if (typeof({{object.name | camelCase }}) !== 'object')
-			throw new Error('Invalid <{{object.name | camelCase }}> argument');
-		if (controlId) {
-			if ({{object.name | camelCase }}.id === undefined)
-				throw new Error('{{object.name | pascalCase }} ID is undefined');
-			if ({{object.name | camelCase }}.id === null)
-				throw new Error('{{object.name | pascalCase }} ID is null');
-			if (typeof({{object.name | camelCase }}.id) !== '{{object.name | camelCase }}')
-				throw new Error('{{object.name | pascalCase }} is not an number');
-		}
-		// control title
-		const propertyList = [ 
-			{name: 'name', type:'string'},
-		];
-		if (controlId)
-			propertyList.push({ name: 'creationTimeStamp', type: 'string'});
-		for (let prop of propertyList){
-			if ({{object.name | camelCase }}[prop.name] === undefined)
-				throw new Error(`Property <${prop.name}> of {{object.name | camelCase }} is undefined`);
-			if (typeof({{object.name | camelCase }}[prop.name]) !== prop.type)
-				throw new Error(`Property <${prop.name}> of {{object.name | camelCase }} is not as ${prop.type}`);
-		}
-	}
-
-
-	static {{object.name | camelCase }}FromDb(record) {
-		return {
-		{%- liquid 
-		  assign sep=''
-		  for property in object.properties 
-		    echo sep
-		    echo '\n\t\t\t'
-		    echo property.name | append: ': record.'
-		    echo property.name | snakeCase
-		    assign sep = ','
-		  endfor
-		  for link in object.links 
-		    echo sep
-		    echo '\n\t\t\t'
-		    echo link.name | camelCase | append: 'Id'
-		    echo ' : record.'
-		    echo link.name | snakeCase | prepend: 'id_'
-		  endfor
-		%}
-		};
-	}
-
+	
 	static async get{{object.name | pascalCase }}List(filters, params) {
 		assert(filters !== undefined);
 		assert(params !== undefined);
@@ -114,7 +69,7 @@ class {{object.name | pascalCase }}Model {
 			throw new Error(result.code);
 		const {{object.name | camelCase }}List = [];
 		for (let {{object.name | camelCase }}Record of result) 
-			{{object.name | camelCase }}List.push( this.{{object.name | camelCase }}FromDb({{object.name | camelCase }}Record) );
+			{{object.name | camelCase }}List.push( {{object.name|camelCase}}ObjectHelper.convert{{object.name|pascalCase}}FromDb({{object.name|camelCase}}Record) );
 		return {{object.name | camelCase }}List;
 	}
 
@@ -140,7 +95,7 @@ class {{object.name | pascalCase }}Model {
 			throw new Error(result.code);
 		if (result.length === 0) 
 			return null;
-		const {{object.name | camelCase}} = this.{{object.name | camelCase}}FromDb(result[0]);
+		const {{object.name | camelCase}} = {{object.name|camelCase}}ObjectHelper.convert{{object.name|pascalCase}}FromDb(result[0]);
 		return {{object.name | camelCase}};
 	}
 	{%- endif %}
@@ -148,53 +103,24 @@ class {{object.name | pascalCase }}Model {
 	static async create{{object.name | pascalCase }}({{object.name | camelCase }}) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
-		this.control{{object.name | pascalCase }}Object({{object.name | camelCase }}, false);
-		const fieldNames = [
-			{%- liquid 
-			    assign sep = ""
-			    for property in object.properties
-			       if property.type.name != 'id' 
-			           if property.attributes.auto_counter != true
-				     echo sep
-			             echo property.name | snakeCase | prepend: "'" | append: "'"
-			             assign sep = ", "
-			           endif
-			       endif
-			    endfor 
-			    for link in object.links
-			      echo sep
-		              echo link.name | snakeCase | prepend: "id_" | prepend: "'" | append: "'"
-		              assign sep = ", "
-			    endfor 
-			-%}
-		];
-		const propNames = [
-			{%- liquid 
-			    assign sep = ""
-			    for property in object.properties
-			       if property.type.name != 'id' 
-			           if property.attributes.auto_counter != true
-				     echo sep
-			             echo property.name | prepend: "'" | append: "'"
-			             assign sep = ", "
-			           endif
-			       endif
-			    endfor 
-			    for link in object.links
-			      echo sep
-		              echo link.name | pascalCase | prepend: "'id" | append: "'"
-		              assign sep = ", "
-			    endfor 
-			-%}
-		];
-		const sqlParams = [];
-		for (let propName of propNames) {
-			const value = {{object.name | camelCase }}[propName];
-			if (value === undefined)
-				throw new Error(`Property <${propName}> not defined in {{object.name}}`);
-			sqlParams.push(value);
+
+		const error = {{object.name|camelCase}}ObjectHelper.controlObject{{object.name|pascalCase}}({{object.name | camelCase }}, /*fullCheck=*/true, /*checkId=*/false)
+		if ( error)
+			throw new Error(error)
+
+		const {{object.name|camelCase}}Db = {{object.name|camelCase}}ObjectHelper.convert{{object.name|pascalCase}}ToDb({{object.name|camelCase}})
+
+		const fieldNames = []
+		const markArray = []
+		const sqlParams = []
+		for (let [propName, propValue] of Object.entries({{object.name|camelCase}}Db)) {
+			if (propValue === undefined)
+				continue
+			fieldNames.push(propName)
+			sqlParams.push(propValue)
+			markArray.push('?')
 		}
-		const markArray = Array(fieldNames.length).fill('?');
+
 		const sqlRequest = `
 			INSERT INTO {{object.attributes.table_name}}(${fieldNames.join(', ')}) 
 			       VALUES (${markArray.join(', ')});
@@ -205,8 +131,45 @@ class {{object.name | pascalCase }}Model {
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
 			throw new Error(result.code);
-		{{object.name | camelCase }}.id = result.insertId;
-		return {{object.name | camelCase }};
+		const {{object.name|camelCase}}Id = result.insertId;
+		{{object.name|camelCase }} = this.get{{object.name|pascalCase}}ById({{object.name|camelCase}}Id)
+		return {{object.name|camelCase}};
+	}
+
+	static async edit{{object.name|pascalCase}}({{object.name|camelCase }}) {
+		assert(this.#model !== null)
+		const db = this.#model.db
+
+		const error = {{object.name|camelCase}}ObjectHelper.controlObject{{object.name|pascalCase}}({{object.name | camelCase }}, /*fullCheck=*/false, /*checkId=*/true)
+		if ( error)
+			throw new Error(error)
+
+		const {{object.name|camelCase}}Db = {{object.name|camelCase}}ObjectHelper.convert{{object.name|pascalCase}}ToDb({{object.name|camelCase}})
+		const fieldNames = []
+		const sqlParams = []
+		for (let [propName, propValue] of Object.entries(userDb)) {
+			if (propValue === undefined)
+				continue
+			fieldNames.push(`${propName} = ?`)
+			sqlParams.push(propValue)
+		}
+
+		const sqlRequest = `
+			UPDATE {{object.attributes.table_name}}
+				SET ${fieldNames.join(', ')}
+			WHERE id = ?
+		`
+		sqlParams.push({{object.name|camelCase}}.id) // WHERE clause
+
+		//console.log("SQL request", sqlRequest);
+		//console.log("SQL params ", sqlParams);
+
+		const result = await db.query(sqlRequest, sqlParams);
+		if (result.code)
+			throw new Error(result.code);
+		const {{object.name|camelCase}}Id = {{object.name|camelCase}}.id
+		{{object.name|camelCase }} = this.get{{object.name|pascalCase}}ById({{object.name|camelCase}}Id)
+		return {{object.name|camelCase}};
 	}
 }
 

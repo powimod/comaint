@@ -7,10 +7,8 @@ const assert = require('assert')
 const util = require('./helpers/util.js')
 const account = require('./helpers/account.js')
 
-let userEmail = null
+let refUser = null
 let user = null
-
-const password = 'abCD-EF-1023'
 
 const ROUTE_LOGIN = 'api/v1/auth/login'
 const ROUTE_LOGOUT = 'api/v1/auth/logout'
@@ -20,8 +18,8 @@ describe('Test user registration', () => {
 	before( async () =>  {
 		util.loadConfig()
 		await util.connectDb()
-		userEmail = util.getEmail1()
-		user = await account.declareUser(userEmail, password)
+		refUser = util.testUser1
+		user = await account.declareUser(refUser)
 	}),
 	after( async () =>  {
 		await util.disconnectDb()
@@ -43,7 +41,7 @@ describe('Test user registration', () => {
 			it(`Should detect missing email in request body`, async () => {
 				let json = await util.requestJsonPost(ROUTE_LOGIN, {
 						email_missing:'',
-						password:''
+						password: refUser.password
 					})
 				expect(json).to.have.property('ok')
 				expect(json.ok).to.be.a('boolean')
@@ -55,7 +53,7 @@ describe('Test user registration', () => {
 
 			it(`Should detect missing password in request body`, async () => {
 				let json = await util.requestJsonPost(ROUTE_LOGIN, {
-						email: userEmail,
+						email: refUser.email,
 						password_is_missing:''
 					})
 				expect(json).to.have.property('ok')
@@ -68,7 +66,7 @@ describe('Test user registration', () => {
 
 			it(`Should detect missing wrong`, async () => {
 				let json = await util.requestJsonPost(ROUTE_LOGIN, {
-						email: userEmail,
+						email: refUser.email,
 						password: 'b4d!P4ssword'
 					})
 				expect(json).to.have.property('ok')
@@ -81,8 +79,8 @@ describe('Test user registration', () => {
 
 			it(`Should accept login`, async () => {
 				let json = await util.requestJsonPost(ROUTE_LOGIN, {
-						email: userEmail,
-						password: password
+						email: refUser.email,
+						password: refUser.password
 					})
 				expect(json).to.have.property('ok')
 				expect(json.ok).to.be.a('boolean')

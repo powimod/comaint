@@ -11,8 +11,19 @@ let dbPort
 let dbDatabase
 let dbUser
 let dbPassword 
-let testEmail1 =  "?"
-let testEmail2
+
+const testUser1 = {
+	'email': '',
+	'password': 'B0ny-P4rc.er',
+	'firstname': 'Bonnie',
+	'lastname': 'Parker'
+}
+const testUser2 = {
+	'email': '',
+	'password': 'B0ny-P4rc.er',
+	'firstname': 'Clyde',
+	'lastname': 'Barrow'
+}
 
 let db = null
 let accessToken = null
@@ -53,12 +64,15 @@ const loadConfig = () => {
 	if (dbPassword === undefined)
 		throw new Error(`Can't find <db_password> in file ${configFile}`);
 
-	testEmail1 = nconf.get('test_email_1')
+	const testEmail1 = nconf.get('test_email_1')
 	if (testEmail1 === undefined)
 		throw new Error(`Can't find <test_email_1> in file ${configFile}`);
-	testEmail2 = nconf.get('test_email_2')
+	testUser1.email = testEmail1
+
+	const testEmail2 = nconf.get('test_email_2')
 	if (testEmail2 === undefined)
 		throw new Error(`Can't find <test_email_2> in file ${configFile}`);
+	testUser2.email = testEmail2
 }
 
 const requestJsonFull = async (routeUrl, httpMethod, requestBody) => {
@@ -131,8 +145,6 @@ const dbRequest = async (sqlQuery, sqlValues) => {
 	return result
 }
 
-const getEmail1 = () => testEmail1
-const getEmail2 = () => testEmail2
 const getAccessToken = () => accessToken  
 const getRefreshToken = () => refreshToken  
 
@@ -144,8 +156,8 @@ module.exports = {
 	connectDb,
 	disconnectDb,
 	dbRequest,
-	getEmail1,
-	getEmail2,
+	testUser1,
+	testUser2,
 	getAccessToken,
 	getRefreshToken
 }

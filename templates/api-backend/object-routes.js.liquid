@@ -106,5 +106,22 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 		}
 	});
 
+	app.post('/api/{{project.attributes.api_version}}/{{object.name | snakeCase}}/edit', withAuth, async (request, response) => {
+		try {
+			const {{object.name | camelCase}} = request.body.{{object.name | camelCase}}
+			if ({{object.name | camelCase}} === undefined)
+				throw new Error(`Can't find <{{object.name | camelCase}}> object in request body`)
+			let edited{{object.name | pascalCase}} = await {{object.name | pascalCase}}Model.edit{{object.name | pascalCase}}({{object.name | camelCase}})
+			if (edited{{object.name|pascalCase}}.id !== {{object.name|camelCase}}.id)
+				throw new Error(`Edited {{object.name | pascalCase}} ID does not match`)
+			response.json({ ok: true, {{object.name|camelCase}} : edited{{object.name|pascalCase}} })
+		}
+		catch (error) {
+			const errorMessage = (error.message !== undefined) ? error.message : error
+			response.json({ ok : false, error: errorMessage  })
+		}
+	});
+
+
 }
 
