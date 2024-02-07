@@ -245,18 +245,24 @@ const convert{{object.name|pascalCase}}FromDb = (record, filter = true) => {
 	return {{object.name|camelCase}} 
 }
 
-const convert{{object.name|PacalCase}}ToDb = ({{objectName}}) => {
+const convert{{object.name|pascalCase}}ToDb = ({{objectName}}) => {
 	if ({{objectName}}=== undefined)
 		throw new Error('Argument [record] is missing')
-	return {
+	const {{object.name|camelCase}}Record = {
 {%- for property in object.properties %} 
+{%- if property.type.name != 'id' %}
 		{{property.name|snakeCase}}: {{objectName}}.{{property.name|camelCase}},
+{%- endif %}
 {%- endfor %}
 {%- for link in object.links %} 
 		id_{{link.name|snakeCase}}: {{objectName}}.{{link.name|camelCase}}Id,
 {%- endfor %}
 	};
+{% for property in object.properties %} 
+{%- if property.type.name == 'id' %}
+	if ({{object.name|camelCase}}.{{property.name|camelCase}} !== undefined)
+		{{object.name|camelCase}}Record.{{property.name|camelCase}} = {{object.name|camelCase}}.{{property.name|camelCase}}
+{%- endif %}
+{%- endfor %}
+	return {{object.name|camelCase}}Record 
 }
-
-
-

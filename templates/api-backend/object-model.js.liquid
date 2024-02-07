@@ -108,51 +108,19 @@ class {{object.name | pascalCase }}Model {
 		if ( error)
 			throw new Error(error)
 
-		const fieldNames = [
-			{%- liquid 
-			    assign sep = ""
-			    for property in object.properties
-			       if property.type.name != 'id' 
-			           if property.attributes.auto_counter != true
-				     echo sep
-			             echo property.name | snakeCase | prepend: "'" | append: "'"
-			             assign sep = ", "
-			           endif
-			       endif
-			    endfor 
-			    for link in object.links
-			      echo sep
-		              echo link.name | snakeCase | prepend: "id_" | prepend: "'" | append: "'"
-		              assign sep = ", "
-			    endfor 
-			-%}
-		];
-		const propNames = [
-			{%- liquid 
-			    assign sep = ""
-			    for property in object.properties
-			       if property.type.name != 'id' 
-			           if property.attributes.auto_counter != true
-				     echo sep
-			             echo property.name | prepend: "'" | append: "'"
-			             assign sep = ", "
-			           endif
-			       endif
-			    endfor 
-			    for link in object.links
-			      echo sep
-		              echo link.name | pascalCase | prepend: "'id" | append: "'"
-		              assign sep = ", "
-			    endfor 
-			-%}
-		];
-		const sqlParams = [];
-		for (let propName of propNames) {
-			const value = {{object.name | camelCase }}[propName];
-			// TODO cleanup : if (value === undefined) throw new Error(`Property <${propName}> not defined in {{object.name}}`);
-			sqlParams.push(value);
+		const {{object.name|camelCase}}Db = {{object.name|camelCase}}ObjectHelper.convert{{object.name|pascalCase}}ToDb({{object.name|camelCase}})
+
+		const fieldNames = []
+		const markArray = []
+		const sqlParams = []
+		for (let [propName, propValue] of Object.entries({{object.name|camelCase}}Db)) {
+			if (propValue === undefined)
+				continue
+			fieldNames.push(propName)
+			sqlParams.push(propValue)
+			markArray.push('?')
 		}
-		const markArray = Array(fieldNames.length).fill('?');
+
 		const sqlRequest = `
 			INSERT INTO {{object.attributes.table_name}}(${fieldNames.join(', ')}) 
 			       VALUES (${markArray.join(', ')});
