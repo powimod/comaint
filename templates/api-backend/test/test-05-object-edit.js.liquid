@@ -53,8 +53,6 @@ describe('Test user edition', () => {
 				if (foundUser.companyId !== null)
 					expect(foundUser.companyId).to.be.a('number').and.to.be.equal(dbUser.companyId)
 
-				console.log(foundUser)
-
 				// should not have password hash since it's a secret
 				expect(foundUser).not.to.have.property('password')
 			})

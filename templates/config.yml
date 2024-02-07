@@ -1154,6 +1154,10 @@ files:
     input:  "templates/api-backend/test/test-05-object-edit.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/test/test-05-object-edit.js"
 
+  - scope:  "project"
+    input:  "templates/api-backend/test/test-06-object-create.js.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/test/test-06-object-create.js"
+
     ########################### API library
    
   - scope:  "project"
