@@ -184,6 +184,16 @@ const controlObject{{object.name|pascalCase}} = ({{objectName}}, fullCheck = fal
 		if (error) return error
 	}
 	{%- else %}
+	{%- if property.defaultValue != nil %}
+		{%- liquid
+			assign defaultValue = property.defaultValue
+			if property.type.name == 'string' or property.type.name == 'text'
+				assign defaultValue = defaultValue | prepend: '"' | append: '"'
+			endif
+		%}
+	if ({{objectName}}.{{propName}} === undefined)
+		{{objectName}}.{{propName}} = {{defaultValue}}
+	{%- endif %}
 	if ({{objectName}}.{{propName}} !== undefined {%- if property.mandatory %} || fullCheck {% endif -%}){
 		error = controlProperty{{property.name|pascalCase}}({{objectName}}.{{propName}})
 		if (error) return error

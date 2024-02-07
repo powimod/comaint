@@ -206,12 +206,11 @@ objects:
         maximum: 30
       - name: "accountLocked"
         type: "boolean"
-        mandatory: false
         default: false
       - name : "validationCode"
         type: "integer"
         mandatory: false
-        default: 0
+        default: 10000
         minimum: 10000
         maximum: 99999
       - name: "phone"
@@ -221,14 +220,12 @@ objects:
         maximum: 25
       - name: "active"
         type: "boolean"
-        mandatory: false
         default: true
-      - name: "lastConnection"
+      - name: "lastUse"
         type: "datetime"
         mandatory: false
       - name: "administrator"
         type: "boolean"
-        mandatory: false
         default: false
       - name: "stockRole"
         type: "integer"
