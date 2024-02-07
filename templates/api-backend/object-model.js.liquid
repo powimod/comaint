@@ -135,6 +135,42 @@ class {{object.name | pascalCase }}Model {
 		{{object.name|camelCase }} = this.get{{object.name|pascalCase}}ById({{object.name|camelCase}}Id)
 		return {{object.name|camelCase}};
 	}
+
+	static async edit{{object.name|pascalCase}}({{object.name|camelCase }}) {
+		assert(this.#model !== null)
+		const db = this.#model.db
+
+		const error = {{object.name|camelCase}}ObjectHelper.controlObject{{object.name|pascalCase}}({{object.name | camelCase }}, /*fullCheck=*/false, /*checkId=*/true)
+		if ( error)
+			throw new Error(error)
+
+		const {{object.name|camelCase}}Db = {{object.name|camelCase}}ObjectHelper.convert{{object.name|pascalCase}}ToDb({{object.name|camelCase}})
+		const fieldNames = []
+		const sqlParams = []
+		for (let [propName, propValue] of Object.entries(userDb)) {
+			if (propValue === undefined)
+				continue
+			fieldNames.push(`${propName} = ?`)
+			sqlParams.push(propValue)
+		}
+
+		const sqlRequest = `
+			UPDATE {{object.attributes.table_name}}
+				SET ${fieldNames.join(', ')}
+			WHERE id = ?
+		`
+		sqlParams.push({{object.name|camelCase}}.id) // WHERE clause
+
+		//console.log("SQL request", sqlRequest);
+		//console.log("SQL params ", sqlParams);
+
+		const result = await db.query(sqlRequest, sqlParams);
+		if (result.code)
+			throw new Error(result.code);
+		const {{object.name|camelCase}}Id = {{object.name|camelCase}}.id
+		{{object.name|camelCase }} = this.get{{object.name|pascalCase}}ById({{object.name|camelCase}}Id)
+		return {{object.name|camelCase}};
+	}
 }
 
 module.exports = () => {

@@ -28,7 +28,6 @@ describe('Test user edition', () => {
 		await util.disconnectDb()
 	}),
 
-
 	describe('Test object creation', () => {
 		describe (`Control /${ROUTE_CREATE} route`, () => {
 			it(`Create user to work on`, async () => {
@@ -60,23 +59,42 @@ describe('Test user edition', () => {
 				expect(json.ok).to.be.a('boolean')
 					.and.to.be.equal(false)
 				expect(json).to.have.property('error')
-				console.log(json.error)
 				expect(json.error).to.be.a('string')
 					.and.to.be.equal(`Object User is not an object`)
 			}),
-			it(`Should accept to edit user`, async () => {
+			it(`Should accept to change firstname to lower case`, async () => {
+				userToEdit.firstname = userToEdit.firstname.toLowerCase()
 				let json = await util.requestJsonPost(ROUTE_EDIT, {
 					user: userToEdit
 				})
-				console.log(json)
 				expect(json).to.have.property('ok')
-				expect(json.ok).to.be.a('boolean')
-					.and.to.be.equal(true)
+				expect(json.ok).to.be.a('boolean').and.to.be.equal(true)
+
+				expect(json).to.have.property('user')
+				expect(json.user).to.be.a('object')
+
+				const editedUser = json.user
+				expect(editedUser).to.have.property('id')
+					.and.to.be.equal(userToEdit.id)
+
+				expect(editedUser).to.have.property('firstname')
+					.and.to.be.equal(userToEdit.firstname)
+			}),
+			it(`Should accept to change firstname to upper case`, async () => {
+				userToEdit.firstname = userToEdit.firstname.toUpperCase()
+				let json = await util.requestJsonPost(ROUTE_EDIT, {
+					user: userToEdit
+				})
+				expect(json).to.have.property('ok')
+				expect(json.ok).to.be.a('boolean').and.to.be.equal(true)
+
+				expect(json).to.have.property('user')
+				expect(json.user).to.be.a('object')
+				const editedUser = json.user
+
+				expect(editedUser).to.have.property('firstname')
+					.and.to.be.equal(userToEdit.firstname)
 			})
-
-
 		})
-
 	})
-
 })
