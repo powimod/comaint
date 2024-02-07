@@ -9,6 +9,8 @@
 'use strict'
 const assert = require('assert');
 
+const userObjectHelper = require('../objects/user-object-helper.cjs')
+
 class {{object.name | pascalCase }}Model {
 
 	static #model = null;
@@ -45,6 +47,7 @@ class {{object.name | pascalCase }}Model {
 	}
 
 
+	/* TODO cleanup
 	static {{object.name | camelCase }}FromDb(record) {
 		return {
 		{%- liquid 
@@ -66,6 +69,7 @@ class {{object.name | pascalCase }}Model {
 		%}
 		};
 	}
+	*/
 
 	static async get{{object.name | pascalCase }}List(filters, params) {
 		assert(filters !== undefined);
@@ -114,7 +118,7 @@ class {{object.name | pascalCase }}Model {
 			throw new Error(result.code);
 		const {{object.name | camelCase }}List = [];
 		for (let {{object.name | camelCase }}Record of result) 
-			{{object.name | camelCase }}List.push( this.{{object.name | camelCase }}FromDb({{object.name | camelCase }}Record) );
+			{{object.name | camelCase }}List.push( {{object.name|camelCase}}ObjectHelper.convert{{object.name|pascalCase}}FromDb({{object.name|camelCase}}Record) );
 		return {{object.name | camelCase }}List;
 	}
 
@@ -140,7 +144,7 @@ class {{object.name | pascalCase }}Model {
 			throw new Error(result.code);
 		if (result.length === 0) 
 			return null;
-		const {{object.name | camelCase}} = this.{{object.name | camelCase}}FromDb(result[0]);
+			const {{object.name | camelCase}} = {{object.name|camelCase}}ObjectHelper.convert{{object.name|pascalCase}}FromDb(result[0]);
 		return {{object.name | camelCase}};
 	}
 	{%- endif %}
