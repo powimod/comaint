@@ -7,3 +7,6 @@
 [submodule "projects/comaint-api-lib"]
 	path = projects/comaint-api-lib
 	url = git@github.com:powimod/comaint-api-lib.git
+[submodule "projects/comaint-frontend"]
+	path = projects/comaint-frontend
+	url = git@github.com:powimod/comaint-frontend.git
