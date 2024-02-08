@@ -6,6 +6,14 @@
 		copyright   : project.attributes.copyright,
 		filename    : filename 
 		%}
+{% liquid 
+assign idProperty = null
+for property in object.properties
+       if property.type.name == 'id' 
+		assign idProperty = property.name
+	endif
+endfor
+%}
 'use strict'
 const assert = require('assert');
 
@@ -72,15 +80,6 @@ class {{object.name | pascalCase }}Model {
 			{{object.name | camelCase }}List.push( {{object.name|camelCase}}ObjectHelper.convert{{object.name|pascalCase}}FromDb({{object.name|camelCase}}Record) );
 		return {{object.name | camelCase }}List;
 	}
-
-	{% liquid 
-		assign idProperty = null
-		for property in object.properties
-		       if property.type.name == 'id' 
-				assign idProperty = property.name
-			endif
-		endfor
-	%}
 	{% if idProperty != null -%}
 	static async get{{object.name | pascalCase }}By{{idProperty | pascalCase}}({{idProperty | camelCase}}{{object.name | pascalCase }}) {
 		assert(this.#model !== null);
@@ -171,6 +170,23 @@ class {{object.name | pascalCase }}Model {
 		{{object.name|camelCase }} = this.get{{object.name|pascalCase}}ById({{object.name|camelCase}}Id)
 		return {{object.name|camelCase}};
 	}
+
+	{% if idProperty != null -%}
+	static async delete{{object.name|pascalCase}}ById({{object.name|camelCase}}{{idProperty|pascalCase}}) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		if ({{object.name|camelCase}}{{idProperty|pascalCase}} === undefined)
+			throw new Error('Argument <{{object.name|camelCase}}{{idProperty|pascalCase}}> required');
+		if (isNaN({{object.name|camelCase}}{{idProperty|pascalCase}}) === undefined)
+			throw new Error('Argument <{{object.name|camelCase}}{{idProperty|pascalCase}}> is not a number');
+		let sql = `DELETE FROM {{object.attributes.table_name}} WHERE {{idProperty | camelCase}} = ?`;
+		const result = await db.query(sql, [{{object.name|camelCase}}{{idProperty|pascalCase}}]);
+		if (result.code) 
+			throw new Error(result.code);
+		return (result.affectedRows !== 0) 
+	}
+	{%- endif %}
+
 }
 
 module.exports = () => {
