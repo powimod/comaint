@@ -1,3 +1,12 @@
 [submodule "tools/pwm-code-gen"]
 	path = tools/pwm-code-gen
 	url = git@github.com:powimod/pwm-code-gen.git
+[submodule "projects/comaint-backend"]
+	path = projects/comaint-backend
+	url = git@github.com:powimod/comaint-backend.git
+[submodule "projects/comaint-api-lib"]
+	path = projects/comaint-api-lib
+	url = git@github.com:powimod/comaint-api-lib.git
+[submodule "projects/comaint-frontend"]
+	path = projects/comaint-frontend
+	url = git@github.com:powimod/comaint-frontend.git
