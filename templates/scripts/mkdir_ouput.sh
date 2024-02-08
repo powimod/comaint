@@ -37,7 +37,7 @@ mkdir "./output/comaint-spa-frontend/src/components"
 mkdir "./output/comaint-spa-frontend/src/components/dialog"
 mkdir "./output/comaint-spa-frontend/src/scss"
 mkdir "./output/comaint-spa-frontend/src/containers"
-mkdir "./output/comaint-spa-frontend/saves/src"
 cd ./output/comaint-mpa-frontend/src && ln -s ../../comaint-api-lib/src/ api && cd -
 cd ./output/comaint-spa-frontend/src && ln -s ../../comaint-api-lib/src/ api && cd -
+cp ./templates/assets/icons.png ./output/comaint-spa-frontend/public/
 echo "Ouput tree build"
