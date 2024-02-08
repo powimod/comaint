@@ -135,7 +135,8 @@ CREATE {{unicity}}INDEX idx_{{index.name | snakeCase }} ON {{object.attributes.t
 {%- assign target_table = link.target.attributes.table_name %}
 ALTER TABLE {{object.attributes.table_name}} ADD CONSTRAINT fk_{{object.attributes.table_name}}_{{link.name | snakeCase}}
 	FOREIGN KEY (id_{{link.name | snakeCase }})
-	REFERENCES {{target_table}}(id);
+	REFERENCES {{target_table}}(id)
+	ON DELETE CASCADE;
 
 {%- endfor -%}
 {%- endfor %}
