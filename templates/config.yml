@@ -1163,6 +1163,10 @@ files:
     input:  "templates/api-backend/test/test-08-object-delete.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/test/test-08-object-delete.js"
 
+  - scope:  "project"
+    input:  "templates/api-backend/test/test-09-object-recursive-delete.js.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/test/test-09-object-recursive-delete.js"
+
     ########################### API library
    
   - scope:  "project"

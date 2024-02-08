@@ -54,7 +54,7 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 				resultsPerPage : resultsPerPage,
 				offset : offset
 			};
-			const list = await {{object.name | pascalCase}}Model.get{{object.name | pascalCase}}List(filters, params);
+			const list = await {{object.name | pascalCase}}Model.getList(filters, params);
 			View.sendJsonResult(response, { {{object.name | camelCase}}List: list } );
 		}
 		catch (error) {
@@ -130,6 +130,13 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			return;
 		}
 		{{object.name | camelCase}}Id = parseInt({{object.name | camelCase}}Id);
+		let recursive = request.body.recursive
+		if (recursive  === undefined)
+			recursive = false
+		if (typeof(recursive) !== 'boolean') {
+			View.sendJsonError(response, `recursive parameter is not a boolean`);
+			return;
+		}
 		try {
 			const {{object.name | camelCase}} = await {{object.name | pascalCase}}Model.get{{object.name | pascalCase}}ById({{object.name | camelCase}}Id);
 			if ({{object.name | camelCase}} === null)
@@ -141,7 +148,7 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			if (request.{{root_object | camelCase}}Id !== {{object.name | camelCase}}.{{root_property}})
 				throw new Error('Unauthorized access');
 			{%- endif %}
-			const success = await {{object.name | pascalCase}}Model.delete{{object.name | pascalCase}}ById({{object.name | camelCase}}Id);
+			const success = await {{object.name | pascalCase}}Model.deleteById({{object.name | camelCase}}Id, recursive);
 			View.sendJsonResult(response, {success} );
 		}
 		catch (error) {

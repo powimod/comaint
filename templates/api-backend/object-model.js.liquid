@@ -29,8 +29,33 @@ class {{object.name | pascalCase }}Model {
 		this.#model = ModelSingleton.getInstance();
 	}
 
-	
-	static async get{{object.name | pascalCase }}List(filters, params) {
+	static async getIdList(filters) {
+		assert(filters !== undefined);
+		assert(this.#model !== null);
+		const db = this.#model.db;
+
+		const sqlValues = [];
+		const sqlFilters = [];
+		{%- for link in object.links %}
+		if (filters.{{link.name|camelCase}}Id !== undefined) {
+			sqlFilters.push('id_{{link.name|snakeCase}} = ?')
+			sqlValues.push(filters.{{link.name|camelCase}}Id)
+		}
+		{%- endfor %}
+		const whereClause = sqlFilters.length === 0 ? '' : 'WHERE ' + sqlFilters.join(' AND ')
+
+		let sql = `SELECT id FROM {{object.attributes.table_name }} ${whereClause}`
+		const result = await db.query(sql, sqlValues)
+		if (result.code) 
+			throw new Error(result.code)
+		const idList = []
+		for (let record of result) 
+			idList.push( record.Id)
+		return idList;
+	}
+
+
+	static async getList(filters, params) {
 		assert(filters !== undefined);
 		assert(params !== undefined);
 		assert(this.#model !== null);
@@ -80,6 +105,7 @@ class {{object.name | pascalCase }}Model {
 			{{object.name | camelCase }}List.push( {{object.name|camelCase}}ObjectHelper.convert{{object.name|pascalCase}}FromDb({{object.name|camelCase}}Record) );
 		return {{object.name | camelCase }}List;
 	}
+
 	{% if idProperty != null -%}
 	static async get{{object.name | pascalCase }}By{{idProperty | pascalCase}}({{idProperty | camelCase}}{{object.name | pascalCase }}) {
 		assert(this.#model !== null);
@@ -172,13 +198,19 @@ class {{object.name | pascalCase }}Model {
 	}
 
 	{% if idProperty != null -%}
-	static async delete{{object.name|pascalCase}}ById({{object.name|camelCase}}{{idProperty|pascalCase}}) {
+	static async deleteById({{object.name|camelCase}}{{idProperty|pascalCase}}, recursive = false) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
 		if ({{object.name|camelCase}}{{idProperty|pascalCase}} === undefined)
 			throw new Error('Argument <{{object.name|camelCase}}{{idProperty|pascalCase}}> required');
 		if (isNaN({{object.name|camelCase}}{{idProperty|pascalCase}}) === undefined)
 			throw new Error('Argument <{{object.name|camelCase}}{{idProperty|pascalCase}}> is not a number');
+
+		if (! recursive) {
+		       	if (await this.hasChildren({{object.name | camelCase}}Id))
+				throw new Error(`Can not delete {{object.name}} ID <${ {{object.name | camelCase}}Id }> because it has children`);
+		}
+		// children will be removed since Database constraint has "ON DELETE CASCADE" 
 		let sql = `DELETE FROM {{object.attributes.table_name}} WHERE {{idProperty | camelCase}} = ?`;
 		const result = await db.query(sql, [{{object.name|camelCase}}{{idProperty|pascalCase}}]);
 		if (result.code) 
@@ -186,6 +218,30 @@ class {{object.name | pascalCase }}Model {
 		return (result.affectedRows !== 0) 
 	}
 	{%- endif %}
+
+	{%- for link in object.reverseLinks %}
+	static async get{{link.source.name|pascalCase}}Count({{object.name|camelCase}}{{idProperty|pascalCase}}) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		const sql = `
+			SELECT COUNT(id) as count
+			FROM {{link.source.attributes.table_name}}
+			WHERE id_{{link.name}} = ?
+			`
+		const result = await db.query(sql, [{{object.name|camelCase}}Id])
+		if (result.code) 
+			throw new Error(result.code)
+		return result[0].count 
+	}
+	{% endfor %}
+
+	static async hasChildren({{object.name|camelCase}}{{idProperty|pascalCase}}) {
+		{%- for link in object.reverseLinks %}
+		if (await this.get{{link.source.name|pascalCase}}Count({{object.name|camelCase}}{{idProperty|pascalCase}}) > 0) 
+			return true
+		{%- endfor %}
+		return false
+	}
 
 }
 
