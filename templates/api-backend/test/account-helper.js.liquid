@@ -10,6 +10,14 @@ const findUserByEmail= async (email) => {
 	return result[0]
 }
 
+const findUserById= async (id) => {
+	assert(id !== undefined)	
+	const result = await util.dbRequest("SELECT * FROM users WHERE id = ?", [ id ] )
+	if (result.length === 0)
+		return null
+	return result[0]
+}
+
 const accountPurge = async (email) => {
 	const user = await findUserByEmail(email)
 	if (user === null)
@@ -103,6 +111,7 @@ const declareUser = async (refUser) => {
 
 module.exports = {
 	findUserByEmail,
+	findUserById,
 	accountPurge,
 	declareUser
 }

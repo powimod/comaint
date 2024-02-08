@@ -6,6 +6,21 @@
 		copyright   : project.attributes.copyright,
 		filename    : filename 
 		%}
+{% liquid
+   assign root_object = project.attributes.root_object 
+   assign root_property = ''
+   if object.name == root_object
+     assign root_property = 'id'
+   else
+     if root_object 
+       for link in object.links 
+	 if link.target.name == root_object
+	   assign root_property = link.name | camelCase | append: 'Id'
+	 endif
+       endfor
+     endif
+   endif
+%}
 'use script';
 const assert = require('assert');
 const {withAuth} = require('./auth-routes');
@@ -24,7 +39,6 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			filters.{{paramName}} = {{paramName}};
 		}
 		{%- endfor %}
-		{%- assign root_object = project.attributes.root_object %}
 		assert(request.{{root_object|camelCase}}Id !== undefined);
 		try {
 			if (filters.{{root_object|camelCase}}Id === undefined) {
@@ -40,7 +54,7 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 				resultsPerPage : resultsPerPage,
 				offset : offset
 			};
-			const list = await {{object.name | pascalCase}}Model.get{{object.name | pascalCase}}List(filters, params);
+			const list = await {{object.name | pascalCase}}Model.getList(filters, params);
 			View.sendJsonResult(response, { {{object.name | camelCase}}List: list } );
 		}
 		catch (error) {
@@ -53,7 +67,7 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 		let {{object.name | camelCase}}Id = request.params.{{object.name | camelCase}}Id;
 		assert ({{object.name | camelCase}}Id !== undefined);
 		if (isNaN({{object.name | camelCase}}Id)) {
-			View.sendJsonError(response, `{{object.name | camelCase}} ID <${ {{object.name | camelCase}}Id}> is not a number`);
+			View.sendJsonError(response, `{{object.name | pascalCase}} ID <${ {{object.name | camelCase}}Id}> is not a number`);
 			return;
 		}
 		{{object.name | camelCase}}Id = parseInt({{object.name | camelCase}}Id);
@@ -61,21 +75,6 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			const {{object.name | camelCase}} = await {{object.name | pascalCase}}Model.get{{object.name | pascalCase}}ById({{object.name | camelCase}}Id);
 			if ({{object.name | camelCase}} === null)
 				throw new Error(`{{object.name | pascalCase}} ID <${ {{object.name | camelCase}}Id }> not found`);
-			{% liquid
-			   assign root_object = project.attributes.root_object 
-			   assign root_property = ''
-			   if object.name == root_object
-			     assign root_property = 'id'
-			   else
-			     if root_object 
-		  	       for link in object.links 
-			         if link.target.name == root_object
-			           assign root_property = link.name | camelCase | append: 'Id'
-			         endif
-		  	       endfor
-			     endif
-			   endif
-			%}
 			{% if root_property == '' -%}
 			// No root property to control
 			{%- else -%}
@@ -119,6 +118,41 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 		catch (error) {
 			const errorMessage = (error.message !== undefined) ? error.message : error
 			response.json({ ok : false, error: errorMessage  })
+		}
+	});
+
+
+	app.post('/api/{{project.attributes.api_version}}/{{object.name | kebabCase}}/:{{object.name | camelCase}}Id/delete', withAuth, async (request, response) => {
+		let {{object.name | camelCase}}Id = request.params.{{object.name | camelCase}}Id;
+		assert ({{object.name | camelCase}}Id !== undefined);
+		if (isNaN({{object.name | camelCase}}Id)) {
+			View.sendJsonError(response, `{{object.name | pascalCase}} ID <${ {{object.name | camelCase}}Id}> is not a number`);
+			return;
+		}
+		{{object.name | camelCase}}Id = parseInt({{object.name | camelCase}}Id);
+		let recursive = request.body.recursive
+		if (recursive  === undefined)
+			recursive = false
+		if (typeof(recursive) !== 'boolean') {
+			View.sendJsonError(response, `recursive parameter is not a boolean`);
+			return;
+		}
+		try {
+			const {{object.name | camelCase}} = await {{object.name | pascalCase}}Model.get{{object.name | pascalCase}}ById({{object.name | camelCase}}Id);
+			if ({{object.name | camelCase}} === null)
+				throw new Error(`{{object.name | pascalCase}} ID <${ {{object.name | camelCase}}Id }> not found`);
+			{% if root_property == '' -%}
+			// No root property to control
+			{%- else -%}
+			// control root property 
+			if (request.{{root_object | camelCase}}Id !== {{object.name | camelCase}}.{{root_property}})
+				throw new Error('Unauthorized access');
+			{%- endif %}
+			const success = await {{object.name | pascalCase}}Model.deleteById({{object.name | camelCase}}Id, recursive);
+			View.sendJsonResult(response, {success} );
+		}
+		catch (error) {
+			View.sendJsonError(response, error);
 		}
 	});
 
