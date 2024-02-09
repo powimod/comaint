@@ -60,7 +60,7 @@ attributes:
   auth_code_property: "validationCode"
   auth_lock_property: "accountLocked"
   auth_extra_field: 'company'
-  auth_account_fields: 'firstname,lastname'
+  auth_account_fields: 'firstname,lastname,administrator,parkRole,stockRole,active,accountLocked'
 
   root_object: 'Company'
 
