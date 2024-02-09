@@ -93,7 +93,7 @@ exports.initialize = (app, authModel, View, config) => {
 
 			const {{authObject.name|camelCase}}Id = result.{{authObject.name|camelCase}}Id; 
 			if ({{authObject.name|camelCase}}Id === undefined)
-				throw new Error('{{authObject.name|camelCase}}Id not found in HTTP response'); 
+				throw new Error('{{authObject.name|camelCase}}Id not found'); 
 
 			{% if project.attributes.auth_extra_field -%}
 			const {{project.attributes.auth_extra_field | camelCase}}Id = null;
@@ -167,23 +167,23 @@ exports.initialize = (app, authModel, View, config) => {
 
 			const {{authObject.name|camelCase}}Id = result.{{authObject.name|camelCase}}Id; 
 			if ({{authObject.name|camelCase}}Id === undefined)
-				throw new Error('{{authObject.name|camelCase}}Id not found in HTTP response'); 
+				throw new Error('{{authObject.name|camelCase}}Id not found'); 
 
 			if (result.{{authIdentProp.name|camelCase}} === undefined)
-				throw new Error('{{authIdentProp.name|camelCase}} not found in HTTP response'); 
+				throw new Error('{{authIdentProp.name|camelCase}} not found'); 
 			if (result.{{authIdentProp.name|camelCase}} !== {{authIdentProp.name|camelCase}})
 				throw new Error('{{authIdentProp.name|camelCase}} is not valid'); 
 
 			{% if project.attributes.auth_extra_field -%}
 			const {{project.attributes.auth_extra_field | camelCase}}Id = result.{{project.attributes.auth_extra_field | camelCase}}Id;
 			if ({{project.attributes.auth_extra_field |camelCase}}Id === undefined)
-				throw new Error('{{project.attributes.auth_extra_field|camelCase}}Id not found in HTTP response'); 
+				throw new Error('{{project.attributes.auth_extra_field|camelCase}}Id not found'); 
 			{%- endif %}
 
 			{% for accountField in authAccountFields %}
 			const {{accountField}} = result.{{accountField}}
 			if ({{accountField|camelCase}} === undefined) 
-				throw new Error('{{accountField}} not found in HTTP response'); 
+				throw new Error('{{accountField}} not found'); 
 			{% endfor %}
 
 			const newAccessToken  = await _authModel.generateAccessToken({{authObject.name|camelCase}}Id
