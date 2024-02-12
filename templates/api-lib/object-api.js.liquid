@@ -6,57 +6,78 @@
 		copyright   : project.attributes.copyright,
 		filename    : filename 
 		%}
-'use script';
-const assert = require('assert');
-const ApiToolSingleton = require('./api-tools.js');
-const apiTool = ApiToolSingleton.getInstance();
-const ModelSingleton = require('./model.js');
-const model  = ModelSingleton.getInstance();
+'use script'
+import ApiToolsSingleton from './api-tools'
+const apiTool = ApiToolsSingleton.getInstance()
+const apiVersion = 'v1'
 
-exports.get{{object.name | pascalCase}}List = async function (filters, params) {
-	assert(filters !== undefined);
-	assert(params !== undefined);
-	const url = '{{object.name | kebabCase}}/list';
+const get{{object.name | pascalCase}}List = async function (filters, params) {
+	const url = `${apiVersion}/{{object.name | kebabCase}}/list`
+	if (! params)
+		params = {}
 	/* TODO cleanup
 	for (const filter of Object.keys(filters)) 
-		url.searchParams.append(filter, filters[filter]);
+		url.searchParams.append(filter, filters[filter])
 	if (params.resultsPerPage !== undefined)
-		url.searchParams.append('resultsPerPage', params.resultsPerPage);
+		url.searchParams.append('resultsPerPage', params.resultsPerPage)
 		*/
-	params.filters = filters;
+	params.filters = filters
 	try {
-		const result = await apiTool.request(url, 'GET', null, params);
-		const {{object.name | camelCase}}List = result.{{object.name | camelCase}}List;
+		const result = await apiTool.request(url, 'GET', null, params)
+		const {{object.name | camelCase}}List = result.{{object.name | camelCase}}List
 		if ({{object.name | camelCase}}List === undefined)
-			throw new Error('{{object.name | pascalCase}} list not found is HTTP response');
-		return {ok: true, {{object.name | camelCase}}List: {{object.name | camelCase}}List};
+			throw new Error('{{object.name | pascalCase}} list not found is HTTP response')
+		return {ok: true, {{object.name | camelCase}}List: {{object.name | camelCase}}List}
 	}
 	catch (error) {
 		return {
 			ok: false, 
 			error: (error.message !== undefined) ? error.message : error
-		};
+		}
 	}
 }
 
-exports.get{{object.name | pascalCase}}Details = async function (id{{object.name | pascalCase}}, params) {
-	assert(id{{object.name | pascalCase}} !== undefined);
-	assert(params !== undefined);
+const get{{object.name | pascalCase}}Details = async function (id{{object.name | pascalCase}}, params) {
 	if (isNaN(id{{object.name | pascalCase}}))
-		throw new Error('Argument <id{{object.name | pascalCase}}> is not a number');
-	const url = `{{object.name | kebabCase}}/${id{{object.name | pascalCase}}}`;
+		throw new Error('Argument <id{{object.name | pascalCase}}> is not a number')
+	const url = `${apiVersion}/{{object.name | kebabCase}}/${id{{object.name | pascalCase}}}`
 	try {
-		const result = await apiTool.request(url, 'GET', null, null);
-		const {{object.name | camelCase}} = result.{{object.name | camelCase}};
+		const result = await apiTool.request(url, 'GET', null, null)
+		const {{object.name | camelCase}} = result.{{object.name | camelCase}}
 		if ({{object.name | camelCase}} === undefined)
-			throw new Error('{{object.name | pascalCase}} not found is HTTP response');
-		return {ok: true, {{object.name | camelCase}}: {{object.name | camelCase}}};
+			throw new Error('{{object.name | pascalCase}} not found is HTTP response')
+		return {ok: true, {{object.name | camelCase}}: {{object.name | camelCase}}}
+	}
+	catch (error) {
+		return {
+			ok: false,
+			error: (error.message !== undefined) ? error.message : error
+		}
+	}
+}
+
+const edit{{object.name|pascalCase}} = async function ({{object.name|camelCase}}) {
+	if (typeof({{object.name|camelCase}}) !== 'object')
+		throw new Error('Argument <{{object.name|camelCase}}> is not an object')
+	const url = `${apiVersion}/{{object.name|camelCase}}/edit`
+	try {
+		const result = await apiTool.request(url, 'POST', { {{object.name|camelCase}} }, null)
+		{{object.name|camelCase}} = result.{{object.name|camelCase}}
+		if ({{object.name|camelCase}} === undefined)
+			throw new Error('{{object.name|pascalCase}} not found is HTTP response')
+		return {ok: true, {{object.name|camelCase}}: {{object.name|camelCase}}}
 	}
 	catch (error) {
 		return {
 			ok: false, 
 			error: (error.message !== undefined) ? error.message : error
-		};
+		}
 	}
 }
 
+const {{object.name|camelCase}}Api = {
+	get{{object.name|pascalCase}}List,
+	get{{object.name|pascalCase}}Details,
+	edit{{object.name|pascalCaseCase}} 
+}
+export default {{object.name|camelCase}}Api
