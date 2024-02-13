@@ -1,0 +1,23 @@
+{% # common part of MJS and CJS object definition %}
+const {{object.name|camelCase}}ObjectDef = {
+{%- for property in object.properties %} 
+	"{{property.name|camelCase}}" : {
+		"type": "{{ property.type.name }}",
+		{%- if property.minimum != nil  %}
+		"minimum": "{{ property.minimum }}",
+		{%- endif %}
+		{%- if property.maximum != nil %}
+		"maximum": "{{ property.maximum }}",
+		{%- endif %}
+		{%- if property.defaultValue != nil %}
+		"default": "{{ property.defaultValue }}",
+		{%- endif %}
+		{%- if property.mandatory != nil %}
+		"mandatory": "{{ property.mandatory }}",
+		{%- endif %}
+		{%- if property.secret == true %}
+		"secret": "{{ property.secret }}",
+		{%- endif %}
+	},
+{%- endfor %}
+}
