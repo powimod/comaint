@@ -25,7 +25,6 @@ function dumpError(error, infos = null) {
         return `${error} : ${JSON.stringify(infos)}`
 }
 
-
 {% for link in object.links%} 
 {%- assign linkName = link.name|camelCase %}
 //============ Link [{{linkName}}]
