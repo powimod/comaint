@@ -1124,6 +1124,10 @@ files:
     output: "output/{{project.attributes.backend_project_dir}}/src/objects/{{object.name | kebabCase }}-object-def.cjs"
 
   - scope:  "project"
+    input:  "templates/global/object-util.cjs.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/src/objects/object-util.cjs"
+
+  - scope:  "project"
     input:  "templates/api-backend/test/selftest-config.json.sample.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/test/selftest-config.json.sample"
 
@@ -1196,6 +1200,10 @@ files:
   - scope:  "object"
     input:  "templates/global/object-def.mjs.liquid"
     output: "output/{{project.attributes.api_lib_project_dir}}/src/objects/{{object.name | kebabCase}}-object-def.mjs"
+
+  - scope:  "project"
+    input:  "templates/global/object-util.mjs.liquid"
+    output: "output/{{project.attributes.api_lib_project_dir}}/src/objects/object-util.mjs"
 
     ########################### Multi Page frontend
       # MPA is disabled since API was rewrited from CommonJS to ECMA Script

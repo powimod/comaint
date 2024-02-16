@@ -1,0 +1,20 @@
+{%- render "../../templates/license_header_js.liquid",
+		project     : project.attributes.spa_frontend_project_name,
+  		description : project.attributes.spa_frontend_project_description,
+		authors     : project.attributes.authors,
+		copyright   : project.attributes.copyright,
+		filename    : 'object-util.mjs'
+		%}
+{%- assign backend_functions = false %}
+{%- render "./object-util-common.js.liquid", backend_functions: backend_functions %}
+
+exports {
+	controlObjectProperty,
+	controlObject,
+	diffObjects,
+	createObjectInstance,
+	{%- if backend_functions %}
+	convertObjectFromDb,
+	buildFieldArrays
+	{%- endif %}
+}
