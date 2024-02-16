@@ -26,7 +26,7 @@ const {{object.name|camelCase}}ObjectDef = {
 	},
 {%- endfor %}
 {%- for link in object.links %} 
-	"{{link.name|camelCase}}" : {
+	"{{link.name|camelCase}}Id" : {
 		"type": "link",
 		"target" : "{{link.target.name}}",
 		"field" : "id_{{link.name|snakeCase}}",
