@@ -8,25 +8,41 @@
 		%}
 {% liquid 
 assign idProperty = null
+assign hasSecret = false
 for property in object.properties
-       if property.type.name == 'id' 
+	if property.type.name == 'id' 
 		assign idProperty = property.name
+	endif
+	if property.secret == true
+		assign hasSecret = true
 	endif
 endfor
 %}
 'use strict'
 const assert = require('assert');
+{%- if  hasSecret %}
+const bcrypt = require('bcrypt'); 
+{%- endif %}
 
-const {{object.name|camelCase}}ObjectHelper = require('../objects/{{object.name|kebabCase}}-object-helper.cjs')
+const { {{object.name|camelCase}}ObjectDef } = require('../objects/{{object.name|kebabCase}}-object-def.cjs')
+const objectUtils = require('../objects/object-util.cjs')
+
 
 class {{object.name | pascalCase }}Model {
-
+{%- if  hasSecret %}
+	static #config = null;
+{%- endif %}
 	static #model = null;
 
-	static initialize = () => {
+	static initialize = ({%- if  hasSecret -%}config{%- endif - %}) => {
 		assert(this.#model === null);
+		{%- if  hasSecret %}
+		assert(config !== undefined)
+		this.#config = config;
+		{%- endif %}
 		const ModelSingleton = require('./model.js');
 		this.#model = ModelSingleton.getInstance();
+		assert(this.#model !== null)
 	}
 
 	static async getIdList(filters) {
@@ -52,6 +68,34 @@ class {{object.name | pascalCase }}Model {
 		for (let record of result) 
 			idList.push( record.Id)
 		return idList;
+	}
+
+	static async find{{object.name|pascalCase}}Count(filters) {
+		assert(filters !== undefined);
+		assert(this.#model !== null);
+		const db = this.#model.db;
+
+		const sqlValues = [];
+		const sqlFilters = [];
+		{%- for link in object.links %}
+		if (filters.{{link.name|camelId}}Id !== undefined) {
+			sqlFilters.push('id_{{link.name|snakeCase}} = ?')
+			sqlValues.push(filters.{{link.name|camelCase}}Id)
+		}
+		{%- endfor %}
+		{%- for property in object.properties %}
+		if (filters.{{property.name|camelCase}} !== undefined) {
+			sqlFilters.push('{{property.name|snakeCase}} = ?')
+			sqlValues.push(filters.{{property.name|camelCase}})
+		}
+		{%- endfor %}
+		const whereClause = sqlFilters.length === 0 ? '' : 'WHERE ' + sqlFilters.join(' AND ')
+
+		let sql = `SELECT COUNT(id) as counter FROM {{object.attributes.table_name}} ${whereClause}`
+		const result = await db.query(sql, sqlValues)
+		if (result.code)
+			throw new Error(result.code)
+		return result[0].counter;
 	}
 
 
@@ -150,8 +194,6 @@ class {{object.name | pascalCase }}Model {
 			INSERT INTO {{object.attributes.table_name}}(${fieldNames.join(', ')}) 
 			       VALUES (${markArray.join(', ')});
 		`;
-		//console.log("SQL request", sqlRequest);
-		//console.log("SQL params ", sqlParams);
 		
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
@@ -169,6 +211,10 @@ class {{object.name | pascalCase }}Model {
 		if ( error)
 			throw new Error(error)
 
+{%- if  hasSecret %}
+		await this.encryptPasswordIfPresent(user)
+{%- endif %}
+
 		const {{object.name|camelCase}}Db = {{object.name|camelCase}}ObjectHelper.convert{{object.name|pascalCase}}ToDb({{object.name|camelCase}})
 		const fieldNames = []
 		const sqlParams = []
@@ -185,9 +231,6 @@ class {{object.name | pascalCase }}Model {
 			WHERE id = ?
 		`
 		sqlParams.push({{object.name|camelCase}}.id) // WHERE clause
-
-		//console.log("SQL request", sqlRequest);
-		//console.log("SQL params ", sqlParams);
 
 		const result = await db.query(sqlRequest, sqlParams);
 		if (result.code)
@@ -243,10 +286,31 @@ class {{object.name | pascalCase }}Model {
 		return false
 	}
 
+{%- for property in object.properties %}
+{%- if property.secret == true %}
+
+	static async check{{property.name|pascalCase}}({{object.name|camelCase}}, {{property.name|camelCase}}) {
+		assert ({{object.name|camelCase}} !== undefined)
+		assert ({{object.name|camelCase}}.{{property.name|camelCase}} !== undefined)
+		assert ({{property.name|camelCase}} !== undefined)
+		const isValid = await bcrypt.compare({{property.name|camelCase}}, {{object.name|camelCase}}.{{property.name|camelCase}});
+		return isValid
+	}
+
+	static async encrypt{{property.name|pascalCase}}IfPresent({{object.name|camelCase}}) {
+		assert ({{object.name|camelCase}} !== undefined)
+		if ({{object.name|camelCase}}.{{property.name|camelCase}} === undefined)
+			return
+		assert(this.#config.security.hashSalt !== undefined);
+		const saltRounds = this.#config.security.hashSalt;
+		{{object.name|camelCase}}.{{property.name|camelCase}} = await bcrypt.hash({{object.name|camelCase}}.{{property.name|camelCase}}, saltRounds)
+	}
+{%- endif %}
+{%- endfor  %}
 }
 
-module.exports = () => {
-	{{object.name | pascalCase}}Model.initialize();
+module.exports = ({%- if  hasSecret -%}config{%- endif - %}) => {
+	{{object.name | pascalCase}}Model.initialize({%- if  hasSecret -%}config{%- endif - %});
 	return {{object.name | pascalCase }}Model;
 }
 
