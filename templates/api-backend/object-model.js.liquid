@@ -45,23 +45,17 @@ class {{object.name | pascalCase }}Model {
 		assert(this.#model !== null)
 	}
 
-	static async getIdList(filters) {
+	static async get{{object.name | pascalCase }}IdList(filters) {
 		assert(filters !== undefined);
 		assert(this.#model !== null);
 		const db = this.#model.db;
 
-		const sqlValues = [];
-		const sqlFilters = [];
-		{%- for link in object.links %}
-		if (filters.{{link.name|camelCase}}Id !== undefined) {
-			sqlFilters.push('id_{{link.name|snakeCase}} = ?')
-			sqlValues.push(filters.{{link.name|camelCase}}Id)
-		}
-		{%- endfor %}
-		const whereClause = sqlFilters.length === 0 ? '' : 'WHERE ' + sqlFilters.join(' AND ')
-
+		const [ fieldNames, fieldValues ] = objectUtils.buildFieldArrays({{object.name|camelCase}}ObjectDef, filters)
+		const whereClause = fieldNames.length === 0 ? '' :
+			'WHERE ' + fieldNames.map(f => `${f} = ?`).join(' AND ')
+ 
 		let sql = `SELECT id FROM {{object.attributes.table_name }} ${whereClause}`
-		const result = await db.query(sql, sqlValues)
+		const result = await db.query(sql, fieldValues)
 		if (result.code) 
 			throw new Error(result.code)
 		const idList = []
@@ -75,21 +69,9 @@ class {{object.name | pascalCase }}Model {
 		assert(this.#model !== null);
 		const db = this.#model.db;
 
-		const sqlValues = [];
-		const sqlFilters = [];
-		{%- for link in object.links %}
-		if (filters.{{link.name|camelId}}Id !== undefined) {
-			sqlFilters.push('id_{{link.name|snakeCase}} = ?')
-			sqlValues.push(filters.{{link.name|camelCase}}Id)
-		}
-		{%- endfor %}
-		{%- for property in object.properties %}
-		if (filters.{{property.name|camelCase}} !== undefined) {
-			sqlFilters.push('{{property.name|snakeCase}} = ?')
-			sqlValues.push(filters.{{property.name|camelCase}})
-		}
-		{%- endfor %}
-		const whereClause = sqlFilters.length === 0 ? '' : 'WHERE ' + sqlFilters.join(' AND ')
+		const [ fieldNames, fieldValues ] = objectUtils.buildFieldArrays({{object.name|camelCase}}ObjectDef, filters)
+		const whereClause = fieldNames.length === 0 ? '' :
+			'WHERE ' + fieldNames.map(f => `${f} = ?`).join(' AND ')
 
 		let sql = `SELECT COUNT(id) as counter FROM {{object.attributes.table_name}} ${whereClause}`
 		const result = await db.query(sql, sqlValues)
@@ -99,26 +81,15 @@ class {{object.name | pascalCase }}Model {
 	}
 
 
-	static async getList(filters, params) {
+	static async get{{object.name | pascalCase }}List(filters, params) {
 		assert(filters !== undefined);
 		assert(params !== undefined);
 		assert(this.#model !== null);
 		const db = this.#model.db;
 
-		const sqlValues = [];
-		const sqlFilters = [];
-		{%- assign root_object = project.attributes.root_object %}
-		{%- if object.name == root_object %}
-		sqlFilters.push('id = ?')
-		sqlValues.push(filters.{{object.name|camelCase}}Id);
-		{%- endif -%}
-		{%- for link in object.links %}
-		if (filters.{{link.name|camelCase}}Id !== undefined) {
-			sqlFilters.push('id_{{link.name|snakeCase}} = ?')
-			sqlValues.push(filters.{{link.name|camelCase}}Id);
-		}
-		{%- endfor %}
-		const whereClause = sqlFilters.length === 0 ? '' : 'WHERE ' + sqlFilters.join(' AND ');
+		const [ fieldNames, fieldValues ] = objectUtils.buildFieldArrays({{object.name|camelCase}}ObjectDef, filters)
+		const whereClause = fieldNames.length === 0 ? '' :
+			'WHERE ' + fieldNames.map(f => `${f} = ?`).join(' AND ')
 
 		let resultsPerPage = params.resultsPerPage; 
 		if (resultsPerPage === undefined || isNaN(resultsPerPage)) 
@@ -139,7 +110,6 @@ class {{object.name | pascalCase }}Model {
 		let sql = `SELECT * FROM {{object.attributes.table_name }} ${whereClause} LIMIT ? OFFSET ?`;
 		// TODO select with column names and not jocker
 		// TODO order by
-		// TODO field selection 
 
 		const result = await db.query(sql, sqlValues);
 		if (result.code) 
@@ -169,13 +139,27 @@ class {{object.name | pascalCase }}Model {
 	}
 	{%- endif %}
 
-	static async create{{object.name | pascalCase }}({{object.name | camelCase }}) {
+	static async create{{object.name | pascalCase }}({{object.name | camelCase }}, i18n_t = null) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
 
-		const error = {{object.name|camelCase}}ObjectHelper.controlObject{{object.name|pascalCase}}({{object.name | camelCase }}, /*fullCheck=*/true, /*checkId=*/false)
+		const error = {{object.name|camelCase}}ObjectHelper.controlObject{{object.name|pascalCase}}({{object.name | camelCase }}, /*fullCheck=*/true, /*checkId=*/false, i18n_t)
 		if ( error)
 			throw new Error(error)
+
+{%- for property in object.properties %}
+{%- if property.secret == true %}
+		// Encrypt {{property.name|camelCase}}
+{%- if property.mandatory %}
+		if (user.{{property.name|camelCase}} === undefined || user.{{property.name|camelCase}} === null)
+			throw new Error('User {{property.name|camelCase}} missing')
+		await this.encrypt{{property.name|pascalCase}}IfPresent({{object.name|camelCase}})
+{%- else %}
+		if (user.{{property.name|camelCase}} !== undefined && user.{{property.name|camelCase}} !== null)
+			await this.encrypt{{property.name|pascalCase}}IfPresent({{object.name|camelCase}})
+{%- endif %}
+{%- endif %}
+{%- endfor  %}
 
 		const {{object.name|camelCase}}Db = {{object.name|camelCase}}ObjectHelper.convert{{object.name|pascalCase}}ToDb({{object.name|camelCase}})
 
@@ -203,11 +187,11 @@ class {{object.name | pascalCase }}Model {
 		return {{object.name|camelCase}};
 	}
 
-	static async edit{{object.name|pascalCase}}({{object.name|camelCase }}) {
+	static async edit{{object.name|pascalCase}}({{object.name|camelCase }}, i18n_t = null) {
 		assert(this.#model !== null)
 		const db = this.#model.db
 
-		const error = {{object.name|camelCase}}ObjectHelper.controlObject{{object.name|pascalCase}}({{object.name | camelCase }}, /*fullCheck=*/false, /*checkId=*/true)
+		const error = {{object.name|camelCase}}ObjectHelper.controlObject{{object.name|pascalCase}}({{object.name | camelCase }}, /*fullCheck=*/false, /*checkId=*/true, i18n_t)
 		if ( error)
 			throw new Error(error)
 
