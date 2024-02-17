@@ -17,7 +17,8 @@ for property in object.properties
 		assign hasSecret = true
 	endif
 endfor
-%}
+-%}
+
 'use strict'
 const assert = require('assert');
 {%- if  hasSecret %}
@@ -26,7 +27,6 @@ const bcrypt = require('bcrypt');
 
 const { {{object.name|camelCase}}ObjectDef } = require('../objects/{{object.name|kebabCase}}-object-def.cjs')
 const objectUtils = require('../objects/object-util.cjs')
-
 
 class {{object.name | pascalCase }}Model {
 {%- if  hasSecret %}
@@ -146,7 +146,7 @@ class {{object.name | pascalCase }}Model {
 			throw new Error(result.code);
 		const {{object.name | camelCase }}List = [];
 		for (let {{object.name | camelCase }}Record of result) 
-			{{object.name | camelCase }}List.push( {{object.name|camelCase}}ObjectHelper.convert{{object.name|pascalCase}}FromDb({{object.name|camelCase}}Record) );
+			{{object.name | camelCase }}List.push( objectUtils.convertObjectFromDb({{object.name|camelCase}}ObjectDef, {{object.name|camelCase}}Record, /*filter=*/true) )
 		return {{object.name | camelCase }}List;
 	}
 
@@ -164,7 +164,7 @@ class {{object.name | pascalCase }}Model {
 			throw new Error(result.code);
 		if (result.length === 0) 
 			return null;
-		const {{object.name | camelCase}} = {{object.name|camelCase}}ObjectHelper.convert{{object.name|pascalCase}}FromDb(result[0]);
+		const {{object.name | camelCase}} = objectUtils.convertObjectFromDb({{object.name|camelCase}}ObjectDef, result[0], /*filter=*/false)
 		return {{object.name | camelCase}};
 	}
 	{%- endif %}
