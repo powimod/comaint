@@ -116,7 +116,7 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			const {{object.name | camelCase}} = request.body.{{object.name | camelCase}};
 			if ({{object.name | camelCase}} === undefined)
 				throw new Error(`Can't find <{{object.name | camelCase}}> object in request body`);
-			let new{{object.name | pascalCase}} = await {{object.name | pascalCase}}Model.create{{object.name | pascalCase}}({{object.name | camelCase}});
+			let new{{object.name | pascalCase}} = await {{object.name | pascalCase}}Model.create{{object.name | pascalCase}}({{object.name | camelCase}}, request.t);
 			if (new{{object.name | pascalCase}}.id === undefined)
 				throw new Error(`Can't find ID of newly created {{object.name | pascalCase}}`);
 			View.sendJsonResult(response, { {{object.name | camelCase}} : new{{object.name | pascalCase}} });
@@ -131,7 +131,7 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			const {{object.name | camelCase}} = request.body.{{object.name | camelCase}}
 			if ({{object.name | camelCase}} === undefined)
 				throw new Error(`Can't find <{{object.name | camelCase}}> object in request body`)
-			let edited{{object.name | pascalCase}} = await {{object.name | pascalCase}}Model.edit{{object.name | pascalCase}}({{object.name | camelCase}})
+			let edited{{object.name | pascalCase}} = await {{object.name | pascalCase}}Model.edit{{object.name | pascalCase}}({{object.name | camelCase}}, request.t)
 			if (edited{{object.name|pascalCase}}.id !== {{object.name|camelCase}}.id)
 				throw new Error(`Edited {{object.name | pascalCase}} ID does not match`)
 			View.sendJsonResult(response, { {{object.name|camelCase}} : edited{{object.name|pascalCase}} })
