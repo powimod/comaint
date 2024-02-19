@@ -96,7 +96,7 @@ class Model {
 
 		this.#AuthModel = require('./auth-model.js')(this.#config);
 		{% for object in project.objects -%}
-		this.#{{object.name | pascalCase }}Model = require('./{{object.name | kebabCase }}-model.js')();
+		this.#{{object.name | pascalCase }}Model = require('./{{object.name | kebabCase }}-model.js')(this.#config);
 		{% endfor %}
 	}
 
