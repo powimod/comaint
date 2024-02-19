@@ -54,8 +54,8 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 				resultsPerPage : resultsPerPage,
 				offset : offset
 			};
-			const list = await {{object.name | pascalCase}}Model.getList(filters, params);
-			View.sendJsonResult(response, { {{object.name | camelCase}}List: list } );
+			const {{object.name|camelCase}}List = await {{object.name | pascalCase}}Model.find{{object.name|pascalCase}}List(filters, params);
+			View.sendJsonResult(response, { {{object.name | camelCase}}List });
 		}
 		catch (error) {
 			View.sendJsonError(response, error);
@@ -82,12 +82,34 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			if (request.{{root_object | camelCase}}Id !== {{object.name | camelCase}}.{{root_property}})
 				throw new Error('Unauthorized access');
 			{%- endif %}
-			View.sendJsonResult(response, { {{object.name | camelCase}}: {{object.name | camelCase}}} );
+			View.sendJsonResult(response, { {{object.name | camelCase}}: {{object.name | camelCase}}});
 		}
 		catch (error) {
 			View.sendJsonError(response, error);
 		}
 	});
+
+
+	app.get('/api/{{project.attributes.api_version}}/{{object.name | kebabCase}}/:{{object.name | camelCase}}Id/children-count', withAuth, async (request, response) => {
+		let {{object.name|camelCase}}Id = request.params.{{object.name|camelCase}}Id;
+		assert ({{object.name|camelCase}}Id !== undefined);
+		if (isNaN({{object.name|camelCase}}Id)) {
+			View.sendJsonError(response, `Offer ID <${ {{object.name|camelCase}}Id}> is not a number`);
+			return;
+		}
+		{{object.name|camelCase}}Id = parseInt({{object.name|camelCase}}Id);
+		try {
+			const childrenCountList = await OfferModel.getChildrenCountList({{object.name|camelCase}}Id);
+			if (childrenCountList === null)
+				throw new Error(`Offer ID <${ {{object.name|camelCase}}Id }> not found`);
+			View.sendJsonResult(response, { childrenCountList } );
+		}
+		catch (error) {
+			View.sendJsonError(response, error);
+		}
+	})
+
+
 
 	app.post('/api/{{project.attributes.api_version}}/{{object.name | snakeCase}}/create', withAuth, async (request, response) => {
 		try {
@@ -97,11 +119,10 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			let new{{object.name | pascalCase}} = await {{object.name | pascalCase}}Model.create{{object.name | pascalCase}}({{object.name | camelCase}});
 			if (new{{object.name | pascalCase}}.id === undefined)
 				throw new Error(`Can't find ID of newly created {{object.name | pascalCase}}`);
-			response.json({ ok: true, {{object.name | camelCase}} : new{{object.name | pascalCase}} });
+			View.sendJsonResult(response, { {{object.name | camelCase}} : new{{object.name | pascalCase}} });
 		}
 		catch (error) {
-			const errorMessage = (error.message !== undefined) ? error.message : error;
-			response.json({ ok : false, error: errorMessage  });
+			View.sendJsonError(response, error);
 		}
 	});
 
@@ -113,11 +134,10 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			let edited{{object.name | pascalCase}} = await {{object.name | pascalCase}}Model.edit{{object.name | pascalCase}}({{object.name | camelCase}})
 			if (edited{{object.name|pascalCase}}.id !== {{object.name|camelCase}}.id)
 				throw new Error(`Edited {{object.name | pascalCase}} ID does not match`)
-			response.json({ ok: true, {{object.name|camelCase}} : edited{{object.name|pascalCase}} })
+			View.sendJsonResult(response, { {{object.name|camelCase}} : edited{{object.name|pascalCase}} })
 		}
 		catch (error) {
-			const errorMessage = (error.message !== undefined) ? error.message : error
-			response.json({ ok : false, error: errorMessage  })
+			View.sendJsonError(response, error);
 		}
 	});
 
@@ -149,7 +169,7 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 				throw new Error('Unauthorized access');
 			{%- endif %}
 			const success = await {{object.name | pascalCase}}Model.deleteById({{object.name | camelCase}}Id, recursive);
-			View.sendJsonResult(response, {success} );
+			View.sendJsonResult(response, {success});
 		}
 		catch (error) {
 			View.sendJsonError(response, error);
