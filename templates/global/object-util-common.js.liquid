@@ -183,8 +183,6 @@ const controlObject = (objDef, object, fullCheck = false, controlId = true, i18n
 	if (typeof(object) != 'object')
 		throw new Error('object argument is not an object')
 
-	if (typeof(fullCheck) != 'boolean')
-		throw new Error('fullCheck argument is not an boolean')
 	if (typeof(controlId) != 'boolean')
 		throw new Error('controlId argument is not an boolean')
 	if (typeof(fullCheck) != 'boolean')
@@ -384,10 +382,10 @@ const convertObjectToDb = (objDef, object) => {
 
 	const dbRecord = {}
 	for (const [propName, propDef] of Object.entries(objDef)) {
-		const fieldName = propDef.field ? propDef.field : propName
 		let propValue = object[propName]
 		if (propValue === undefined)
-			throw new Error(`Property [${propName}] it not defined in object`)
+			continue
+		const fieldName = propDef.field ? propDef.field : propName
 		dbRecord[fieldName] = propValue
 	}
 	return dbRecord
