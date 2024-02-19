@@ -153,7 +153,8 @@ const controlObjectProperty = (objDef, propName, propValue, i18n_t = null) => {
  * @function
  * @param {Object} objDef - object containing definition of each properties of the object.
  * @param {Object} object - object to control.
- * @param {boolean} controlId - indicate if object ID property should be controlled or not
+ * @param {boolean fullCheck - indicates if all properties must be present or not.
+ * @param {boolean} controlId - indicates if object ID property should be controlled or not
  *                  (useful for a newly created object for which the ID is not yet valued).
  * @param {function} - I18next function called to translate the error message ID into a translated string
  *                  (if this function is null the error string ID will be return).
@@ -167,13 +168,12 @@ const controlObjectProperty = (objDef, propName, propValue, i18n_t = null) => {
  *		lastname = 'Do',
  *		// ...
  *	}
- *	const errorMessage = objectUtil.controlObject(userDef, myUser, true, t)
+ *	const errorMessage = objectUtil.controlObject(userDef, myUser, true, true, t)
  *	if (errorMessage)
  *		throw new Error(errorMessage)
  *
  */
-const controlObject = (objDef, object, controlId = true, i18n_t = null) => {
-	if (i18n_t === null) i18n_t = rawError
+const controlObject = (objDef, object, fullCheck = false, controlId = true, i18n_t = null) => {
 	if (objDef === undefined)
 		throw new Error('objDef argument is missing')
 	if (typeof(objDef) != 'object')
@@ -183,15 +183,29 @@ const controlObject = (objDef, object, controlId = true, i18n_t = null) => {
 	if (typeof(object) != 'object')
 		throw new Error('object argument is not an object')
 
+	if (typeof(fullCheck) != 'boolean')
+		throw new Error('fullCheck argument is not an boolean')
+	if (typeof(controlId) != 'boolean')
+		throw new Error('controlId argument is not an boolean')
+	if (typeof(fullCheck) != 'boolean')
+		throw new Error('fullCheck argument is not an boolean')
+
+	if (i18n_t === null) i18n_t = rawError
+	if (typeof(i18n_t) != 'function')
+		throw new Error('i18n_t argument is not an function')
+
 	for (const [propName, propDef] of Object.entries(objDef)) {
 		if (propDef.type === 'id' && controlId === false)
 			continue
-		const error = controlObjectProperty (objDef, propName, object[propName], i18n_t)
-		if (error)
-			return error
+		if (fullCheck || object[propName] !== undefined) {
+			const error = controlObjectProperty (objDef, propName, object[propName], i18n_t)
+			if (error)
+				return error
+		}
 	}
 	return false // no error
 }
+
 
 /**
  * Create an object containing object properties according to the object definition passed as argument.
