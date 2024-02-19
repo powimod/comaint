@@ -348,6 +348,37 @@ const convertObjectFromDb = (objDef, dbRecord) => {
 }
 {%- endif %}
 
+{%- if backend_functions %}
+/**
+ * Returns an DB record object corresponding to the object argument according with the object definition passed as parameter.
+ * Only properties included in object definition will be transfered from object to DB record.
+ * It converts Object properties to DB field names.
+ * @function
+ * @param {Object} objDef - object containing definition of each properties of the object.
+ * @param {Object} object - object to convert into a DB record 
+ */
+const convertObjectToDb = (objDef, object) => {
+	if (objDef === undefined)
+		throw new Error('objDef argument is missing')
+	if (typeof(objDef) != 'object')
+		throw new Error('objDef argument is not an object')
+
+	if (object === undefined)
+		throw new Error('object argument is missing')
+	if (typeof(object) != 'object')
+		throw new Error('object argument is not an object')
+
+	const dbRecord = {}
+	for (const [propName, propDef] of Object.entries(objDef)) {
+		const fieldName = propDef.field ? propDef.field : propName
+		let propValue = object[propName]
+		if (propValue === undefined)
+			throw new Error(`Property [${propName}] it not defined in object`)
+		dbRecord[fieldName] = propValue
+	}
+	return dbRecord
+}
+{%- endif %}
 
 {%- if backend_functions %}
 /**
