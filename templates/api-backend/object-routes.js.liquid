@@ -21,6 +21,17 @@
      endif
    endif
 %}
+{% liquid
+assign hasSecret = false
+for property in object.properties
+	if property.type.name == 'id' 
+		assign idProperty = property.name
+	endif
+	if property.secret == true
+		assign hasSecret = true
+	endif
+endfor
+%}
 'use script';
 const assert = require('assert');
 const {withAuth} = require('./auth-routes');
@@ -54,8 +65,18 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 				resultsPerPage : resultsPerPage,
 				offset : offset
 			};
-			const list = await {{object.name | pascalCase}}Model.getList(filters, params);
-			View.sendJsonResult(response, { {{object.name | camelCase}}List: list } );
+			const {{object.name|camelCase}}List = await {{object.name | pascalCase}}Model.find{{object.name|pascalCase}}List(filters, params);
+			{%- if hasSecret %}
+			for (const {{object.name|camelCase}} of {{object.name|camelCase}}List) {
+				{%- for property in object.properties %}
+				{%- if property.secret %}
+				// remove secret property [{{property.name}}]
+				delete {{object.name|camelCase}}['{{property.name}}']
+				{%- endif %}
+				{%- endfor  %}
+			}
+			{%- endif %}
+			View.sendJsonResult(response, { {{object.name | camelCase}}List });
 		}
 		catch (error) {
 			View.sendJsonError(response, error);
@@ -82,26 +103,59 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			if (request.{{root_object | camelCase}}Id !== {{object.name | camelCase}}.{{root_property}})
 				throw new Error('Unauthorized access');
 			{%- endif %}
-			View.sendJsonResult(response, { {{object.name | camelCase}}: {{object.name | camelCase}}} );
+			{%- for property in object.properties %}
+			{%- if property.secret %}
+			// remove secret property [{{property.name}}]
+			delete user['{{property.name}}']
+			{%- endif %}
+			{%- endfor %}
+			View.sendJsonResult(response, { {{object.name | camelCase}} });
 		}
 		catch (error) {
 			View.sendJsonError(response, error);
 		}
 	});
 
+
+	app.get('/api/{{project.attributes.api_version}}/{{object.name | kebabCase}}/:{{object.name | camelCase}}Id/children-count', withAuth, async (request, response) => {
+		let {{object.name|camelCase}}Id = request.params.{{object.name|camelCase}}Id;
+		assert ({{object.name|camelCase}}Id !== undefined);
+		if (isNaN({{object.name|camelCase}}Id)) {
+			View.sendJsonError(response, `Offer ID <${ {{object.name|camelCase}}Id}> is not a number`);
+			return;
+		}
+		{{object.name|camelCase}}Id = parseInt({{object.name|camelCase}}Id);
+		try {
+			const childrenCountList = await OfferModel.getChildrenCountList({{object.name|camelCase}}Id);
+			if (childrenCountList === null)
+				throw new Error(`Offer ID <${ {{object.name|camelCase}}Id }> not found`);
+			View.sendJsonResult(response, { childrenCountList } );
+		}
+		catch (error) {
+			View.sendJsonError(response, error);
+		}
+	})
+
+
+
 	app.post('/api/{{project.attributes.api_version}}/{{object.name | snakeCase}}/create', withAuth, async (request, response) => {
 		try {
 			const {{object.name | camelCase}} = request.body.{{object.name | camelCase}};
 			if ({{object.name | camelCase}} === undefined)
 				throw new Error(`Can't find <{{object.name | camelCase}}> object in request body`);
-			let new{{object.name | pascalCase}} = await {{object.name | pascalCase}}Model.create{{object.name | pascalCase}}({{object.name | camelCase}});
+			let new{{object.name | pascalCase}} = await {{object.name | pascalCase}}Model.create{{object.name | pascalCase}}({{object.name | camelCase}}, request.t);
 			if (new{{object.name | pascalCase}}.id === undefined)
 				throw new Error(`Can't find ID of newly created {{object.name | pascalCase}}`);
-			response.json({ ok: true, {{object.name | camelCase}} : new{{object.name | pascalCase}} });
+			{%- for property in object.properties %}
+			{%- if property.secret %}
+			// remove secret property [{{property.name}}]
+			delete newUser['{{property.name}}']
+			{%- endif %}
+			{%- endfor %}
+			View.sendJsonResult(response, { {{object.name | camelCase}} : new{{object.name | pascalCase}} });
 		}
 		catch (error) {
-			const errorMessage = (error.message !== undefined) ? error.message : error;
-			response.json({ ok : false, error: errorMessage  });
+			View.sendJsonError(response, error);
 		}
 	});
 
@@ -110,14 +164,19 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			const {{object.name | camelCase}} = request.body.{{object.name | camelCase}}
 			if ({{object.name | camelCase}} === undefined)
 				throw new Error(`Can't find <{{object.name | camelCase}}> object in request body`)
-			let edited{{object.name | pascalCase}} = await {{object.name | pascalCase}}Model.edit{{object.name | pascalCase}}({{object.name | camelCase}})
+			let edited{{object.name | pascalCase}} = await {{object.name | pascalCase}}Model.edit{{object.name | pascalCase}}({{object.name | camelCase}}, request.t)
 			if (edited{{object.name|pascalCase}}.id !== {{object.name|camelCase}}.id)
 				throw new Error(`Edited {{object.name | pascalCase}} ID does not match`)
-			response.json({ ok: true, {{object.name|camelCase}} : edited{{object.name|pascalCase}} })
+			{%- for property in object.properties %}
+			{%- if property.secret %}
+			// remove secret property [{{property.name}}]
+			delete editedUser['{{property.name}}']
+			{%- endif %}
+			{%- endfor %}
+			View.sendJsonResult(response, { {{object.name|camelCase}} : edited{{object.name|pascalCase}} })
 		}
 		catch (error) {
-			const errorMessage = (error.message !== undefined) ? error.message : error
-			response.json({ ok : false, error: errorMessage  })
+			View.sendJsonError(response, error);
 		}
 	});
 
@@ -149,7 +208,7 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 				throw new Error('Unauthorized access');
 			{%- endif %}
 			const success = await {{object.name | pascalCase}}Model.deleteById({{object.name | camelCase}}Id, recursive);
-			View.sendJsonResult(response, {success} );
+			View.sendJsonResult(response, {success});
 		}
 		catch (error) {
 			View.sendJsonError(response, error);

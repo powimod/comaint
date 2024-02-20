@@ -78,6 +78,7 @@ objects:
         maximum: 64
       - name: "description"
         type: "text"
+        minimum: 1
         maximum: 256
       - name: "active"
         type: "boolean"
@@ -210,8 +211,8 @@ objects:
       - name : "validationCode"
         type: "integer"
         mandatory: false
-        default: 10000
-        minimum: 10000
+        default: 0
+        minimum: 0 
         maximum: 99999
       - name: "phone"
         type: "string"
@@ -1114,13 +1115,18 @@ files:
     input:  "templates/api-backend/util.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/src/util.js"
 
-  - scope:  "object"
-    input:  "templates/global/object-helper.cjs.liquid"
-    output: "output/{{project.attributes.backend_project_dir}}/src/objects/{{object.name | kebabCase }}-object-helper.cjs"
+# Object-helper template is obsolete : replaced with object-def and object-util templates
+#  - scope:  "object"
+#    input:  "templates/global/object-helper.cjs.liquid"
+#    output: "output/{{project.attributes.backend_project_dir}}/src/objects/{{object.name | kebabCase }}-object-helper.cjs"
 
   - scope:  "object"
     input:  "templates/global/object-def.cjs.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/src/objects/{{object.name | kebabCase }}-object-def.cjs"
+
+  - scope:  "project"
+    input:  "templates/global/object-util.cjs.liquid"
+    output: "output/{{project.attributes.backend_project_dir}}/src/objects/object-util.cjs"
 
   - scope:  "project"
     input:  "templates/api-backend/test/selftest-config.json.sample.liquid"
@@ -1146,9 +1152,10 @@ files:
     input:  "templates/api-backend/test/test-03-login.js.liquid"
     output: "output/{{project.attributes.backend_project_dir}}/test/test-03-login.js"
 
-  - scope:  "project"
-    input:  "templates/api-backend/test/test-04-object-helper.js.liquid"
-    output: "output/{{project.attributes.backend_project_dir}}/test/test-04-object-helper.js"
+# Object-helper template is obsolete : replaced with object-def and object-util templates
+#  - scope:  "project"
+#    input:  "templates/api-backend/test/test-04-object-helper.js.liquid"
+#    output: "output/{{project.attributes.backend_project_dir}}/test/test-04-object-helper.js"
 
   - scope:  "project"
     input:  "templates/api-backend/test/test-05-object-edit.js.liquid"
@@ -1188,13 +1195,18 @@ files:
     input:  "templates/api-lib/object-api.js.liquid"
     output: "output/{{project.attributes.api_lib_project_dir}}/src/{{object.name | kebabCase}}-api.js"
 
-  - scope:  "object"
-    input:  "templates/global/object-helper.mjs.liquid"
-    output: "output/{{project.attributes.api_lib_project_dir}}/src/objects/{{object.name | kebabCase}}-object-helper.mjs"
+# Object-helper template is obsolete : replaced with object-def and object-util templates
+#  - scope:  "object"
+#    input:  "templates/global/object-helper.mjs.liquid"
+#    output: "output/{{project.attributes.api_lib_project_dir}}/src/objects/{{object.name | kebabCase}}-object-helper.mjs"
 
   - scope:  "object"
     input:  "templates/global/object-def.mjs.liquid"
     output: "output/{{project.attributes.api_lib_project_dir}}/src/objects/{{object.name | kebabCase}}-object-def.mjs"
+
+  - scope:  "project"
+    input:  "templates/global/object-util.mjs.liquid"
+    output: "output/{{project.attributes.api_lib_project_dir}}/src/objects/object-util.mjs"
 
     ########################### Multi Page frontend
       # MPA is disabled since API was rewrited from CommonJS to ECMA Script

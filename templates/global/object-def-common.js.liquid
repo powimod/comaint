@@ -1,8 +1,13 @@
 {% # common part of MJS and CJS object definition %}
 const {{object.name|camelCase}}ObjectDef = {
 {%- for property in object.properties %} 
-	"{{property.name|camelCase}}" : {
+	{%- assign camelCaseName = property.name|camelCase %}
+	{%- assign snakeCaseName = property.name|snakeCase %}
+	"{{camelCaseName}}" : {
 		"type": "{{ property.type.name }}",
+		{%- if camelCaseName  != snakeCaseName %}
+		"field": "{{ snakeCaseName }}",
+		{%- endif %}
 		{%- if property.minimum != nil  %}
 		"minimum": "{{ property.minimum }}",
 		{%- endif %}
@@ -18,6 +23,14 @@ const {{object.name|camelCase}}ObjectDef = {
 		{%- if property.secret == true %}
 		"secret": "{{ property.secret }}",
 		{%- endif %}
+	},
+{%- endfor %}
+{%- for link in object.links %} 
+	"{{link.name|camelCase}}Id" : {
+		"type": "link",
+		"target" : "{{link.target.name}}",
+		"field" : "id_{{link.name|snakeCase}}",
+		"table" : "{{link.target.attributes.table_name}}"
 	},
 {%- endfor %}
 }
