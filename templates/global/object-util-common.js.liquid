@@ -123,7 +123,7 @@ const controlObjectProperty = (objDef, propName, propValue, i18n_t = null) => {
 				return i18n_t('error.prop.is_too_short', {property: propName, size: propDef.minimum})
 			if (propDef.maximum && propValue.length > propDef.maximum )
 				return i18n_t('error.prop.is_too_long',  {property: propName, size: propDef.maximum})
-			if (value.match(/\S+@\S+\.\S+/) === null)
+			if (propValue.match(/\S+@\S+\.\S+/) === null)
 				return i18n_t('error.prop.is_malformed_email', {property: 'email'})
 			return false // no error
 

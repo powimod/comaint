@@ -64,7 +64,7 @@ class {{object.name | pascalCase }}Model {
 		return idList;
 	}
 
-	static async find{{object.name|pascalCase}}Count(filters) {
+	static async find{{object.name|pascalCase}}Count(filters = []) {
 		assert(filters !== undefined);
 		assert(this.#model !== null);
 		const db = this.#model.db;
@@ -74,14 +74,14 @@ class {{object.name | pascalCase }}Model {
 			'WHERE ' + fieldNames.map(f => `${f} = ?`).join(' AND ')
 
 		let sql = `SELECT COUNT(id) as counter FROM {{object.attributes.table_name}} ${whereClause}`
-		const result = await db.query(sql, sqlValues)
+		const result = await db.query(sql, fieldValues)
 		if (result.code)
 			throw new Error(result.code)
 		return result[0].counter;
 	}
 
 
-	static async get{{object.name | pascalCase }}List(filters, params) {
+	static async find{{object.name | pascalCase }}List(filters, params) {
 		assert(filters !== undefined);
 		assert(params !== undefined);
 		assert(this.#model !== null);
@@ -97,7 +97,7 @@ class {{object.name | pascalCase }}Model {
 		else
 			resultsPerPage = parseInt(resultsPerPage);
 		if (resultsPerPage < 1) resultsPerPage = 1;
-		sqlValues.push(resultsPerPage);
+		fieldValues.push(resultsPerPage);
 
 		let offset = params.offset; 
 		if (offset=== undefined || isNaN(resultsPerPage)) 
@@ -105,13 +105,12 @@ class {{object.name | pascalCase }}Model {
 		else
 			offset = parseInt(offset);
 		if (offset < 0) offset = 0;
-		sqlValues.push(offset);
+		fieldValues.push(offset);
 
 		let sql = `SELECT * FROM {{object.attributes.table_name }} ${whereClause} LIMIT ? OFFSET ?`;
 		// TODO select with column names and not jocker
-		// TODO order by
 
-		const result = await db.query(sql, sqlValues);
+		const result = await db.query(sql, fieldValues);
 		if (result.code) 
 			throw new Error(result.code);
 		const {{object.name | camelCase }}List = [];
@@ -121,15 +120,15 @@ class {{object.name | pascalCase }}Model {
 	}
 
 	{% if idProperty != null -%}
-	static async get{{object.name | pascalCase }}By{{idProperty | pascalCase}}({{idProperty | camelCase}}{{object.name | pascalCase }}) {
+	static async get{{object.name | pascalCase }}By{{idProperty | pascalCase}}({{object.name | camelCase }}{{idProperty | pascalCase}}) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
-		if ({{idProperty | camelCase}}{{object.name | pascalCase }} === undefined)
-			throw new Error('Argument <{{idProperty | camelCase}}{{object.name | pascalCase }}> required');
-		if (isNaN({{idProperty | camelCase}}{{object.name | pascalCase }}) === undefined)
-			throw new Error('Argument <{{idProperty | camelCase}}{{object.name | pascalCase }}> is not a number');
+		if ({{object.name | camelCase }}{{idProperty | pascalCase}} === undefined)
+			throw new Error('Argument <{{object.name | camelCase }}{{idProperty | pascalCase}}> required');
+		if (isNaN({{object.name | camelCase }}{{idProperty | pascalCase}}) === undefined)
+			throw new Error('Argument <{{object.name | camelCase }}{{idProperty | pascalCase}}> is not a number');
 		let sql = `SELECT * FROM {{object.attributes.table_name}} WHERE {{idProperty | camelCase}} = ?`;
-		const result = await db.query(sql, [{{idProperty | camelCase}}{{object.name | pascalCase }}]);
+		const result = await db.query(sql, [{{object.name | camelCase }}{{idProperty | pascalCase}}]);
 		if (result.code) 
 			throw new Error(result.code);
 		if (result.length === 0) 
@@ -139,11 +138,68 @@ class {{object.name | pascalCase }}Model {
 	}
 	{%- endif %}
 
+	{%- for index in object.indexes %}
+	{%- if index.keys.length > 1 %}
+		{%- continue %}
+	{%- endif %}
+	{%- assign key = index.keys[0] %}
+	{%- if key.type != 'property' %}
+		{%- continue %}
+	{%- endif %}
+	{% assign index_property = key.reference %}
+	static async get{{object.name | pascalCase }}By{{index_property.name | pascalCase}}({{index_property.name | camelCase}}) {
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		if ({{index_property.name | camelCase}} === undefined)
+			throw new Error('Argument <{{index_property.name | camelCase}}> required');
+		let sql = `SELECT * FROM {{object.attributes.table_name}} WHERE {{index_property.name | camelCase}} = ?`;
+		const result = await db.query(sql, [{{index_property.name | camelCase}}]);
+		if (result.code) 
+			throw new Error(result.code);
+		if (result.length === 0) 
+			return null;
+		const {{object.name | camelCase}} = objectUtils.convertObjectFromDb({{object.name|camelCase}}ObjectDef, result[0], /*filter=*/false)
+		return {{object.name | camelCase}};
+	}
+	{%- endfor %}
+	
+
+
+	static async getChildrenCountList({{object.name|camelCase}}Id) {
+		if ({{object.name|camelCase}}Id === undefined)
+			throw new Error('Argument <{{object.name|camelCase}}Id> required');
+		if (isNaN({{object.name|camelCase}}Id) === undefined)
+			throw new Error('Argument <{{object.name|camelCase}}Id> is not a number');
+		assert(this.#model !== null);
+		const db = this.#model.db;
+		let sql, result;
+		const childrenCounterList = {}
+
+		{% for link in object.reverseLinks %}
+		{%- assign child_object = link.source %}
+		{%- assign child_table_name = child_object.attributes.table_name %}
+		sql = `
+			SELECT COUNT(id) AS counter 
+			FROM {{child_table_name}}
+			WHERE id_{{object.name|snakeCase}} = ?
+			`
+		result = await db.query(sql, [ {{object.name|camelCase}}Id ]);
+		if (result.code) 
+			throw new Error(result.code);
+		if (result.length === 0) 
+			return null;
+		childrenCounterList['{{child_object.name}}'] = result[0].counter
+		{%- endfor %}
+
+		return childrenCounterList;
+	}
+
+
 	static async create{{object.name | pascalCase }}({{object.name | camelCase }}, i18n_t = null) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
 
-		const error = {{object.name|camelCase}}ObjectHelper.controlObject{{object.name|pascalCase}}({{object.name | camelCase }}, /*fullCheck=*/true, /*checkId=*/false, i18n_t)
+		const error = objectUtils.controlObject({{object.name|camelCase}}ObjectDef, {{object.name | camelCase }}, /*fullCheck=*/true, /*checkId=*/false, i18n_t)
 		if ( error)
 			throw new Error(error)
 
@@ -161,7 +217,7 @@ class {{object.name | pascalCase }}Model {
 {%- endif %}
 {%- endfor  %}
 
-		const {{object.name|camelCase}}Db = {{object.name|camelCase}}ObjectHelper.convert{{object.name|pascalCase}}ToDb({{object.name|camelCase}})
+		const {{object.name|camelCase}}Db = objectUtils.convertObjectToDb({{object.name|camelCase}}ObjectDef, {{object.name|camelCase}})
 
 		const fieldNames = []
 		const markArray = []
@@ -191,7 +247,7 @@ class {{object.name | pascalCase }}Model {
 		assert(this.#model !== null)
 		const db = this.#model.db
 
-		const error = {{object.name|camelCase}}ObjectHelper.controlObject{{object.name|pascalCase}}({{object.name | camelCase }}, /*fullCheck=*/false, /*checkId=*/true, i18n_t)
+		const error = objectUtils.controlObject({{object.name|camelCase}}ObjectDef, {{object.name | camelCase }}, /*fullCheck=*/false, /*checkId=*/false, i18n_t)
 		if ( error)
 			throw new Error(error)
 
@@ -199,7 +255,7 @@ class {{object.name | pascalCase }}Model {
 		await this.encryptPasswordIfPresent(user)
 {%- endif %}
 
-		const {{object.name|camelCase}}Db = {{object.name|camelCase}}ObjectHelper.convert{{object.name|pascalCase}}ToDb({{object.name|camelCase}})
+		const {{object.name|camelCase}}Db = objectUtils.convertObjectToDb({{object.name|camelCase}}ObjectDef, {{object.name|camelCase}})
 		const fieldNames = []
 		const sqlParams = []
 		for (let [propName, propValue] of Object.entries({{object.name|camelCase}}Db)) {
@@ -224,7 +280,7 @@ class {{object.name | pascalCase }}Model {
 		return {{object.name|camelCase}};
 	}
 
-	{% if idProperty != null -%}
+	{% if idProperty != null %}
 	static async deleteById({{object.name|camelCase}}{{idProperty|pascalCase}}, recursive = false) {
 		assert(this.#model !== null);
 		const db = this.#model.db;
@@ -246,7 +302,7 @@ class {{object.name | pascalCase }}Model {
 	}
 	{%- endif %}
 
-	{%- for link in object.reverseLinks %}
+	{% for link in object.reverseLinks %}
 	static async get{{link.source.name|pascalCase}}Count({{object.name|camelCase}}{{idProperty|pascalCase}}) {
 		assert(this.#model !== null);
 		const db = this.#model.db;

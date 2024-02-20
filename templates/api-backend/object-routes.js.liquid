@@ -21,6 +21,17 @@
      endif
    endif
 %}
+{% liquid
+assign hasSecret = false
+for property in object.properties
+	if property.type.name == 'id' 
+		assign idProperty = property.name
+	endif
+	if property.secret == true
+		assign hasSecret = true
+	endif
+endfor
+%}
 'use script';
 const assert = require('assert');
 const {withAuth} = require('./auth-routes');
@@ -55,6 +66,16 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 				offset : offset
 			};
 			const {{object.name|camelCase}}List = await {{object.name | pascalCase}}Model.find{{object.name|pascalCase}}List(filters, params);
+			{%- if hasSecret %}
+			for (const {{object.name|camelCase}} of {{object.name|camelCase}}List) {
+				{%- for property in object.properties %}
+				{%- if property.secret %}
+				// remove secret property [{{property.name}}]
+				delete {{object.name|camelCase}}['{{property.name}}']
+				{%- endif %}
+				{%- endfor  %}
+			}
+			{%- endif %}
 			View.sendJsonResult(response, { {{object.name | camelCase}}List });
 		}
 		catch (error) {
@@ -82,7 +103,13 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			if (request.{{root_object | camelCase}}Id !== {{object.name | camelCase}}.{{root_property}})
 				throw new Error('Unauthorized access');
 			{%- endif %}
-			View.sendJsonResult(response, { {{object.name | camelCase}}: {{object.name | camelCase}}});
+			{%- for property in object.properties %}
+			{%- if property.secret %}
+			// remove secret property [{{property.name}}]
+			delete user['{{property.name}}']
+			{%- endif %}
+			{%- endfor %}
+			View.sendJsonResult(response, { {{object.name | camelCase}} });
 		}
 		catch (error) {
 			View.sendJsonError(response, error);
@@ -119,6 +146,12 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			let new{{object.name | pascalCase}} = await {{object.name | pascalCase}}Model.create{{object.name | pascalCase}}({{object.name | camelCase}}, request.t);
 			if (new{{object.name | pascalCase}}.id === undefined)
 				throw new Error(`Can't find ID of newly created {{object.name | pascalCase}}`);
+			{%- for property in object.properties %}
+			{%- if property.secret %}
+			// remove secret property [{{property.name}}]
+			delete newUser['{{property.name}}']
+			{%- endif %}
+			{%- endfor %}
 			View.sendJsonResult(response, { {{object.name | camelCase}} : new{{object.name | pascalCase}} });
 		}
 		catch (error) {
@@ -134,6 +167,12 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			let edited{{object.name | pascalCase}} = await {{object.name | pascalCase}}Model.edit{{object.name | pascalCase}}({{object.name | camelCase}}, request.t)
 			if (edited{{object.name|pascalCase}}.id !== {{object.name|camelCase}}.id)
 				throw new Error(`Edited {{object.name | pascalCase}} ID does not match`)
+			{%- for property in object.properties %}
+			{%- if property.secret %}
+			// remove secret property [{{property.name}}]
+			delete editedUser['{{property.name}}']
+			{%- endif %}
+			{%- endfor %}
 			View.sendJsonResult(response, { {{object.name|camelCase}} : edited{{object.name|pascalCase}} })
 		}
 		catch (error) {
