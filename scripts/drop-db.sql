@@ -36,9 +36,6 @@ DROP TABLE IF EXISTS tokens;
 
 DROP TABLE IF EXISTS offers;
 
-DELETE FROM companies;
-DELETE FROM users;
-
 ALTER TABLE companies DROP CONSTRAINT fk_companies_manager;
 ALTER TABLE users DROP CONSTRAINT fk_users_company;
 

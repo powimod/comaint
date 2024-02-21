@@ -603,7 +603,7 @@ ALTER TABLE subscriptions ADD CONSTRAINT fk_subscriptions_company
 	ON DELETE CASCADE;
 ALTER TABLE companies ADD CONSTRAINT fk_companies_manager
 	FOREIGN KEY (id_manager)
-	REFERENCES companies(id)
+	REFERENCES users(id)
 	ON DELETE CASCADE;
 ALTER TABLE users ADD CONSTRAINT fk_users_company
 	FOREIGN KEY (id_company)
