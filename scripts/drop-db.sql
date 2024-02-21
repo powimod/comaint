@@ -30,9 +30,14 @@ DROP TABLE IF EXISTS equipment_families;
 DROP TABLE IF EXISTS sections;
 DROP TABLE IF EXISTS units;
 
-DROP TABLE IF EXISTS tokens;
-DROP TABLE IF EXISTS users;
-
 DROP TABLE IF EXISTS subscriptions;
-DROP TABLE IF EXISTS companies;
+
+DROP TABLE IF EXISTS tokens;
+
 DROP TABLE IF EXISTS offers;
+
+ALTER TABLE companies DROP CONSTRAINT fk_companies_manager;
+ALTER TABLE users DROP CONSTRAINT fk_users_company;
+
+DROP TABLE IF EXISTS companies;
+DROP TABLE IF EXISTS users;
