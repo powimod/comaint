@@ -176,7 +176,7 @@ objects:
         type: "image"
     links:
       - name: "manager"
-        target: "Company"
+        target: "User"
         mandatory: false
     indexes:
       - name: "name"
