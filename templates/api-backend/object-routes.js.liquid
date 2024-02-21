@@ -52,6 +52,7 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 		{%- endfor %}
 		assert(request.{{root_object|camelCase}}Id !== undefined);
 		try {
+			{%- if root_property != '' %}
 			if (filters.{{root_object|camelCase}}Id === undefined) {
 				filters.{{root_object|camelCase}}Id = request.{{root_object|camelCase}}Id;
 			}
@@ -59,6 +60,7 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 				if (filters.{{root_object|camelCase}}Id !== request.{{root_object|camelCase}}Id)
 					throw new Error('Unauthorized access');
 			}
+			{%- endif %}
 			let resultsPerPage = request.query.resultsPerPage;
 			let offset = request.query.offset;
 			const params = {
@@ -96,13 +98,15 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			const {{object.name | camelCase}} = await {{object.name | pascalCase}}Model.get{{object.name | pascalCase}}ById({{object.name | camelCase}}Id);
 			if ({{object.name | camelCase}} === null)
 				throw new Error(`{{object.name | pascalCase}} ID <${ {{object.name | camelCase}}Id }> not found`);
-			{% if root_property == '' -%}
+
+			{%- if root_property == '' %}
 			// No root property to control
 			{%- else -%}
 			// control root property 
 			if (request.{{root_object | camelCase}}Id !== {{object.name | camelCase}}.{{root_property}})
 				throw new Error('Unauthorized access');
 			{%- endif %}
+
 			{%- for property in object.properties %}
 			{%- if property.secret %}
 			// remove secret property [{{property.name}}]
@@ -143,9 +147,24 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			const {{object.name | camelCase}} = request.body.{{object.name | camelCase}};
 			if ({{object.name | camelCase}} === undefined)
 				throw new Error(`Can't find <{{object.name | camelCase}}> object in request body`);
+
+			{%- if root_property == '' %}
+			// No root property to control
+			{%- else %}
+			// control root property 
+			if ({{object.name|camelCase}}.{{root_object|camelCase}}Id === undefined) {
+				{{object.name|camelCase}}.{{root_object|camelCase}}Id = request.{{root_object|camelCase}}Id;
+			}
+			else {
+				if ({{object.name|camelCase}}.{{root_object|camelCase}}Id !== request.{{root_object|camelCase}}Id)
+					throw new Error('Unauthorized access');
+			}
+			{%- endif %}
+
 			let new{{object.name | pascalCase}} = await {{object.name | pascalCase}}Model.create{{object.name | pascalCase}}({{object.name | camelCase}}, request.t);
 			if (new{{object.name | pascalCase}}.id === undefined)
 				throw new Error(`Can't find ID of newly created {{object.name | pascalCase}}`);
+
 			{%- for property in object.properties %}
 			{%- if property.secret %}
 			// remove secret property [{{property.name}}]
@@ -164,6 +183,20 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			const {{object.name | camelCase}} = request.body.{{object.name | camelCase}}
 			if ({{object.name | camelCase}} === undefined)
 				throw new Error(`Can't find <{{object.name | camelCase}}> object in request body`)
+
+			{%- if root_property == '' %}
+			// No root property to control
+			{%- else -%}
+			// control root property 
+			if ({{object.name|camelCase}}.{{root_object|camelCase}}Id === undefined) {
+				{{object.name|camelCase}}.{{root_object|camelCase}}Id = request.{{root_object|camelCase}}Id;
+			}
+			else {
+				if ({{object.name|camelCase}}.{{root_object|camelCase}}Id !== request.{{root_object|camelCase}}Id)
+					throw new Error('Unauthorized access');
+			}
+			{%- endif %}
+
 			let edited{{object.name | pascalCase}} = await {{object.name | pascalCase}}Model.edit{{object.name | pascalCase}}({{object.name | camelCase}}, request.t)
 			if (edited{{object.name|pascalCase}}.id !== {{object.name|camelCase}}.id)
 				throw new Error(`Edited {{object.name | pascalCase}} ID does not match`)
@@ -200,13 +233,15 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 			const {{object.name | camelCase}} = await {{object.name | pascalCase}}Model.get{{object.name | pascalCase}}ById({{object.name | camelCase}}Id);
 			if ({{object.name | camelCase}} === null)
 				throw new Error(`{{object.name | pascalCase}} ID <${ {{object.name | camelCase}}Id }> not found`);
-			{% if root_property == '' -%}
+
+			{%- if root_property == '' %}
 			// No root property to control
 			{%- else -%}
 			// control root property 
 			if (request.{{root_object | camelCase}}Id !== {{object.name | camelCase}}.{{root_property}})
 				throw new Error('Unauthorized access');
 			{%- endif %}
+
 			const success = await {{object.name | pascalCase}}Model.deleteById({{object.name | camelCase}}Id, recursive);
 			View.sendJsonResult(response, {success});
 		}
