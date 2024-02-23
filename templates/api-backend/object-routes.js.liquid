@@ -175,14 +175,20 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 	});
 
 	app.put('/api/{{project.attributes.api_version}}/{{object.name | kebabCase}}/:{{object.name | camelCase}}Id', withAuth, async (request, response) => {
-		let {{object.name | camelCase}}Id = request.params.{{object.name | camelCase}}Id;
-		assert ({{object.name | camelCase}}Id !== undefined);
-		if (isNaN({{object.name | camelCase}}Id)) {
-			View.sendJsonError(response, `{{object.name | pascalCase}} ID <${ {{object.name | camelCase}}Id}> is not a number`);
-			return;
-		}
-		{{object.name | camelCase}}Id = parseInt({{object.name | camelCase}}Id);
 		try {
+			let {{object.name | camelCase}}Id = request.params.{{object.name | camelCase}}Id;
+			assert ({{object.name | camelCase}}Id !== undefined);
+			if (isNaN({{object.name | camelCase}}Id)) {
+				throw new Error(`{{object.name | pascalCase}} ID <${ {{object.name | camelCase}}Id}> is not a number`);
+			{{object.name | camelCase}}Id = parseInt({{object.name | camelCase}}Id);
+
+			const {{object.name|camelCase}} = request.body.{{object.name|camelCase}}
+			if ({{object.name|camelCase}} === undefined)
+				throw new Error(`Can't find <{{object.name|camelCase}}> object in request body`)
+
+			if ({{object.name|camelCase}}.id !== undefined && {{object.name|camelCase}}.id != {{object.name|camelCase}}Id )
+				throw new Error(`<{{object.name|PascalCase}}> ID does not match`)
+
 			{% if root_property == '' %}
 			// No root property to control
 			{%- else -%}
