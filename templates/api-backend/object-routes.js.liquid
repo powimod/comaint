@@ -178,7 +178,7 @@ module.exports = (app, {{object.name | pascalCase}}Model, View) => {
 		try {
 			let {{object.name | camelCase}}Id = request.params.{{object.name | camelCase}}Id;
 			assert ({{object.name | camelCase}}Id !== undefined);
-			if (isNaN({{object.name | camelCase}}Id)) {
+			if (isNaN({{object.name | camelCase}}Id))
 				throw new Error(`{{object.name | pascalCase}} ID <${ {{object.name | camelCase}}Id}> is not a number`);
 			{{object.name | camelCase}}Id = parseInt({{object.name | camelCase}}Id);
 
