@@ -1,5 +1,5 @@
 {%- assign filename = object.name | kebabCase | append: "-object-def.mjs" -%}
-{%- render "../../templates/license_header_js.liquid",
+{%- render "../common/license_header_js.liquid",
 		project     : project.attributes.spa_frontend_project_name,
   		description : project.attributes.spa_frontend_project_description,
 		authors     : project.attributes.authors,
