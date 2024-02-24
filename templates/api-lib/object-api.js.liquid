@@ -1,5 +1,5 @@
 {%- assign filename = object.name | kebabCase | append: "-api.js" -%}
-{% render "../../templates/license_header_js.liquid",
+{% render "../common/license_header_js.liquid",
 		project     : project.attributes.api_lib_project_name,
   		description : project.attributes.api_lib_project_description,
 		authors     : project.attributes.authors,

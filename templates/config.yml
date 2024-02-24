@@ -1366,41 +1366,49 @@ files:
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/locales/fr/translation.json"
 
   - scope:  "project"
+    mode: "copy"
     input:  "templates/spa-frontend/content/gpl-v3-en.txt"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/content/en/gpl-v3.txt"
 
   - scope:  "project"
+    mode: "copy"
     input:  "templates/spa-frontend/content/gpl-v3-fr.txt"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/content/fr/gpl-v3.txt"
 
   - scope:  "project"
+    mode: "copy"
     input:  "templates/spa-frontend/content/home-fr.txt"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/content/fr/home.txt"
 
   - scope:  "project"
+    mode: "copy"
     input:  "templates/spa-frontend/content/home-en.txt"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/content/en/home.txt"
 
   - scope:  "project"
+    mode: "copy"
     input:  "templates/assets/terms-of-use-fr.txt"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/content/fr/terms-of-use.txt"
 
   - scope:  "project"
+    mode: "copy"
     input:  "templates/assets/terms-of-use-en.txt"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/content/en/terms-of-use.txt"
 
   - scope:  "project"
+    mode: "copy"
     input:  "templates/assets/icon.svg"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/icon.svg"
 
   - scope:  "project"
+    mode: "copy"
     input:  "templates/assets/logo.svg"
     output: "output/{{project.attributes.spa_frontend_project_dir}}/public/logo.svg"
 
-      # TODO raw copy of file
-      #  - scope:  "project"
-      #    input:  "templates/assets/icons.png"
-      #    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/icons.png"
+  - scope:  "project"
+    mode: "copy"
+    input:  "templates/assets/icons.png"
+    output: "output/{{project.attributes.spa_frontend_project_dir}}/public/icons.png"
 
   - scope:  "project"
     input:  "templates/spa-frontend/app.jsx.liquid"
